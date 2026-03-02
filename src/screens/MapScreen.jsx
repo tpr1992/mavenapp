@@ -2,7 +2,9 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import { CATEGORY_EMOJI } from "../constants/categories"
+import "leaflet.markercluster"
+import "leaflet.markercluster/dist/MarkerCluster.css"
+import { CATEGORY_ICON } from "../constants/categories"
 import { isOpenNow, getTodayHours } from "../utils/time"
 import { formatLocation } from "../utils/distance"
 import { TOWNS } from "../data/towns"
@@ -18,12 +20,21 @@ L.Icon.Default.mergeOptions({
     shadowUrl: undefined,
 })
 
-function createPinIcon(maker, isSelected) {
-    const emoji = CATEGORY_EMOJI[maker.category] || "\u2726"
-    const bg = isSelected ? "#1a1a1a" : "#fff"
-    const color = isSelected ? "#fff" : "#1a1a1a"
-    const border = isSelected ? "none" : "1px solid #e0ddd6"
-    const shadow = isSelected ? "0 4px 12px rgba(0,0,0,0.25)" : "0 2px 8px rgba(0,0,0,0.12)"
+function createPinIcon(maker, isSelected, isDark) {
+    const icon = CATEGORY_ICON[maker.category] || ""
+
+    let bg, color, border, shadow
+    if (isSelected) {
+        bg = isDark ? "#e8e6e3" : "#1a1a1a"
+        color = isDark ? "#1a1a1a" : "#fff"
+        border = "none"
+        shadow = "0 4px 12px rgba(0,0,0,0.35)"
+    } else {
+        bg = isDark ? "#2a2a2a" : "#fff"
+        color = isDark ? "#e8e6e3" : "#1a1a1a"
+        border = isDark ? "1.5px solid #555" : "1.5px solid #c5c0b8"
+        shadow = isDark ? "0 2px 8px rgba(0,0,0,0.5)" : "0 2px 8px rgba(0,0,0,0.18)"
+    }
     const scale = isSelected ? "scale(1.1)" : "scale(1)"
 
     const html = `
@@ -49,7 +60,7 @@ function createPinIcon(maker, isSelected) {
         gap: 4px;
         border: ${border};
       ">
-        <span>${emoji}</span>
+        <span style="display:inline-flex;align-items:center">${icon}</span>
         ${maker.name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
       </div>
       <div style="
@@ -86,7 +97,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
 
     const mapContainerRef = useRef(null)
     const mapInstanceRef = useRef(null)
-    const markersRef = useRef([])
+    const clusterGroupRef = useRef(null)
     const tileLayerRef = useRef(null)
 
     const townSuggestions = useMemo(() => {
@@ -135,7 +146,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
 
         const tileUrl = isDark
             ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
 
         tileLayerRef.current = L.tileLayer(tileUrl, {
             attribution:
@@ -160,36 +171,60 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
         if (!mapInstanceRef.current || !tileLayerRef.current) return
         const tileUrl = isDark
             ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         tileLayerRef.current.setUrl(tileUrl)
     }, [isDark])
 
-    // Sync markers with filtered makers
+    // Sync markers with filtered makers (clustered)
     useEffect(() => {
         const map = mapInstanceRef.current
         if (!map) return
 
-        // Clear existing markers
-        markersRef.current.forEach((marker) => marker.remove())
-        markersRef.current = []
+        // Remove previous cluster group
+        if (clusterGroupRef.current) {
+            map.removeLayer(clusterGroupRef.current)
+        }
 
-        // Add markers for filtered makers
+        const clusterGroup = L.markerClusterGroup({
+            maxClusterRadius: 45,
+            disableClusteringAtZoom: 16,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            iconCreateFunction: (cluster) => {
+                const count = cluster.getChildCount()
+                const bg = isDark ? "#e8e6e3" : "#1a1a1a"
+                const clusterColor = isDark ? "#1a1a1a" : "#fff"
+                const sz = count >= 10 ? 40 : 34
+                return L.divIcon({
+                    html: `<div style="
+                      width:${sz}px;height:${sz}px;border-radius:50%;
+                      background:${bg};color:${clusterColor};
+                      display:flex;align-items:center;justify-content:center;
+                      font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+                      box-shadow:0 2px 10px rgba(0,0,0,${isDark ? "0.5" : "0.2"});
+                    ">${count}</div>`,
+                    className: "",
+                    iconSize: [sz, sz],
+                    iconAnchor: [sz / 2, sz / 2],
+                })
+            },
+        })
+
         filtered.forEach((maker) => {
             const isSelected = selectedMaker?.id === maker.id
-            const icon = createPinIcon(maker, isSelected)
-
-            const marker = L.marker([maker.lat, maker.lng], { icon }).addTo(map)
-
+            const pinIcon = createPinIcon(maker, isSelected, isDark)
+            const marker = L.marker([maker.lat, maker.lng], { icon: pinIcon })
             marker.on("click", () => {
                 setSelectedMaker(maker)
-                map.flyTo([maker.lat, maker.lng], 15, {
-                    duration: 0.8,
-                })
+                map.flyTo([maker.lat, maker.lng], 15, { duration: 0.8 })
             })
-
-            markersRef.current.push(marker)
+            clusterGroup.addLayer(marker)
         })
-    }, [filtered, selectedMaker])
+
+        map.addLayer(clusterGroup)
+        clusterGroupRef.current = clusterGroup
+    }, [filtered, selectedMaker, isDark])
 
     return (
         <div style={{ height: "100%", position: "relative" }}>
@@ -236,7 +271,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
                             border: `1px solid ${theme.border}`,
                         }}
                     >
-                        <span style={{ fontSize: 16, color: "#999" }}>{"\u2315"}</span>
+                        <span style={{ fontSize: 16, color: theme.textSecondary }}>{"\u2315"}</span>
                         <input
                             placeholder="Search makers or city..."
                             value={searchQuery}
@@ -328,6 +363,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
                     showOpenNow
                     openNowActive={openNow}
                     onToggleOpenNow={() => setOpenNow(!openNow)}
+                    elevated
                 />
             </div>
 
@@ -370,7 +406,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
                                 style={{
                                     fontFamily: "'DM Sans', sans-serif",
                                     fontSize: 12,
-                                    color: theme.textMuted,
+                                    color: theme.textSecondary,
                                     marginTop: 2,
                                 }}
                             >
@@ -395,7 +431,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
                                 alignItems: "center",
                                 justifyContent: "center",
                                 flexShrink: 0,
-                                color: savedIds.has(selectedMaker.id) ? "#c53030" : "#999",
+                                color: savedIds.has(selectedMaker.id) ? "#c53030" : theme.textSecondary,
                             }}
                         >
                             {savedIds.has(selectedMaker.id) ? "\u2665" : "\u2661"}
