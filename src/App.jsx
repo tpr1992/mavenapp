@@ -269,6 +269,7 @@ export default function App() {
                             userLocation={userLocation}
                             setLocation={setLocation}
                             sponsoredPosts={sponsoredPosts}
+                            isHidden={!!selectedMaker}
                             category={discoverCategory}
                             onCategoryChange={setDiscoverCategory}
                             openNow={discoverOpenNow}

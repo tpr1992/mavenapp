@@ -497,6 +497,7 @@ export default function DiscoverScreen({
     userLocation,
     setLocation,
     sponsoredPosts = [],
+    isHidden,
     category,
     onCategoryChange,
     openNow,
@@ -511,6 +512,11 @@ export default function DiscoverScreen({
     // "full" = at the top, "compact" = sticky mini bar, "hidden" = scrolling down
     const [compactBar, setCompactBar] = useState("hidden")
     const [compactSearchOpen, setCompactSearchOpen] = useState(false)
+
+    // Reset compact bar when returning from a maker profile
+    useEffect(() => {
+        if (!isHidden) setCompactBar("hidden")
+    }, [isHidden])
     const [refreshing, setRefreshing] = useState(false)
     const PAGE_SIZE = 20
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -917,6 +923,7 @@ export default function DiscoverScreen({
                                 setSearchQuery("")
                                 setCompactSearchOpen(false)
                                 setSearchOpen(false)
+                                setCompactBar("hidden")
                             }}
                             style={{
                                 fontFamily: "'Playfair Display', serif",
@@ -1260,6 +1267,7 @@ export default function DiscoverScreen({
                                     onScrollToTop()
                                     setSearchQuery("")
                                     setSearchOpen(false)
+                                    setCompactBar("hidden")
                                 }}
                                 style={{
                                     fontFamily: "'Playfair Display', serif",
