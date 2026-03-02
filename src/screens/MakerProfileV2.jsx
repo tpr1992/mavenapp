@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
+import { optimizeImageUrl } from "../utils/image"
 import { CATEGORY_EMOJI } from "../constants/categories"
 import { isOpenNow, getTodayHours, DAYS } from "../utils/time"
 import { formatDistance } from "../utils/distance"
@@ -88,8 +89,11 @@ function HeroSection({ maker, onBack, onLogoTap, onShare, onToggleSave, isSaved,
     >
       {heroImage && (
         <img
-          src={heroImage}
+          src={optimizeImageUrl(heroImage, 600)}
           alt=""
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           style={{
             position: "absolute",
             inset: 0,
@@ -473,7 +477,7 @@ function GalleryTab({ maker, theme, onImageTap }) {
               }}
             >
               <img
-                src={url}
+                src={optimizeImageUrl(url, 300)}
                 alt={`${maker.name} ${i * 2 + 1}`}
                 loading="lazy"
                 decoding="async"
@@ -498,7 +502,7 @@ function GalleryTab({ maker, theme, onImageTap }) {
               }}
             >
               <img
-                src={url}
+                src={optimizeImageUrl(url, 300)}
                 alt={`${maker.name} ${i * 2 + 2}`}
                 loading="lazy"
                 decoding="async"
@@ -583,7 +587,7 @@ function InstagramTab({ maker, theme }) {
               }}
             >
               <img
-                src={url}
+                src={optimizeImageUrl(url, 150)}
                 alt={`${maker.name} instagram ${i + 1}`}
                 loading="lazy"
                 decoding="async"

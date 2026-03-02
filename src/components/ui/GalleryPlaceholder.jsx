@@ -1,3 +1,5 @@
+import { optimizeImageUrl } from "../../utils/image"
+
 const PATTERNS = [
   { emoji: "\u25C6", rotation: 15 },
   { emoji: "\u25CB", rotation: -8 },
@@ -17,12 +19,13 @@ export default function GalleryPlaceholder({ maker, height = 200 }) {
           scrollbarWidth: "none",
           msOverflowStyle: "none",
           overscrollBehavior: "contain",
+          willChange: "scroll-position",
         }}
       >
         {maker.gallery_urls.map((url, i) => (
           <img
             key={i}
-            src={url}
+            src={optimizeImageUrl(url, 200)}
             alt={`${maker.name} gallery ${i + 1}`}
             loading="lazy"
             decoding="async"

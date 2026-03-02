@@ -1,4 +1,5 @@
 import { memo } from "react"
+import { optimizeImageUrl } from "../../utils/image"
 import { CATEGORY_EMOJI } from "../../constants/categories"
 import { isOpenNow } from "../../utils/time"
 import { formatDistance } from "../../utils/distance"
@@ -14,7 +15,7 @@ export default memo(function FeaturedMakerCard({ maker, onTap, showOpenStatus })
         onClick={() => onTap(maker)}
         style={{
           background: maker.gallery_urls?.[0]
-            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${maker.gallery_urls[0]}) center/cover`
+            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], 400)}) center/cover`
             : maker.hero_color,
           borderRadius: 20,
           padding: "28px 24px",

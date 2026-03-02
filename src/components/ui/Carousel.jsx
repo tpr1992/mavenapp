@@ -241,6 +241,7 @@ const Carousel = memo(function Carousel({
           padding,
           overscrollBehavior: "contain",
           height: "100%",
+          willChange: "scroll-position",
         }}
       >
         {loopedItems.map((item, i) => {
