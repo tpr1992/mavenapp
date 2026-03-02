@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /?maker=*
+Allow: /?tab=map
+Disallow: /?tab=saved
+Disallow: /?tab=profile
+
+Sitemap: https://maven.ie/sitemap.xml
