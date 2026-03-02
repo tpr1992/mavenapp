@@ -4,7 +4,6 @@ import { optimizeImageUrl } from "../utils/image"
 import { CATEGORY_EMOJI } from "../constants/categories"
 import { isOpenNow, getTodayHours, formatHoursRange, DAYS } from "../utils/time"
 import { formatDistance } from "../utils/distance"
-import MakerAvatar from "../components/ui/MakerAvatar"
 import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
 import { useTheme } from "../contexts/ThemeContext"
 import { safeOpen } from "../utils/safeOpen"
@@ -1104,7 +1103,7 @@ function ImageModal({ images, initialIndex, onClose, scrollContainerRef }) {
     // Double-tap to zoom, single-tap to close (when not zoomed)
     const lastTapRef = useRef(0)
     const tapTimerRef = useRef(null)
-    const onTap = (e) => {
+    const onTap = (_e) => {
         // Ignore if it was a swipe/pinch
         if (touchRef.current.moved) return
         const now = Date.now()

@@ -75,7 +75,7 @@ function createPinIcon(maker, isSelected) {
     })
 }
 
-export default function MapScreen({ makers = [], makersLoading, onMakerTap, savedIds, onToggleSave, userLocation }) {
+export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleSave, userLocation }) {
     const { isDark, theme } = useTheme()
 
     const [category, setCategory] = useState("All")
@@ -152,6 +152,7 @@ export default function MapScreen({ makers = [], makersLoading, onMakerTap, save
             map.remove()
             mapInstanceRef.current = null
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Switch tile layer when isDark changes

@@ -11,7 +11,6 @@ const CLONES = 3
 const Carousel = memo(function Carousel({
     items,
     renderItem,
-    keyExtractor = (_, i) => i,
     loop = false,
     autoPlay = false,
     transition = TRANSITION_IOS,
