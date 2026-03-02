@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write 'src/**/*.{js,jsx}'",
+    "format:check": "prettier --check 'src/**/*.{js,jsx}'",
+    "prepare": "husky"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
@@ -23,8 +28,22 @@
     }
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.3",
     "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.1",
+    "prettier": "^3.8.1",
     "vite": "^6.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

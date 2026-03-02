@@ -7,13 +7,13 @@ import App from "./App"
 import "./styles/index.css"
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <HelmetProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ThemeProvider>
-    </HelmetProvider>
-  </StrictMode>
+    <StrictMode>
+        <HelmetProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <App />
+                </AuthProvider>
+            </ThemeProvider>
+        </HelmetProvider>
+    </StrictMode>,
 )
