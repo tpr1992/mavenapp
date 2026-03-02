@@ -497,14 +497,11 @@ export default function DiscoverScreen({
     userLocation,
     setLocation,
     sponsoredPosts = [],
+    category,
+    onCategoryChange,
+    openNow,
+    onOpenNowChange,
 }) {
-    const [category, setCategory] = useState(() => {
-        try {
-            const prefs = JSON.parse(localStorage.getItem("maven_preferred_categories") || "[]")
-            if (prefs.length === 1) return prefs[0]
-        } catch {}
-        return "All"
-    })
     const [viewMode, setViewMode] = useState("gallery")
     const [searchOpen, setSearchOpen] = useState(false)
     const [showLocationPicker, setShowLocationPicker] = useState(false)
@@ -514,7 +511,6 @@ export default function DiscoverScreen({
     // "full" = at the top, "compact" = sticky mini bar, "hidden" = scrolling down
     const [compactBar, setCompactBar] = useState("hidden")
     const [compactSearchOpen, setCompactSearchOpen] = useState(false)
-    const [openNow, setOpenNow] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
     const PAGE_SIZE = 20
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -917,7 +913,7 @@ export default function DiscoverScreen({
                         <h2
                             onClick={() => {
                                 onScrollToTop()
-                                setCategory("All")
+                                onCategoryChange("All")
                                 setSearchQuery("")
                                 setCompactSearchOpen(false)
                                 setSearchOpen(false)
@@ -962,7 +958,7 @@ export default function DiscoverScreen({
                             >
                                 <button
                                     aria-pressed={openNow}
-                                    onClick={() => setOpenNow((v) => !v)}
+                                    onClick={() => onOpenNowChange((v) => !v)}
                                     style={{
                                         padding: "5px 12px",
                                         borderRadius: 100,
@@ -983,7 +979,7 @@ export default function DiscoverScreen({
                                     <button
                                         key={cat}
                                         aria-pressed={category === cat}
-                                        onClick={() => setCategory(category === cat ? "All" : cat)}
+                                        onClick={() => onCategoryChange(category === cat ? "All" : cat)}
                                         style={{
                                             padding: "5px 12px",
                                             borderRadius: 100,
@@ -1597,10 +1593,10 @@ export default function DiscoverScreen({
 
                 <CategoryPills
                     selected={category}
-                    onSelect={setCategory}
+                    onSelect={onCategoryChange}
                     showOpenNow
                     openNowActive={openNow}
-                    onToggleOpenNow={() => setOpenNow((v) => !v)}
+                    onToggleOpenNow={() => onOpenNowChange((v) => !v)}
                 />
             </div>
 

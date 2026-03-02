@@ -125,17 +125,20 @@ function HeroSection({ maker, onBack, onLogoTap, onShare, onToggleSave, isSaved,
             ref={heroRef}
             style={{
                 position: "relative",
-                background: maker.hero_color,
+                background: "#1a1a1a",
                 minHeight: 190,
             }}
         >
             {heroImage && (
                 <img
-                    src={optimizeImageUrl(heroImage, 600)}
+                    src={optimizeImageUrl(heroImage, 400)}
                     alt=""
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"
+                    onLoad={(e) => {
+                        e.target.style.opacity = "1"
+                    }}
                     style={{
                         position: "absolute",
                         inset: 0,
@@ -143,6 +146,8 @@ function HeroSection({ maker, onBack, onLogoTap, onShare, onToggleSave, isSaved,
                         height: "100%",
                         objectFit: "cover",
                         filter: isDark ? "brightness(0.75) saturate(0.9)" : "brightness(0.9) saturate(1)",
+                        opacity: 0,
+                        transition: "opacity 0.3s ease",
                     }}
                 />
             )}
@@ -621,7 +626,17 @@ function GalleryTab({ maker, theme, onImageTap }) {
                                 alt={`${maker.name} ${i * 2 + 1}`}
                                 loading="lazy"
                                 decoding="async"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                                onLoad={(e) => {
+                                    e.target.style.opacity = "1"
+                                }}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                    opacity: 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
                             />
                         </div>
                     ))}
@@ -646,7 +661,17 @@ function GalleryTab({ maker, theme, onImageTap }) {
                                 alt={`${maker.name} ${i * 2 + 2}`}
                                 loading="lazy"
                                 decoding="async"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                                onLoad={(e) => {
+                                    e.target.style.opacity = "1"
+                                }}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                    opacity: 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
                             />
                         </div>
                     ))}
@@ -754,7 +779,17 @@ function InstagramTab({ maker, theme }) {
                                 alt={`${maker.name} instagram ${i + 1}`}
                                 loading="lazy"
                                 decoding="async"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                                onLoad={(e) => {
+                                    e.target.style.opacity = "1"
+                                }}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                    opacity: 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
                             />
                         </div>
                     ))}
