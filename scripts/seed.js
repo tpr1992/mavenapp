@@ -28,6 +28,7 @@ async function seed() {
     bio: m.bio,
     category: m.category,
     city: m.city,
+    county: m.county,
     address: m.address,
     lat: m.lat,
     lng: m.lng,
