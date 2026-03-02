@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { optimizeImageUrl } from "../utils/image"
-import { CATEGORY_EMOJI } from "../constants/categories"
+import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow, getTodayHours, formatHoursRange, DAYS } from "../utils/time"
 import { formatDistance } from "../utils/distance"
 import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
@@ -400,9 +400,12 @@ function AboutSection({ maker, theme }) {
                         fontSize: 11,
                         fontWeight: 500,
                         color: theme.textSecondary,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 3,
                     }}
                 >
-                    {CATEGORY_EMOJI[maker.category]} {maker.category}
+                    <CategoryIcon category={maker.category} /> {maker.category}
                 </span>
                 <span
                     style={{
@@ -584,9 +587,7 @@ function GalleryTab({ maker, theme, onImageTap }) {
     if (!images.length) {
         return (
             <div style={{ padding: "40px 20px", textAlign: "center" }}>
-                <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>
-                    {CATEGORY_EMOJI[maker.category] || "\u2726"}
-                </div>
+                <CategoryIcon category={maker.category} size={32} style={{ marginBottom: 12, opacity: 0.5 }} />
                 <p
                     style={{
                         fontFamily: "'DM Sans', sans-serif",

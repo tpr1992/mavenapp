@@ -7,6 +7,7 @@ export default function CategoryPills({
     showOpenNow = false,
     openNowActive = false,
     onToggleOpenNow,
+    elevated = false,
 }) {
     const { theme } = useTheme()
 
@@ -14,7 +15,7 @@ export default function CategoryPills({
         padding: "8px 16px",
         borderRadius: 100,
         border: active ? "none" : `1.5px solid ${theme.border}`,
-        background: active ? theme.btnBg : "transparent",
+        background: active ? theme.btnBg : elevated ? theme.card : "transparent",
         color: active ? theme.btnText : theme.textSecondary,
         fontFamily: "'DM Sans', sans-serif",
         fontSize: 13,
@@ -23,6 +24,7 @@ export default function CategoryPills({
         whiteSpace: "nowrap",
         transition: "all 0.2s ease",
         letterSpacing: "0.01em",
+        boxShadow: elevated && !active ? "0 1px 4px rgba(0,0,0,0.1)" : undefined,
     })
 
     return (
@@ -42,7 +44,7 @@ export default function CategoryPills({
                     onClick={onToggleOpenNow}
                     style={{
                         ...pillStyle(openNowActive),
-                        background: openNowActive ? "#22543d" : "transparent",
+                        background: openNowActive ? "#22543d" : elevated ? theme.card : "transparent",
                         color: openNowActive ? "#fff" : theme.textSecondary,
                         border: openNowActive ? "none" : `1.5px solid ${theme.border}`,
                     }}

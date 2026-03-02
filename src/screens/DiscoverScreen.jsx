@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, memo, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import { useTheme } from "../contexts/ThemeContext"
-import { CATEGORY_EMOJI } from "../constants/categories"
+import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow } from "../utils/time"
 import { formatLocation, formatLocationName } from "../utils/distance"
 import { safeOpen } from "../utils/safeOpen"
@@ -125,9 +125,12 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark }) {
                             fontSize: 12,
                             lineHeight: 1,
                             color: "rgba(255,255,255,0.6)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 3,
                         }}
                     >
-                        {CATEGORY_EMOJI[maker.category]} {maker.category}
+                        <CategoryIcon category={maker.category} /> {maker.category}
                     </span>
                     <span
                         style={{
@@ -311,9 +314,7 @@ const MasonryGrid = memo(function MasonryGrid({
                                     </span>
                                 ))}
                             </div>
-                            <div style={{ fontSize: 36, opacity: 0.6, zIndex: 1 }}>
-                                {CATEGORY_EMOJI[maker.category]}
-                            </div>
+                            <CategoryIcon category={maker.category} size={36} style={{ opacity: 0.6, zIndex: 1 }} />
                         </div>
                     )}
                     <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 }}></div>
@@ -1216,9 +1217,11 @@ export default function DiscoverScreen({
                                                 gap: 10,
                                             }}
                                         >
-                                            <span style={{ fontSize: 14, flexShrink: 0 }}>
-                                                {CATEGORY_EMOJI[maker.category]}
-                                            </span>
+                                            <CategoryIcon
+                                                category={maker.category}
+                                                size={14}
+                                                style={{ flexShrink: 0 }}
+                                            />
                                             <div style={{ minWidth: 0, flex: 1 }}>
                                                 <span
                                                     style={{
@@ -1567,9 +1570,7 @@ export default function DiscoverScreen({
                                             gap: 10,
                                         }}
                                     >
-                                        <span style={{ fontSize: 15, flexShrink: 0 }}>
-                                            {CATEGORY_EMOJI[maker.category]}
-                                        </span>
+                                        <CategoryIcon category={maker.category} size={15} style={{ flexShrink: 0 }} />
                                         <div style={{ minWidth: 0, flex: 1 }}>
                                             <span
                                                 style={{
