@@ -7,6 +7,7 @@ import useUserLocation from "./hooks/useUserLocation"
 import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfileV2 from "./screens/MakerProfileV2"
@@ -294,6 +295,7 @@ export default function App() {
                 selectedMaker={selectedMaker}
                 onTabChange={handleTabChange}
             />
+            <SpeedInsights />
         </div>
     )
 }
