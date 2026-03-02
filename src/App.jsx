@@ -7,7 +7,9 @@ import useUserLocation from "./hooks/useUserLocation"
 import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
+import { optimizeImageUrl } from "./utils/image"
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { Analytics } from "@vercel/analytics/react"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfileV2 from "./screens/MakerProfileV2"
@@ -52,12 +54,26 @@ export default function App() {
     const { savedIds, toggleSave } = useSavedMakers()
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
+    const [discoverCategory, setDiscoverCategory] = useState(() => {
+        try {
+            const prefs = JSON.parse(localStorage.getItem("maven_preferred_categories") || "[]")
+            if (prefs.length === 1) return prefs[0]
+        } catch {}
+        return "All"
+    })
+    const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
     const containerRef = useRef(null)
     const scrollPosRef = useRef(0)
     const tabScrollRef = useRef({})
 
     const handleMakerTap = useCallback(
         (maker) => {
+            // Preload hero image so it's cached before MakerProfileV2 renders
+            const heroUrl = maker.gallery_urls?.[0]
+            if (heroUrl) {
+                const img = new window.Image()
+                img.src = optimizeImageUrl(heroUrl, 400)
+            }
             if (containerRef.current) scrollPosRef.current = containerRef.current.scrollTop
             history.pushState({ maker: maker.slug, tab: activeTab }, "", buildURL(activeTab, maker.slug))
             setSelectedMaker(maker)
@@ -104,6 +120,8 @@ export default function App() {
     const handleLogoTap = useCallback(() => {
         handleTabChange("discover")
         handleScrollToTop()
+        setDiscoverCategory("All")
+        setDiscoverOpenNow(false)
     }, [handleTabChange, handleScrollToTop])
 
     // Replace initial history entry with proper state
@@ -165,25 +183,7 @@ export default function App() {
 
         switch (activeTab) {
             case "discover":
-                return (
-                    <DiscoverScreen
-                        makers={makers}
-                        makersLoading={makersLoading}
-                        makersError={makersError}
-                        onRetry={refetch}
-                        onRefresh={refetch}
-                        onMakerTap={handleMakerTap}
-                        savedIds={savedIds}
-                        onToggleSave={handleToggleSave}
-                        onScrollToTop={handleScrollToTop}
-                        scrollContainerRef={containerRef}
-                        locationLabel={locationLabel}
-                        locationSource={locationSource}
-                        userLocation={userLocation}
-                        setLocation={setLocation}
-                        sponsoredPosts={sponsoredPosts}
-                    />
-                )
+                return null
             case "map":
                 return (
                     <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
@@ -251,6 +251,31 @@ export default function App() {
                     overflowX: "hidden",
                 }}
             >
+                {activeTab === "discover" && (
+                    <div style={{ display: selectedMaker ? "none" : undefined }}>
+                        <DiscoverScreen
+                            makers={makers}
+                            makersLoading={makersLoading}
+                            makersError={makersError}
+                            onRetry={refetch}
+                            onRefresh={refetch}
+                            onMakerTap={handleMakerTap}
+                            savedIds={savedIds}
+                            onToggleSave={handleToggleSave}
+                            onScrollToTop={handleScrollToTop}
+                            scrollContainerRef={containerRef}
+                            locationLabel={locationLabel}
+                            locationSource={locationSource}
+                            userLocation={userLocation}
+                            setLocation={setLocation}
+                            sponsoredPosts={sponsoredPosts}
+                            category={discoverCategory}
+                            onCategoryChange={setDiscoverCategory}
+                            openNow={discoverOpenNow}
+                            onOpenNowChange={setDiscoverOpenNow}
+                        />
+                    </div>
+                )}
                 {renderScreen()}
             </div>
 
@@ -296,6 +321,7 @@ export default function App() {
                 onTabChange={handleTabChange}
             />
             <SpeedInsights />
+            <Analytics />
         </div>
     )
 }
