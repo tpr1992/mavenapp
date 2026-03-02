@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { getInitials } from "../../utils/time"
+import { optimizeImageUrl } from "../../utils/image"
 
 export default function MakerAvatar({ maker, size = 48 }) {
   const [imgError, setImgError] = useState(false)
@@ -7,7 +8,7 @@ export default function MakerAvatar({ maker, size = 48 }) {
   if (maker.avatar_url && !imgError) {
     return (
       <img
-        src={maker.avatar_url}
+        src={optimizeImageUrl(maker.avatar_url, size * 2)}
         alt={maker.name}
         loading="lazy"
         decoding="async"

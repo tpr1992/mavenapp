@@ -1,3 +1,4 @@
+import { optimizeImageUrl } from "../../utils/image"
 import { CATEGORY_EMOJI } from "../../constants/categories"
 import { isOpenNow } from "../../utils/time"
 import { formatDistance } from "../../utils/distance"
@@ -22,7 +23,7 @@ export default function StudioSpotlightCard({ maker, onTap, isSaved, onToggleSav
         style={{
           height: 120,
           background: maker.gallery_urls?.[0]
-            ? `linear-gradient(135deg, ${maker.hero_color}90, ${maker.hero_color}cc), url(${maker.gallery_urls[0]}) center/cover`
+            ? `linear-gradient(135deg, ${maker.hero_color}90, ${maker.hero_color}cc), url(${optimizeImageUrl(maker.gallery_urls[0], 300)}) center/cover`
             : `linear-gradient(135deg, ${maker.hero_color}20, ${maker.hero_color}45)`,
           position: "relative",
           overflow: "hidden",

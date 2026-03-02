@@ -14,25 +14,18 @@ import MakerListItem from "../components/makers/MakerListItem"
 import StudioSpotlightCard from "../components/makers/StudioSpotlightCard"
 import LocationPicker from "../components/ui/LocationPicker"
 
-// Rewrite image URLs to request a size appropriate for the card.
-// Works with Unsplash (?w=&h=) and Supabase Storage transform (/render/image?width=&height=).
-function optimizeImageUrl(url, width) {
-  if (!url) return url
-  if (url.includes("unsplash.com")) {
-    return url.replace(/[?&]w=\d+/, `?w=${width}`).replace(/[?&]h=\d+/, `&h=${Math.round(width * 1.25)}`)
-  }
-  return url
-}
+import { optimizeImageUrl } from "../utils/image"
 
-const CardGallery = memo(function CardGallery({ urls, height }) {
+const CardGallery = memo(function CardGallery({ urls, height, eager = false }) {
   return (
     <Carousel
       items={urls}
-      renderItem={(url) => (
+      renderItem={(url, i) => (
         <img
           src={optimizeImageUrl(url, 400)}
           alt=""
-          loading="lazy"
+          loading={eager && i === 0 ? "eager" : "lazy"}
+          {...(eager && i === 0 ? { fetchpriority: "high" } : {})}
           decoding="async"
           draggable={false}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -54,7 +47,7 @@ function FeaturedCard({ maker, onTap, showOpenStatus, isDark }) {
       <div
         style={{
           background: maker.gallery_urls?.[0]
-            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${maker.gallery_urls[0]}) center/cover`
+            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], 400)}) center/cover`
             : maker.hero_color,
           borderRadius: 20,
           padding: "28px 24px",
@@ -145,7 +138,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark }) {
       <div
         style={{
           background: maker.gallery_urls?.[0]
-            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${maker.gallery_urls[0]}) center/cover`
+            ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], 400)}) center/cover`
             : maker.hero_color,
           borderRadius: 20,
           padding: "28px 24px",
@@ -318,7 +311,7 @@ const MasonryGrid = memo(function MasonryGrid({ allMakers, visibleIds, sponsored
       >
         <div style={{ height: cardHeight, position: "relative", overflow: "hidden", borderRadius: 12 }}>
           {maker.gallery_urls?.length > 0 ? (
-            <CardGallery urls={maker.gallery_urls} height={cardHeight} />
+            <CardGallery urls={maker.gallery_urls} height={cardHeight} eager={idx < 6} />
           ) : (
             <div style={{
               height: "100%",
@@ -422,7 +415,7 @@ const MasonryGrid = memo(function MasonryGrid({ allMakers, visibleIds, sponsored
     >
       <div style={{ height: ad.tile_height || 200, position: "relative", overflow: "hidden", borderRadius: 12 }}>
         <img
-          src={ad.image_url}
+          src={optimizeImageUrl(ad.image_url, 300)}
           alt={ad.brand}
           loading="lazy"
           style={{
