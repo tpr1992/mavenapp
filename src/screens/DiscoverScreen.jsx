@@ -9,9 +9,7 @@ import { safeOpen } from "../utils/safeOpen"
 import useDebounce from "../hooks/useDebounce"
 import Carousel, { TRANSITION_IOS } from "../components/ui/Carousel"
 import CategoryPills from "../components/ui/CategoryPills"
-import FeaturedMakerCard from "../components/makers/FeaturedMakerCard"
 import MakerListItem from "../components/makers/MakerListItem"
-import StudioSpotlightCard from "../components/makers/StudioSpotlightCard"
 import LocationPicker from "../components/ui/LocationPicker"
 
 import { optimizeImageUrl } from "../utils/image"
@@ -31,133 +29,10 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false }) {
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
             )}
-            keyExtractor={(_, i) => `card-${i}`}
             loop
             dots="mini"
             dotPosition="overlay"
             style={{ height }}
-        />
-    )
-})
-
-function FeaturedCard({ maker, onTap, showOpenStatus, isDark }) {
-    return (
-        <div onClick={() => onTap(maker)} style={{ padding: "0 4px", cursor: "pointer" }}>
-            <div
-                style={{
-                    background: maker.gallery_urls?.[0]
-                        ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], 400)}) center/cover`
-                        : maker.hero_color,
-                    borderRadius: 20,
-                    padding: "28px 24px",
-                    position: "relative",
-                    overflow: "hidden",
-                    filter: isDark ? "brightness(0.78) saturate(0.85)" : "none",
-                    minHeight: 160,
-                }}
-            >
-                <div
-                    style={{
-                        position: "absolute",
-                        top: -30,
-                        right: -30,
-                        width: 150,
-                        height: 150,
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.06)",
-                    }}
-                />
-                <div
-                    style={{
-                        position: "absolute",
-                        bottom: -50,
-                        left: -20,
-                        width: 120,
-                        height: 120,
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.04)",
-                    }}
-                />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 10,
-                            fontWeight: 600,
-                            color: "rgba(255,255,255,0.6)",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.12em",
-                        }}
-                    >
-                        Featured Maker
-                    </span>
-                </div>
-                <h2
-                    style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 24,
-                        fontWeight: 700,
-                        color: "#fff",
-                        margin: "10px 0 8px",
-                        lineHeight: 1.2,
-                    }}
-                >
-                    {maker.name}
-                </h2>
-                <p
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 13.5,
-                        color: "rgba(255,255,255,0.8)",
-                        margin: 0,
-                        lineHeight: 1.5,
-                        maxWidth: 280,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                    }}
-                >
-                    {maker.bio}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-                        {CATEGORY_EMOJI[maker.category]} {maker.category}
-                    </span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-                        {`\u25C8 ${formatLocationName(maker, { full: true })}`}
-                    </span>
-                    {showOpenStatus && (
-                        <span
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12,
-                                color: isOpenNow(maker.opening_hours)
-                                    ? "rgba(134,239,172,0.9)"
-                                    : "rgba(255,255,255,0.4)",
-                            }}
-                        >
-                            {isOpenNow(maker.opening_hours) ? "\u25CF Open" : "\u25CB Closed"}
-                        </span>
-                    )}
-                </div>
-            </div>
-        </div>
-    )
-}
-
-const FeaturedCarousel = memo(function FeaturedCarousel({ makers, onTap, showOpenStatus }) {
-    const { isDark } = useTheme()
-    if (!makers.length) return null
-    return (
-        <Carousel
-            items={makers}
-            renderItem={(maker) => (
-                <FeaturedCard maker={maker} onTap={onTap} showOpenStatus={showOpenStatus} isDark={isDark} />
-            )}
-            keyExtractor={(m) => m.id}
-            loop
-            dots="pill"
         />
     )
 })
@@ -292,7 +167,6 @@ const TrendingCarousel = memo(function TrendingCarousel({ makers, onTap, showOpe
             renderItem={(maker) => (
                 <TrendingCard maker={maker} onTap={onTap} showOpenStatus={showOpenStatus} isDark={isDark} />
             )}
-            keyExtractor={(m) => m.id}
             loop
             autoPlay={7000}
             transition={TRANSITION_IOS}
@@ -324,23 +198,14 @@ const MasonryGrid = memo(function MasonryGrid({
     onMakerTap,
     onToggleSave,
     theme,
-    showOpenStatus,
 }) {
     const hasAnimated = useRef(false)
-    const [filterTick, setFilterTick] = useState(0)
-    const prevVisible = useRef(visibleIds)
     useEffect(() => {
         const t = setTimeout(() => {
             hasAnimated.current = true
         }, 600)
         return () => clearTimeout(t)
     }, [])
-    useEffect(() => {
-        if (prevVisible.current !== visibleIds && hasAnimated.current) {
-            setFilterTick((k) => k + 1)
-        }
-        prevVisible.current = visibleIds
-    }, [visibleIds])
     const touchRef = useRef({ startX: 0, startY: 0, moved: false })
     const onPointerDown = useCallback((e) => {
         touchRef.current = { startX: e.clientX, startY: e.clientY, moved: false }
@@ -672,7 +537,7 @@ export default function DiscoverScreen({
     const compactPillsRef = useRef(null)
     const [pillsFade, setPillsFade] = useState({ left: false, right: true })
 
-    const { theme, isDark } = useTheme()
+    const { theme } = useTheme()
 
     useEffect(() => {
         const el = compactPillsRef.current
@@ -774,8 +639,6 @@ export default function DiscoverScreen({
         [scrollContainerRef],
     )
 
-    const featuredMakers = useMemo(() => makers.filter((m) => m.is_featured), [makers])
-
     const trendingMakers = useMemo(
         () =>
             makers
@@ -805,8 +668,6 @@ export default function DiscoverScreen({
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
     const visibleMakerIds = useMemo(() => new Set(visibleMakers.map((m) => m.id)), [visibleMakers])
     const hasMore = visibleCount < allFiltered.length
-
-    const spotlightMakers = useMemo(() => makers.filter((m) => m.is_spotlight), [makers])
 
     const makerSuggestions = useMemo(() => {
         const raw = searchQuery.trim().toLowerCase()
@@ -1929,7 +1790,6 @@ export default function DiscoverScreen({
                         onMakerTap={onMakerTap}
                         onToggleSave={onToggleSave}
                         theme={theme}
-                        showOpenStatus={openNow}
                     />
                 )}
                 {hasMore && (

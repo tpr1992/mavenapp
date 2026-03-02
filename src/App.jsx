@@ -188,7 +188,6 @@ export default function App() {
                     <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
                         <MapScreen
                             makers={makers}
-                            makersLoading={makersLoading}
                             onMakerTap={handleMakerTap}
                             savedIds={savedIds}
                             onToggleSave={handleToggleSave}

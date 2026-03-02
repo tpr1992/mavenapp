@@ -16,19 +16,5 @@ export default function useOnboarding() {
         setIsComplete(true)
     }, [])
 
-    const getPreferredCategories = useCallback(() => {
-        try {
-            return JSON.parse(localStorage.getItem(CATEGORIES_KEY)) || []
-        } catch {
-            return []
-        }
-    }, [])
-
-    const resetOnboarding = useCallback(() => {
-        localStorage.removeItem(COMPLETE_KEY)
-        localStorage.removeItem(CATEGORIES_KEY)
-        setIsComplete(false)
-    }, [])
-
-    return { isComplete, completeOnboarding, getPreferredCategories, resetOnboarding }
+    return { isComplete, completeOnboarding }
 }

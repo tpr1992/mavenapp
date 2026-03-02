@@ -41,8 +41,4 @@ export function getInitials(name) {
         .toUpperCase()
 }
 
-export function getTodayDayKey() {
-    return DAYS[new Date().getDay()]
-}
-
 export { DAYS }
