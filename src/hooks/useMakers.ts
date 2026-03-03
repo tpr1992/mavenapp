@@ -109,7 +109,14 @@ export default function useMakers(userLocation: UserLocation | null) {
 
             const vel = velocityScore(currentWeek, previousWeek)
 
-            return { ...maker, distance: dist, score, velocity: vel }
+            return {
+                ...maker,
+                distance: dist,
+                score,
+                velocity: vel,
+                currentWeekClicks: currentWeek,
+                previousWeekClicks: previousWeek,
+            }
         })
 
         // Sort by composite score descending, alphabetical tiebreaker
