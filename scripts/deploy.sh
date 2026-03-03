@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Ensure correct Node version (reads .nvmrc)
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"
+nvm use --silent
+
 # Usage: ./scripts/deploy.sh "commit message"
 
 MSG="$1"
