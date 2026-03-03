@@ -198,8 +198,8 @@ export default function DiscoverScreen({
     const trendingMakers = useMemo(
         () =>
             makers
-                .filter((m) => (m.score ?? 0) > 0)
-                .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+                .filter((m) => (m.velocity ?? 0) > 0)
+                .sort((a, b) => (b.velocity ?? 0) - (a.velocity ?? 0))
                 .slice(0, 5),
         [makers],
     )
