@@ -1,0 +1,21 @@
+let cachedId: string | null = null
+
+export function getVisitorId(): string {
+    if (cachedId) return cachedId
+
+    if (typeof window === "undefined" || !window.localStorage) {
+        cachedId = crypto.randomUUID()
+        return cachedId
+    }
+
+    const stored = localStorage.getItem("maven_visitor_id")
+    if (stored) {
+        cachedId = stored
+        return stored
+    }
+
+    const id = crypto.randomUUID()
+    localStorage.setItem("maven_visitor_id", id)
+    cachedId = id
+    return id
+}

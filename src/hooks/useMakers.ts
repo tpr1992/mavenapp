@@ -1,7 +1,13 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { supabase } from "../lib/supabase"
 import { getDistance } from "../utils/distance"
-import { compositeScore, velocityScore } from "../utils/scoring"
+import {
+    compositeScore,
+    velocityScore,
+    LOW_DATA_MAKER_THRESHOLD,
+    LOW_DATA_CLICK_THRESHOLD,
+    MIN_POPULARITY_BASELINE,
+} from "../utils/scoring"
 import { interleavedByCategory } from "../utils/interleave"
 import type { Maker, MakerClickStats } from "../types"
 
@@ -73,8 +79,18 @@ export default function useMakers(userLocation: UserLocation | null) {
     const makers = useMemo(() => {
         if (!rawMakers.length) return rawMakers
 
-        // Find max current-week clicks for normalization
-        const maxClicks = Math.max(1, ...Object.values(clickStats).map((s) => s.current_week_clicks))
+        // Compute p95 clicks for popularity normalization
+        const clickValues = Object.values(clickStats)
+            .map((s) => s.current_week_clicks)
+            .sort((a, b) => a - b)
+        const p95Idx = Math.floor((clickValues.length - 1) * 0.95)
+        const p95 = Math.max(MIN_POPULARITY_BASELINE, clickValues[p95Idx] || 1)
+
+        // Detect low-data mode: fewer than N makers with meaningful clicks
+        const makersWithClicks = Object.values(clickStats).filter(
+            (s) => s.current_week_clicks >= LOW_DATA_CLICK_THRESHOLD,
+        ).length
+        const isLowData = makersWithClicks < LOW_DATA_MAKER_THRESHOLD
 
         const scored = rawMakers.map((maker) => {
             const stats = clickStats[maker.id]
@@ -87,7 +103,8 @@ export default function useMakers(userLocation: UserLocation | null) {
                 currentWeekClicks: currentWeek,
                 previousWeekClicks: previousWeek,
                 createdAt: maker.created_at,
-                maxCurrentWeekClicks: maxClicks,
+                p95Clicks: p95,
+                isLowData,
             })
 
             const vel = velocityScore(currentWeek, previousWeek)
