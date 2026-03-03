@@ -10,6 +10,7 @@ import MakerListItem from "../components/makers/MakerListItem"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
+import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
 
 interface DiscoverScreenProps {
@@ -198,7 +199,13 @@ export default function DiscoverScreen({
     const trendingMakers = useMemo(
         () =>
             makers
-                .filter((m) => (m.velocity ?? 0) > 0)
+                .filter((m) => {
+                    const vel = m.velocity ?? 0
+                    if (vel <= 0) return false
+                    const cur = m.currentWeekClicks ?? 0
+                    const prev = m.previousWeekClicks ?? 0
+                    return cur >= TRENDING_MIN_CURRENT || cur + prev >= TRENDING_MIN_COMBINED
+                })
                 .sort((a, b) => (b.velocity ?? 0) - (a.velocity ?? 0))
                 .slice(0, 5),
         [makers],
