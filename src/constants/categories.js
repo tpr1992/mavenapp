@@ -1,8 +1,0 @@
-export const CATEGORIES = ["All", "Clothing", "Objects", "Art"]
-
-// Monochrome SVG icons — use `currentColor` for theme-aware rendering
-export const CATEGORY_ICON = {
-    clothing: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.25" fill="currentColor" stroke="none"/></svg>`,
-    objects: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5"/><path d="M12 22V12"/></svg>`,
-    art: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.28-.29-.44-.65-.44-1.12 0-.93.75-1.68 1.67-1.68H16c3.05 0 5.56-2.5 5.56-5.56C21.56 5.78 17.24 2 12 2z"/><circle cx="7.5" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="15.5" cy="7" r="1.5" fill="currentColor" stroke="none"/><circle cx="17" cy="11.5" r="1.5" fill="currentColor" stroke="none"/></svg>`,
-}
