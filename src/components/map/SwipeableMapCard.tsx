@@ -381,9 +381,9 @@ export default memo(function SwipeableMapCard({
                             >
                                 {maker.name}
                             </span>
-                            {maker.is_verified && (
+                            {/* {maker.is_verified && (
                                 <span style={{ fontSize: 12, color: theme.textSecondary }}>{"\u2713"}</span>
-                            )}
+                            )} */}
                         </div>
                         <div
                             style={{
