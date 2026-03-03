@@ -8,6 +8,7 @@ import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
 import { optimizeImageUrl } from "./utils/image"
+import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
 import TabBar from "./components/layout/TabBar"
@@ -83,7 +84,7 @@ export default function App() {
             setSelectedMaker(maker)
             if (containerRef.current) containerRef.current.scrollTop = 0
             // Fire-and-forget click tracking
-            supabase.from("maker_clicks").insert({ maker_id: maker.id }).then()
+            supabase.rpc("record_maker_click", { p_maker_id: maker.id, p_visitor_id: getVisitorId() }).then()
         },
         [activeTab],
     )
