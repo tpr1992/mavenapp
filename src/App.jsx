@@ -27,9 +27,11 @@ function getStateFromURL() {
 }
 
 function buildURL(tab, makerSlug) {
-    if (makerSlug) return "/?maker=" + makerSlug
-    if (tab && tab !== "discover") return "/?tab=" + tab
-    return "/"
+    const params = new URLSearchParams()
+    if (tab && tab !== "discover") params.set("tab", tab)
+    if (makerSlug) params.set("maker", makerSlug)
+    const qs = params.toString()
+    return qs ? "/?" + qs : "/"
 }
 
 function ScreenPlaceholder({ theme }) {
@@ -133,9 +135,11 @@ export default function App() {
     // Listen to popstate (browser back/forward)
     useEffect(() => {
         const onPopState = (e) => {
-            const state = e.state || {}
-            const tab = state.tab || "discover"
-            const makerSlug = state.maker || null
+            // URL is always current when popstate fires — use as primary source
+            // to handle iOS Chrome/Safari which can lose history.state
+            const urlState = getStateFromURL()
+            const tab = urlState.tab || e.state?.tab || "discover"
+            const makerSlug = urlState.makerSlug || e.state?.maker || null
 
             setActiveTab(tab)
 

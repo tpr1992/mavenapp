@@ -27,6 +27,9 @@ The dev server starts at `http://localhost:xxxx`.
 | `npm run dev` | Start development server |
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Preview production build locally |
+| `npm run lint` | Check for lint errors |
+| `npm run format` | Format all source files |
+| `npm run deploy -- "msg"` | Commit, push, create PR, merge to main, sync dev |
 
 ## Project Structure
 
