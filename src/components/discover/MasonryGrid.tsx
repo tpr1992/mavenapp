@@ -207,7 +207,7 @@ export default memo(function MasonryGrid({
                         >
                             {maker.name}
                         </span>
-                        {maker.is_verified && <span style={{ fontSize: 9, flexShrink: 0 }}>✓</span>}
+                        {/* {maker.is_verified && <span style={{ fontSize: 9, flexShrink: 0, color: theme.textSecondary }}>✓</span>} */}
                         <button
                             onClick={(e) => {
                                 e.stopPropagation()

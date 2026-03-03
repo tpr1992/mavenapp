@@ -74,11 +74,11 @@ export default memo(function MakerListItem({
                     >
                         {highlightQuery ? <HighlightMatch text={maker.name} query={highlightQuery} /> : maker.name}
                     </span>
-                    {maker.is_verified && (
+                    {/* {maker.is_verified && (
                         <span style={{ fontSize: 12, color: theme.textMuted }} title="Verified">
                             {"\u2713"}
                         </span>
-                    )}
+                    )} */}
                 </div>
                 <div
                     style={{

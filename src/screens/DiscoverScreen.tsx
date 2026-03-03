@@ -34,6 +34,7 @@ interface DiscoverScreenProps {
     onCategoryChange: (cat: string) => void
     openNow: boolean
     onOpenNowChange: (val: boolean) => void
+    refreshKey?: number
 }
 
 export default function DiscoverScreen({
@@ -57,6 +58,7 @@ export default function DiscoverScreen({
     onCategoryChange,
     openNow,
     onOpenNowChange,
+    refreshKey,
 }: DiscoverScreenProps) {
     const [viewMode, setViewMode] = useState<"gallery" | "list">("gallery")
     const [searchOpen, setSearchOpen] = useState(false)
@@ -1171,7 +1173,12 @@ export default function DiscoverScreen({
 
             {/* Trending Makers Carousel */}
             {trendingMakers.length > 0 && (
-                <TrendingCarousel makers={trendingMakers} onTap={onMakerTap} showOpenStatus={openNow} />
+                <TrendingCarousel
+                    key={refreshKey}
+                    makers={trendingMakers}
+                    onTap={onMakerTap}
+                    showOpenStatus={openNow}
+                />
             )}
 
             {/* All Makers */}

@@ -119,6 +119,26 @@ export default function useMakers(userLocation: UserLocation | null) {
             }
         })
 
+        // Debug: log scoring breakdown
+        console.log(`\n📊 p95 current-week clicks: ${p95}`)
+        console.log(
+            `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
+        )
+        console.table(
+            scored
+                .slice()
+                .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+                .map((m) => ({
+                    name: m.name,
+                    dist: m.distance != null ? `${m.distance.toFixed(1)}km` : "—",
+                    curr: m.currentWeekClicks,
+                    prev: m.previousWeekClicks,
+                    vel: m.velocity?.toFixed(3),
+                    pop: Math.min(1, m.currentWeekClicks / p95).toFixed(3),
+                    score: m.score?.toFixed(4),
+                })),
+        )
+
         // Sort by composite score descending, alphabetical tiebreaker
         scored.sort((a, b) => {
             if (b.score !== a.score) return (b.score ?? 0) - (a.score ?? 0)

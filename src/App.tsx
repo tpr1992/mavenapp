@@ -67,6 +67,7 @@ export default function App() {
         return "All"
     })
     const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
+    const [discoverKey, setDiscoverKey] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
     const scrollPosRef = useRef(0)
     const tabScrollRef = useRef<Record<string, number>>({})
@@ -99,11 +100,20 @@ export default function App() {
             history.pushState({ tab }, "", buildURL(tab))
             setSelectedMaker(null)
             setActiveTab(tab)
-            requestAnimationFrame(() => {
-                if (containerRef.current) containerRef.current.scrollTop = tabScrollRef.current[tab] || 0
-            })
+            if (tab === "discover") {
+                refetch()
+                setDiscoverKey((k) => k + 1)
+                tabScrollRef.current["discover"] = 0
+                requestAnimationFrame(() => {
+                    if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
+                })
+            } else {
+                requestAnimationFrame(() => {
+                    if (containerRef.current) containerRef.current.scrollTop = tabScrollRef.current[tab] || 0
+                })
+            }
         },
-        [activeTab],
+        [activeTab, refetch],
     )
 
     const handleScrollToTop = useCallback(() => {
@@ -280,6 +290,7 @@ export default function App() {
                             category={discoverCategory}
                             onCategoryChange={setDiscoverCategory}
                             openNow={discoverOpenNow}
+                            refreshKey={discoverKey}
                             onOpenNowChange={setDiscoverOpenNow}
                         />
                     </div>
