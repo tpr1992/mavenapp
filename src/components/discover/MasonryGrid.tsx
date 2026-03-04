@@ -11,21 +11,28 @@ interface CardGalleryProps {
     urls: string[]
     height?: number
     eager?: boolean
+    imageWidth?: number
 }
 
-const CardGallery = memo(function CardGallery({ urls, height, eager = false }: CardGalleryProps) {
+const CardGallery = memo(function CardGallery({ urls, height, eager = false, imageWidth = 400 }: CardGalleryProps) {
     return (
         <Carousel
             items={urls}
             renderItem={(url, i) => (
                 <img
-                    src={optimizeImageUrl(url, 400) ?? undefined}
+                    src={optimizeImageUrl(url, imageWidth) ?? undefined}
                     alt=""
                     loading={eager && i === 0 ? "eager" : "lazy"}
                     {...(eager && i === 0 ? { fetchpriority: "high" } : {})}
                     decoding="async"
                     draggable={false}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        willChange: "transform",
+                        backfaceVisibility: "hidden",
+                    }}
                 />
             )}
             loop
@@ -37,7 +44,9 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false }: C
 })
 
 const heightPool = [230, 180, 255, 190, 215, 170, 245, 195, 200, 260, 175, 235]
-const getCardHeight = (makerId: string) => heightPool[(parseInt(makerId) - 1) % heightPool.length]
+const heightPoolLarge = [310, 250, 340, 260, 290, 240, 330, 265, 270, 350, 245, 315]
+const getCardHeight = (makerId: string, large?: boolean) =>
+    (large ? heightPoolLarge : heightPool)[(parseInt(makerId) - 1) % heightPool.length]
 const INFO_HEIGHT = 42
 const GAP = 6
 const patternShapes = [
@@ -60,6 +69,8 @@ interface MasonryGridProps {
     theme: Theme
     isDebug?: boolean
     singleColumn?: boolean
+    largeCards?: boolean
+    imageWidth?: number
 }
 
 export default memo(function MasonryGrid({
@@ -72,6 +83,8 @@ export default memo(function MasonryGrid({
     theme,
     isDebug,
     singleColumn,
+    largeCards,
+    imageWidth = 400,
 }: MasonryGridProps) {
     const hasAnimated = useRef(false)
     useEffect(() => {
@@ -113,12 +126,12 @@ export default memo(function MasonryGrid({
             const itemHeight =
                 item.type === "ad"
                     ? (item.ad!.tile_height || 200) + INFO_HEIGHT
-                    : getCardHeight(item.maker!.id) + INFO_HEIGHT
+                    : getCardHeight(item.maker!.id, largeCards) + INFO_HEIGHT
             cols[col].push({ ...item, col, idx })
             colHeights[col] += itemHeight + GAP
         })
         return cols
-    }, [allMakers, sponsoredPosts, singleColumn])
+    }, [allMakers, sponsoredPosts, singleColumn, largeCards])
 
     const tapProps = (fn: () => void) => ({
         onPointerDown,
@@ -129,12 +142,13 @@ export default memo(function MasonryGrid({
     })
 
     const renderMakerCard = (maker: Maker, col: number, idx: number) => {
-        const cardHeight = singleColumn ? undefined : getCardHeight(maker.id)
+        const cardHeight = singleColumn ? undefined : getCardHeight(maker.id, largeCards)
         const shapes = patternShapes[(parseInt(maker.id) - 1) % patternShapes.length]
         const hidden = !visibleIds.has(maker.id)
         return (
             <motion.div
                 key={maker.id}
+                className="card-offscreen"
                 {...(hidden ? {} : tapProps(() => onMakerTap(maker)))}
                 initial={hasAnimated.current ? false : { opacity: 0, y: 8 }}
                 animate={hidden ? { opacity: 0, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
@@ -149,6 +163,7 @@ export default memo(function MasonryGrid({
                     overflow: "hidden",
                     cursor: hidden ? "default" : "pointer",
                     display: hidden ? "none" : undefined,
+                    contain: "layout style paint",
                 }}
             >
                 <div
@@ -180,7 +195,12 @@ export default memo(function MasonryGrid({
                         </span>
                     )}
                     {maker.gallery_urls?.length > 0 ? (
-                        <CardGallery urls={maker.gallery_urls} height={cardHeight} eager={idx < 6} />
+                        <CardGallery
+                            urls={maker.gallery_urls}
+                            height={cardHeight}
+                            eager={idx < (singleColumn ? 1 : 6)}
+                            imageWidth={imageWidth}
+                        />
                     ) : (
                         <div
                             style={{

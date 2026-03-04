@@ -454,7 +454,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             onTouchEnd={handleTouchEnd}
             style={{
                 width: "100%",
-                maxWidth: 430,
+                maxWidth: "var(--app-max-width)",
                 margin: "0 auto",
                 height: "100vh",
                 background: theme.bg,
@@ -463,8 +463,8 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                 flexDirection: "column",
                 position: "relative",
                 overflow: "hidden",
-                borderLeft: `1px solid ${theme.border}`,
-                borderRight: `1px solid ${theme.border}`,
+                borderLeft: "var(--app-border)",
+                borderRight: "var(--app-border)",
                 userSelect: "none",
                 WebkitUserSelect: "none",
             }}

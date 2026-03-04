@@ -14,6 +14,7 @@ interface MakerHeroProps {
     heroRef: React.RefObject<HTMLDivElement | null>
     isDark: boolean
     theme: Theme
+    minHeroHeight?: number
 }
 
 export default memo(function MakerHero({
@@ -26,6 +27,7 @@ export default memo(function MakerHero({
     heroRef,
     isDark,
     theme,
+    minHeroHeight = 190,
 }: MakerHeroProps) {
     const hasGallery = maker.gallery_urls && maker.gallery_urls.length > 0
     const heroImage = hasGallery ? maker.gallery_urls[0] : null
@@ -128,7 +130,7 @@ export default memo(function MakerHero({
             style={{
                 position: "relative",
                 background: "#1a1a1a",
-                minHeight: 190,
+                minHeight: minHeroHeight,
             }}
         >
             {heroImage && (

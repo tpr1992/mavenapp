@@ -3,6 +3,7 @@ import MakerListItem from "../components/makers/MakerListItem"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
 import type { Maker } from "../types"
+import type { Breakpoint } from "../hooks/useBreakpoint"
 
 interface SavedScreenProps {
     makers?: Maker[]
@@ -12,6 +13,7 @@ interface SavedScreenProps {
     onToggleSave: (id: string) => void
     onTabChange: (tab: string) => void
     onLogoTap: () => void
+    breakpoint?: Breakpoint
 }
 
 export default function SavedScreen({
@@ -22,6 +24,7 @@ export default function SavedScreen({
     onToggleSave,
     onTabChange,
     onLogoTap,
+    breakpoint = "mobile",
 }: SavedScreenProps) {
     const { theme } = useTheme()
     const { user } = useAuth()
@@ -118,7 +121,15 @@ export default function SavedScreen({
                     </p>
                 </div>
             ) : (
-                <div style={{ padding: "0 4px", display: "flex", flexDirection: "column", gap: 4 }}>
+                <div
+                    style={{
+                        padding: "0 4px",
+                        display: breakpoint !== "mobile" ? "grid" : "flex",
+                        ...(breakpoint !== "mobile"
+                            ? { gridTemplateColumns: "1fr 1fr", gap: 8 }
+                            : { flexDirection: "column" as const, gap: 4 }),
+                    }}
+                >
                     {savedMakers.map((maker, i) => (
                         <MakerListItem
                             key={maker.id}
