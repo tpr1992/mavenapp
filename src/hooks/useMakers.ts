@@ -119,25 +119,27 @@ export default function useMakers(userLocation: UserLocation | null) {
             }
         })
 
-        // Debug: log scoring breakdown
-        console.log(`\n📊 p95 current-week clicks: ${p95}`)
-        console.log(
-            `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
-        )
-        console.table(
-            scored
-                .slice()
-                .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-                .map((m) => ({
-                    nm: m.name,
-                    km: m.distance != null ? m.distance.toFixed(1) : "—",
-                    cur: m.currentWeekClicks,
-                    prv: m.previousWeekClicks,
-                    vel: m.velocity?.toFixed(3),
-                    pop: Math.min(1, m.currentWeekClicks / p95).toFixed(3),
-                    scr: m.score?.toFixed(4),
-                })),
-        )
+        // Debug: log scoring breakdown (dev only — console.table blocks main thread 50-200ms)
+        if (import.meta.env.DEV) {
+            console.log(`\n📊 p95 current-week clicks: ${p95}`)
+            console.log(
+                `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
+            )
+            console.table(
+                scored
+                    .slice()
+                    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+                    .map((m) => ({
+                        nm: m.name,
+                        km: m.distance != null ? m.distance.toFixed(1) : "—",
+                        cur: m.currentWeekClicks,
+                        prv: m.previousWeekClicks,
+                        vel: m.velocity?.toFixed(3),
+                        pop: Math.min(1, m.currentWeekClicks / p95).toFixed(3),
+                        scr: m.score?.toFixed(4),
+                    })),
+            )
+        }
 
         // Sort by composite score descending, alphabetical tiebreaker
         scored.sort((a, b) => {

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { useTheme } from "../contexts/ThemeContext"
-import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow } from "../utils/time"
 import useDebounce from "../hooks/useDebounce"
 import CategoryPills from "../components/ui/CategoryPills"
@@ -9,8 +8,7 @@ import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
-import CompactHeader from "../components/discover/CompactHeader"
-import SearchBar from "../components/ui/SearchBar"
+import DiscoverHeaderV2 from "../components/discover/DiscoverHeaderV2"
 import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
@@ -79,17 +77,9 @@ export default function DiscoverScreen({
     setFeedLayout,
     breakpoint = "mobile",
 }: DiscoverScreenProps) {
-    const [searchOpen, setSearchOpen] = useState(false)
     const [showLocationPicker, setShowLocationPicker] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
-    const [searchFocused, setSearchFocused] = useState(false)
 
-    // Reset full-header search state when discover tab is re-tapped
-    useEffect(() => {
-        setSearchQuery("")
-        setSearchOpen(false)
-        setSearchFocused(false)
-    }, [refreshKey])
     const [refreshing, setRefreshing] = useState(false)
     const PAGE_SIZE = 20
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -97,9 +87,7 @@ export default function DiscoverScreen({
     const pullStartY = useRef<number | null>(null)
     const pullDistance = useRef(0)
     const pullIndicatorRef = useRef<HTMLDivElement>(null)
-    const searchRef = useRef<HTMLInputElement>(null)
     const debouncedQuery = useDebounce(searchQuery)
-    const fullHeaderRef = useRef<HTMLDivElement>(null)
 
     const { theme } = useTheme()
 
@@ -387,267 +375,23 @@ export default function DiscoverScreen({
                 />
             </div>
 
-            <CompactHeader
+            <DiscoverHeaderV2
                 scrollContainerRef={scrollContainerRef}
-                fullHeaderRef={fullHeaderRef}
                 searchQuery={searchQuery}
                 onSearchQueryChange={setSearchQuery}
-                isFullSearchOpen={searchOpen}
-                onCloseFullSearch={() => setSearchOpen(false)}
                 category={category}
                 onCategoryChange={onCategoryChange}
                 openNow={openNow}
                 onOpenNowChange={onOpenNowChange}
+                locationLabel={locationLabel}
+                locationSource={locationSource}
+                onLocationPickerOpen={() => setShowLocationPicker(true)}
                 onScrollToTop={onScrollToTop}
                 onMakerTap={onMakerTap}
                 makerSuggestions={makerSuggestions}
                 isHidden={isHidden}
                 refreshKey={refreshKey}
             />
-
-            {/* Full header — renders in flow, scrolls away naturally */}
-            <div ref={fullHeaderRef}>
-                <div style={{ padding: "12px 16px 14px" }}>
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            marginBottom: 14,
-                        }}
-                    >
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                            <h1
-                                onClick={() => {
-                                    onScrollToTop()
-                                    setSearchQuery("")
-                                    setSearchOpen(false)
-                                }}
-                                style={{
-                                    fontFamily: "'Playfair Display', serif",
-                                    fontSize: 30,
-                                    fontWeight: 700,
-                                    color: theme.text,
-                                    margin: 0,
-                                    letterSpacing: "-0.03em",
-                                    lineHeight: 0.75,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                maven
-                            </h1>
-                            <div
-                                onClick={() => setShowLocationPicker(true)}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 6,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                {locationSource === "gps" ? (
-                                    <div
-                                        style={{
-                                            width: 7,
-                                            height: 7,
-                                            borderRadius: "50%",
-                                            background: "#22543d",
-                                            flexShrink: 0,
-                                            animation: "locationPulse 2.5s ease-out infinite",
-                                        }}
-                                    />
-                                ) : (
-                                    <svg
-                                        width="11"
-                                        height="11"
-                                        viewBox="0 0 16 16"
-                                        fill="none"
-                                        style={{ flexShrink: 0 }}
-                                    >
-                                        <path
-                                            d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5zm0 6.25a1.75 1.75 0 110-3.5 1.75 1.75 0 010 3.5z"
-                                            fill={locationLabel ? theme.textSecondary : theme.textMuted}
-                                        />
-                                    </svg>
-                                )}
-                                <span
-                                    style={{
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 13.5,
-                                        fontWeight: 500,
-                                        color: theme.textSecondary,
-                                        letterSpacing: "0.01em",
-                                    }}
-                                >
-                                    {locationLabel || "Set location"}
-                                </span>
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ flexShrink: 0 }}>
-                                    <path
-                                        d="M2.5 3.75L5 6.25L7.5 3.75"
-                                        stroke={theme.textMuted}
-                                        strokeWidth="1.2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <button
-                                aria-label={searchOpen ? "Close search" : "Search"}
-                                aria-expanded={searchOpen}
-                                onClick={() => {
-                                    setSearchOpen((v) => !v)
-                                    if (!searchOpen && searchRef.current) searchRef.current.focus()
-                                }}
-                                style={{
-                                    width: 30,
-                                    height: 30,
-                                    borderRadius: "50%",
-                                    border: "none",
-                                    background: theme.pill,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                {searchOpen ? (
-                                    <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
-                                        <line
-                                            x1="2"
-                                            y1="2"
-                                            x2="8"
-                                            y2="8"
-                                            stroke={theme.textMuted}
-                                            strokeWidth="1.4"
-                                            strokeLinecap="round"
-                                        />
-                                        <line
-                                            x1="8"
-                                            y1="2"
-                                            x2="2"
-                                            y2="8"
-                                            stroke={theme.textMuted}
-                                            strokeWidth="1.4"
-                                            strokeLinecap="round"
-                                        />
-                                    </svg>
-                                ) : (
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                        <circle cx="7" cy="7" r="5.5" stroke={theme.textMuted} strokeWidth="1.6" />
-                                        <line
-                                            x1="11"
-                                            y1="11"
-                                            x2="14.5"
-                                            y2="14.5"
-                                            stroke={theme.textMuted}
-                                            strokeWidth="1.6"
-                                            strokeLinecap="round"
-                                        />
-                                    </svg>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                    {/* <p
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 14.5,
-                            color: theme.textMuted,
-                            margin: 0,
-                            letterSpacing: "0.005em",
-                            lineHeight: 1.4,
-                        }}
-                    >
-                        Discover local makers &amp; craftspeople
-                    </p> */}
-
-                    {/* Search bar */}
-                    <div
-                        style={{
-                            height: searchOpen ? "auto" : 0,
-                            overflow: "hidden",
-                        }}
-                    >
-                        <div
-                            style={{
-                                paddingTop: 12,
-                                opacity: searchOpen ? 1 : 0,
-                                transform: searchOpen ? "translateY(0)" : "translateY(-8px)",
-                                transition: searchOpen
-                                    ? "opacity 0.35s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)"
-                                    : "opacity 0.2s ease, transform 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
-                                willChange: "opacity, transform",
-                            }}
-                        >
-                            <SearchBar
-                                ref={searchRef}
-                                value={searchQuery}
-                                onChange={setSearchQuery}
-                                onFocus={() => setSearchFocused(true)}
-                                onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                                placeholder="Search makers, categories, places..."
-                            />
-                        </div>
-                    </div>
-
-                    {/* Maker suggestions dropdown */}
-                    {searchOpen && searchFocused && searchQuery && makerSuggestions.length > 0 && (
-                        <div style={{ position: "relative", zIndex: 10, marginTop: 8 }}>
-                            <div
-                                style={{
-                                    background: theme.card,
-                                    borderRadius: 12,
-                                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-                                    border: `1px solid ${theme.border}`,
-                                    overflow: "hidden",
-                                }}
-                            >
-                                {makerSuggestions.map((maker, i) => (
-                                    <div
-                                        key={maker.id}
-                                        onClick={() => onMakerTap(maker)}
-                                        style={{
-                                            padding: "11px 16px",
-                                            cursor: "pointer",
-                                            borderBottom:
-                                                i < makerSuggestions.length - 1 ? `1px solid ${theme.border}` : "none",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 10,
-                                        }}
-                                    >
-                                        <CategoryIcon category={maker.category} size={15} style={{ flexShrink: 0 }} />
-                                        <div style={{ minWidth: 0, flex: 1 }}>
-                                            <span
-                                                style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 13.5,
-                                                    fontWeight: 600,
-                                                    color: theme.text,
-                                                }}
-                                            >
-                                                {maker.name}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 11.5,
-                                                    color: theme.textMuted,
-                                                    marginLeft: 6,
-                                                }}
-                                            >
-                                                {maker.category} · {maker.city}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
 
             {/* Debug scoring summary bar */}
             {isDebug && debugMeta && (

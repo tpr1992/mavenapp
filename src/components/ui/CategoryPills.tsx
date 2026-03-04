@@ -1,5 +1,6 @@
 import { CATEGORIES } from "../../constants/categories"
 import { useTheme } from "../../contexts/ThemeContext"
+import { glassStyle } from "../../utils/glass"
 
 type FeedLayout = "grid" | "single"
 
@@ -26,18 +27,22 @@ export default function CategoryPills({
     onFeedLayoutChange,
     compact = false,
 }: CategoryPillsProps) {
-    const { theme } = useTheme()
+    const { theme, isDark } = useTheme()
 
     const showToggle = feedLayout && onFeedLayoutChange
     const px = compact ? 12 : 16
     const fontSize = compact ? 12.5 : 13
 
+    // Liquid glass style for elevated pills (map screen)
+    const useGlass = elevated && isDark
+    const g = glassStyle(isDark)
+
     const pillStyle = (active: boolean) => ({
         padding: `7px ${px}px`,
         borderRadius: 100,
-        border: active ? "none" : `1.5px solid ${theme.border}`,
-        background: active ? theme.btnBg : elevated ? theme.card : "transparent",
-        color: active ? theme.btnText : theme.textSecondary,
+        border: active ? "none" : useGlass ? g.border : `1.5px solid ${theme.border}`,
+        background: active ? theme.btnBg : useGlass ? g.background : elevated ? theme.card : "transparent",
+        color: active ? theme.btnText : useGlass ? "rgba(255,255,255,0.85)" : theme.textSecondary,
         fontFamily: "'DM Sans', sans-serif",
         fontSize,
         fontWeight: 500,
@@ -45,7 +50,9 @@ export default function CategoryPills({
         whiteSpace: "nowrap" as const,
         transition: "all 0.2s ease",
         letterSpacing: "0.01em",
-        boxShadow: elevated && !active ? "0 1px 4px rgba(0,0,0,0.1)" : undefined,
+        boxShadow: useGlass && !active ? g.boxShadow : elevated && !active ? "0 1px 4px rgba(0,0,0,0.1)" : undefined,
+        backdropFilter: useGlass && !active ? g.backdropFilter : undefined,
+        WebkitBackdropFilter: useGlass && !active ? g.WebkitBackdropFilter : undefined,
     })
 
     return (
@@ -67,9 +74,15 @@ export default function CategoryPills({
                         onClick={onToggleOpenNow}
                         style={{
                             ...pillStyle(openNowActive),
-                            background: openNowActive ? "#22543d" : elevated ? theme.card : "transparent",
-                            color: openNowActive ? "#fff" : theme.textSecondary,
-                            border: openNowActive ? "none" : `1.5px solid ${theme.border}`,
+                            background: openNowActive
+                                ? "#22543d"
+                                : useGlass
+                                  ? g.background
+                                  : elevated
+                                    ? theme.card
+                                    : "transparent",
+                            color: openNowActive ? "#fff" : useGlass ? "rgba(255,255,255,0.85)" : theme.textSecondary,
+                            border: openNowActive ? "none" : useGlass ? g.border : `1.5px solid ${theme.border}`,
                         }}
                     >
                         {"\u25CF"} Open

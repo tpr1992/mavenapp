@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
+import { glassStyle } from "../../utils/glass"
 
 interface SearchBarProps {
     value: string
@@ -16,7 +17,8 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
     { value, onChange, onFocus, onBlur, placeholder = "Search...", elevated, containerStyle, children },
     ref,
 ) {
-    const { theme } = useTheme()
+    const { theme, isDark } = useTheme()
+    const g = elevated ? glassStyle(isDark) : null
 
     return (
         <div style={{ position: "relative" }}>
@@ -25,11 +27,13 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                     display: "flex",
                     alignItems: "center",
                     gap: 10,
-                    background: theme.inputBg,
+                    background: g ? g.background : theme.inputBg,
                     borderRadius: 14,
                     padding: "10px 16px",
-                    border: `1px solid ${theme.border}`,
-                    ...(elevated ? { boxShadow: "0 2px 12px rgba(0,0,0,0.08)" } : {}),
+                    border: g ? g.border : `1px solid ${theme.border}`,
+                    backdropFilter: g ? g.backdropFilter : undefined,
+                    WebkitBackdropFilter: g ? g.WebkitBackdropFilter : undefined,
+                    boxShadow: g ? g.boxShadow : undefined,
                     ...containerStyle,
                 }}
             >
