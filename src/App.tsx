@@ -11,7 +11,7 @@ import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
 import useBreakpoint from "./hooks/useBreakpoint"
-import { optimizeImageUrl } from "./utils/image"
+import { optimizeImageUrl, IMG_QUALITY } from "./utils/image"
 import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
@@ -99,7 +99,7 @@ export default function App() {
             const heroUrl = maker.gallery_urls?.[0]
             if (heroUrl) {
                 const img = new window.Image()
-                img.src = optimizeImageUrl(heroUrl, 400) ?? ""
+                img.src = optimizeImageUrl(heroUrl, 800, { quality: IMG_QUALITY.hero }) ?? ""
             }
             if (containerRef.current) scrollPosRef.current = containerRef.current.scrollTop
             history.pushState({ maker: maker.slug, tab: activeTab }, "", buildURL(activeTab, maker.slug))

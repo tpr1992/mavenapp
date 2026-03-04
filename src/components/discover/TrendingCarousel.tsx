@@ -1,9 +1,8 @@
 import { memo } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
-import CategoryIcon from "../ui/CategoryIcon"
 import { isOpenNow } from "../../utils/time"
 import { formatLocationName } from "../../utils/distance"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import Carousel, { TRANSITION_IOS } from "../ui/Carousel"
 import type { Maker } from "../../types"
 
@@ -36,7 +35,11 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                 {maker.gallery_urls?.[0] && (
                     <>
                         <img
-                            src={optimizeImageUrl(maker.gallery_urls[0], imageWidth) ?? undefined}
+                            src={
+                                optimizeImageUrl(maker.gallery_urls[0], imageWidth, { quality: IMG_QUALITY.hero }) ??
+                                undefined
+                            }
+                            srcSet={imageSrcSet(maker.gallery_urls[0], imageWidth, { quality: IMG_QUALITY.hero })}
                             alt=""
                             loading="eager"
                             fetchPriority="high"
@@ -153,19 +156,6 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                     {maker.bio}
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16, position: "relative" }}>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 12,
-                            lineHeight: 1,
-                            color: "rgba(255,255,255,0.6)",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 3,
-                        }}
-                    >
-                        <CategoryIcon category={maker.category} /> {maker.category}
-                    </span>
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",

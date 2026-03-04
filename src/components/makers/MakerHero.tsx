@@ -1,5 +1,5 @@
 import React, { useState, memo } from "react"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import { formatDistance } from "../../utils/distance"
 import { safeOpen } from "../../utils/safeOpen"
 import { GLASS } from "../../utils/glass"
@@ -136,7 +136,9 @@ export default memo(function MakerHero({
         >
             {heroImage && (
                 <img
-                    src={optimizeImageUrl(heroImage, 400) ?? undefined}
+                    src={optimizeImageUrl(heroImage, 800, { quality: IMG_QUALITY.hero }) ?? undefined}
+                    srcSet={imageSrcSet(heroImage, 400, { quality: IMG_QUALITY.hero })}
+                    sizes="100vw"
                     alt=""
                     loading="eager"
                     fetchPriority="high"

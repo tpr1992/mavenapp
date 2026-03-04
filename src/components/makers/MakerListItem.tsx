@@ -15,6 +15,7 @@ interface MakerListItemProps {
     showHours?: boolean
     highlightQuery?: string
     isDebug?: boolean
+    eager?: boolean
 }
 
 export default memo(function MakerListItem({
@@ -26,6 +27,7 @@ export default memo(function MakerListItem({
     showHours = true,
     highlightQuery,
     isDebug,
+    eager = false,
 }: MakerListItemProps) {
     const { theme } = useTheme()
 
@@ -45,7 +47,7 @@ export default memo(function MakerListItem({
             }}
         >
             <div style={{ position: "relative", flexShrink: 0 }}>
-                <MakerAvatar maker={maker} size={48} />
+                <MakerAvatar maker={maker} size={48} eager={eager} />
                 {maker.made_in_ireland && (
                     <svg
                         width="16"
