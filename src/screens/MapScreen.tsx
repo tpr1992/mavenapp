@@ -12,6 +12,7 @@ import CategoryPills from "../components/ui/CategoryPills"
 import { useTheme } from "../contexts/ThemeContext"
 import { createPinIcon } from "../utils/mapIcons"
 import SwipeableMapCard from "../components/map/SwipeableMapCard"
+import SearchBar from "../components/ui/SearchBar"
 import type { Maker } from "../types"
 import type { UserLocation } from "../hooks/useUserLocation"
 
@@ -278,38 +279,14 @@ export default function MapScreen({
                     zIndex: 1001,
                 }}
             >
-                <div style={{ position: "relative" }}>
-                    <div
-                        style={{
-                            background: theme.inputBg,
-                            borderRadius: 14,
-                            padding: "10px 16px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                            border: `1px solid ${theme.border}`,
-                        }}
-                    >
-                        <span style={{ fontSize: 16, color: theme.textSecondary }}>{"\u2315"}</span>
-                        <input
-                            placeholder="Search makers or city..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onFocus={() => setSearchFocused(true)}
-                            onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
-                            style={{
-                                border: "none",
-                                outline: "none",
-                                flex: 1,
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                color: theme.text,
-                                background: "transparent",
-                            }}
-                        />
-                    </div>
-
+                <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+                    placeholder="Search makers or city..."
+                    elevated
+                >
                     {/* Town suggestions dropdown */}
                     {searchFocused && townSuggestions.length > 0 && (
                         <div
@@ -364,14 +341,14 @@ export default function MapScreen({
                             ))}
                         </div>
                     )}
-                </div>
+                </SearchBar>
             </div>
 
             {/* Filter Pills */}
             <div
                 style={{
                     position: "absolute",
-                    top: 64,
+                    top: 68,
                     left: 0,
                     right: 0,
                     zIndex: 1000,

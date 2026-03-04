@@ -10,6 +10,7 @@ import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
+import SearchBar from "../components/ui/SearchBar"
 import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
 
@@ -718,7 +719,7 @@ export default function DiscoverScreen({
                                             outline: "none",
                                             background: "transparent",
                                             fontFamily: "'DM Sans', sans-serif",
-                                            fontSize: 13.5,
+                                            fontSize: 16,
                                             fontWeight: 400,
                                             color: theme.text,
                                             letterSpacing: "0.01em",
@@ -923,78 +924,55 @@ export default function DiscoverScreen({
                                 aria-expanded={searchOpen}
                                 onClick={() => {
                                     setSearchOpen((v) => !v)
-                                    setTimeout(() => {
-                                        if (searchRef.current) searchRef.current.focus()
-                                    }, 50)
+                                    if (!searchOpen && searchRef.current) searchRef.current.focus()
                                 }}
                                 style={{
                                     width: 30,
                                     height: 30,
                                     borderRadius: "50%",
                                     border: "none",
-                                    background: searchOpen ? theme.btnBg : theme.pill,
+                                    background: theme.pill,
                                     cursor: "pointer",
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    position: "relative",
-                                    transition: "background 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
                                 }}
                             >
-                                <svg
-                                    width="14"
-                                    height="14"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    style={{
-                                        position: "absolute",
-                                        opacity: searchOpen ? 0 : 1,
-                                        transform: searchOpen ? "scale(0.6)" : "scale(1)",
-                                        transition: "opacity 0.2s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-                                    }}
-                                >
-                                    <circle cx="7" cy="7" r="5.5" stroke="#777" strokeWidth="1.6" />
-                                    <line
-                                        x1="11"
-                                        y1="11"
-                                        x2="14.5"
-                                        y2="14.5"
-                                        stroke="#777"
-                                        strokeWidth="1.6"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                                <svg
-                                    width="12"
-                                    height="12"
-                                    viewBox="0 0 10 10"
-                                    fill="none"
-                                    style={{
-                                        position: "absolute",
-                                        opacity: searchOpen ? 1 : 0,
-                                        transform: searchOpen ? "scale(1)" : "scale(0.6)",
-                                        transition: "opacity 0.2s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-                                    }}
-                                >
-                                    <line
-                                        x1="2"
-                                        y1="2"
-                                        x2="8"
-                                        y2="8"
-                                        stroke="#fff"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                    />
-                                    <line
-                                        x1="8"
-                                        y1="2"
-                                        x2="2"
-                                        y2="8"
-                                        stroke="#fff"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
+                                {searchOpen ? (
+                                    <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
+                                        <line
+                                            x1="2"
+                                            y1="2"
+                                            x2="8"
+                                            y2="8"
+                                            stroke={theme.textMuted}
+                                            strokeWidth="1.4"
+                                            strokeLinecap="round"
+                                        />
+                                        <line
+                                            x1="8"
+                                            y1="2"
+                                            x2="2"
+                                            y2="8"
+                                            stroke={theme.textMuted}
+                                            strokeWidth="1.4"
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                ) : (
+                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="7" cy="7" r="5.5" stroke={theme.textMuted} strokeWidth="1.6" />
+                                        <line
+                                            x1="11"
+                                            y1="11"
+                                            x2="14.5"
+                                            y2="14.5"
+                                            stroke={theme.textMuted}
+                                            strokeWidth="1.6"
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -1014,109 +992,29 @@ export default function DiscoverScreen({
                     {/* Search bar */}
                     <div
                         style={{
-                            display: "grid",
-                            gridTemplateRows: searchOpen ? "1fr" : "0fr",
-                            transition: "grid-template-rows 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+                            height: searchOpen ? "auto" : 0,
+                            overflow: "hidden",
                         }}
                     >
-                        <div style={{ overflow: "hidden" }}>
-                            <div
-                                style={{
-                                    paddingTop: 12,
-                                    opacity: searchOpen ? 1 : 0,
-                                    transform: searchOpen ? "translateY(0)" : "translateY(-4px)",
-                                    transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
-                                }}
-                            >
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 10,
-                                        background: theme.inputBg,
-                                        borderRadius: 100,
-                                        padding: "10px 16px",
-                                        boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)",
-                                    }}
-                                >
-                                    <svg
-                                        width="14"
-                                        height="14"
-                                        viewBox="0 0 16 16"
-                                        fill="none"
-                                        style={{ flexShrink: 0, opacity: 0.4 }}
-                                    >
-                                        <circle cx="7" cy="7" r="5.5" stroke="#1a1a1a" strokeWidth="1.5" />
-                                        <line
-                                            x1="11"
-                                            y1="11"
-                                            x2="14.5"
-                                            y2="14.5"
-                                            stroke="#1a1a1a"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                        />
-                                    </svg>
-                                    <input
-                                        ref={searchRef}
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        onFocus={() => setSearchFocused(true)}
-                                        onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                                        placeholder="Search makers, categories, places..."
-                                        style={{
-                                            flex: 1,
-                                            border: "none",
-                                            outline: "none",
-                                            background: "transparent",
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontSize: 14,
-                                            fontWeight: 400,
-                                            color: theme.text,
-                                            letterSpacing: "0.01em",
-                                        }}
-                                    />
-                                    {searchQuery && (
-                                        <button
-                                            onClick={() => setSearchQuery("")}
-                                            style={{
-                                                width: 22,
-                                                height: 22,
-                                                borderRadius: "50%",
-                                                background: theme.border,
-                                                border: "none",
-                                                cursor: "pointer",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                                flexShrink: 0,
-                                                padding: 0,
-                                            }}
-                                        >
-                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                                <line
-                                                    x1="2.5"
-                                                    y1="2.5"
-                                                    x2="7.5"
-                                                    y2="7.5"
-                                                    stroke={theme.textMuted}
-                                                    strokeWidth="1.4"
-                                                    strokeLinecap="round"
-                                                />
-                                                <line
-                                                    x1="7.5"
-                                                    y1="2.5"
-                                                    x2="2.5"
-                                                    y2="7.5"
-                                                    stroke={theme.textMuted}
-                                                    strokeWidth="1.4"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
+                        <div
+                            style={{
+                                paddingTop: 12,
+                                opacity: searchOpen ? 1 : 0,
+                                transform: searchOpen ? "translateY(0)" : "translateY(-8px)",
+                                transition: searchOpen
+                                    ? "opacity 0.35s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)"
+                                    : "opacity 0.2s ease, transform 0.2s cubic-bezier(0.32, 0.72, 0, 1)",
+                                willChange: "opacity, transform",
+                            }}
+                        >
+                            <SearchBar
+                                ref={searchRef}
+                                value={searchQuery}
+                                onChange={setSearchQuery}
+                                onFocus={() => setSearchFocused(true)}
+                                onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+                                placeholder="Search makers, categories, places..."
+                            />
                         </div>
                     </div>
 

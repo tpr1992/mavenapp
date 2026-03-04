@@ -49,6 +49,10 @@ body {
   to { transform: rotate(360deg); }
 }
 
+input::placeholder {
+  font-size: 14px;
+}
+
 .leaflet-control-attribution {
   font-size: 9px !important;
   opacity: 0.5;

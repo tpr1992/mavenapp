@@ -32,10 +32,10 @@ export default memo(function MakerHero({
     const [menuOpen, setMenuOpen] = useState(false)
 
     const frostedBtn = {
-        background: "rgba(20,20,20,0.3)",
-        backdropFilter: "blur(12px) saturate(1.4)",
-        WebkitBackdropFilter: "blur(12px) saturate(1.4)",
-        border: "1px solid rgba(255,255,255,0.12)",
+        background: "rgba(20,20,20,0.35)",
+        backdropFilter: "blur(20px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+        border: "1px solid rgba(255,255,255,0.15)",
         borderRadius: "50%",
         width: 36,
         height: 36,
@@ -44,10 +44,10 @@ export default memo(function MakerHero({
         justifyContent: "center",
         cursor: "pointer",
         flexShrink: 0,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
     }
 
-    const iconColor = theme.textSecondary
+    const iconColor = "rgba(255,255,255,0.7)"
     const menuItems = [
         {
             label: "Share",
@@ -240,11 +240,12 @@ export default memo(function MakerHero({
                                     position: "absolute",
                                     top: "calc(100% + 8px)",
                                     right: 0,
-                                    background: theme.card,
+                                    background: "rgba(30,30,30,0.55)",
+                                    backdropFilter: "blur(20px) saturate(1.4)",
+                                    WebkitBackdropFilter: "blur(20px) saturate(1.4)",
                                     borderRadius: 14,
-                                    boxShadow: isDark
-                                        ? "0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2)"
-                                        : "0 4px 24px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.08)",
+                                    border: "1px solid rgba(255,255,255,0.12)",
+                                    boxShadow: "0 4px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.15)",
                                     minWidth: 180,
                                     zIndex: 100,
                                     overflow: "hidden",
@@ -267,9 +268,9 @@ export default memo(function MakerHero({
                                             fontFamily: "'DM Sans', sans-serif",
                                             fontSize: 14,
                                             fontWeight: 500,
-                                            color: theme.text,
+                                            color: "rgba(255,255,255,0.9)",
                                             borderBottom:
-                                                i < menuItems.length - 1 ? `1px solid ${theme.border}` : "none",
+                                                i < menuItems.length - 1 ? "1px solid rgba(255,255,255,0.1)" : "none",
                                             textAlign: "left",
                                         }}
                                     >

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { optimizeImageUrl } from "../utils/image"
 import CategoryIcon from "../components/ui/CategoryIcon"
-import { isOpenNow, getTodayHours, formatHoursRange, DAYS } from "../utils/time"
+import { isOpenNow, getTodayHours } from "../utils/time"
 
 import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
 import { useTheme } from "../contexts/ThemeContext"
@@ -30,23 +30,23 @@ interface MakerProfileV2Props {
 }
 
 const TABS: TabItem[] = [
-    { id: "gallery", label: "Gallery" },
-    { id: "instagram", label: "Instagram" },
+    { id: "work", label: "Work" },
+    { id: "about", label: "About" },
+    { id: "socials", label: "Socials" },
     { id: "events", label: "Events" },
 ]
 
 function getVisibleTabs(maker: Maker): TabItem[] {
     return TABS.filter((tab) => {
-        if (tab.id === "instagram") return !!maker.instagram_handle
+        if (tab.id === "socials") return !!maker.instagram_handle
         if (tab.id === "events") return maker.events && maker.events.length > 0
         return true
     })
 }
 
-// ─── About Section (inline, compact) ─────────────────
-function AboutSection({ maker, theme }: { maker: Maker; theme: Theme }) {
+// ─── Info Section (inline, compact) ──────────────────
+function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
     const [bioExpanded, setBioExpanded] = useState(false)
-    const [hoursExpanded, setHoursExpanded] = useState(false)
     const todayStatus = isOpenNow(maker.opening_hours)
     const todayText = getTodayHours(maker.opening_hours)
     const bioIsLong = maker.bio && maker.bio.length > 120
@@ -78,12 +78,13 @@ function AboutSection({ maker, theme }: { maker: Maker; theme: Theme }) {
             </p>
 
             {/* Compact info row — pills + status inline */}
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                 <span
                     style={{
                         padding: "4px 10px",
                         borderRadius: 100,
-                        background: theme.pill,
+                        border: `1.5px solid ${theme.border}`,
+                        background: "transparent",
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 11,
                         fontWeight: 500,
@@ -99,7 +100,8 @@ function AboutSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                     style={{
                         padding: "4px 10px",
                         borderRadius: 100,
-                        background: theme.pill,
+                        border: `1.5px solid ${theme.border}`,
+                        background: "transparent",
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 11,
                         fontWeight: 500,
@@ -114,7 +116,8 @@ function AboutSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                         style={{
                             padding: "4px 10px",
                             borderRadius: 100,
-                            background: theme.pill,
+                            border: `1.5px solid ${theme.border}`,
+                            background: "transparent",
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: 11,
                             fontWeight: 500,
@@ -126,102 +129,6 @@ function AboutSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                 )}
                 {maker.made_in_ireland && <MadeInIrelandBadge variant="card" />}
             </div>
-
-            {/* Hours — collapsible, compact */}
-            <button
-                onClick={() => setHoursExpanded(!hoursExpanded)}
-                style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "10px 14px",
-                    background: theme.surface,
-                    borderRadius: hoursExpanded ? "12px 12px 0 0" : 12,
-                    border: "none",
-                    cursor: "pointer",
-                    fontFamily: "'DM Sans', sans-serif",
-                    transition: "border-radius 0.2s ease",
-                }}
-            >
-                <span style={{ fontSize: 12, fontWeight: 600, color: theme.text }}>Hours</span>
-                <span style={{ fontSize: 11, color: theme.textMuted, display: "flex", alignItems: "center", gap: 5 }}>
-                    {todayText}
-                    <svg
-                        width="9"
-                        height="9"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                        style={{
-                            transform: hoursExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                            transition: "transform 0.2s ease",
-                        }}
-                    >
-                        <path
-                            d="M2 3.5L5 6.5L8 3.5"
-                            stroke={theme.textMuted}
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </span>
-            </button>
-
-            {hoursExpanded && (
-                <div
-                    style={{
-                        background: theme.surface,
-                        borderRadius: "0 0 12px 12px",
-                        padding: "2px 14px 10px",
-                        animation: "fadeSlideIn 0.2s ease",
-                    }}
-                >
-                    {["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((day) => {
-                        const hours = maker.opening_hours?.[day]
-                        const isToday = DAYS[new Date().getDay()] === day
-                        return (
-                            <div
-                                key={day}
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    padding: "4px 0",
-                                    borderBottom: day !== "sun" ? `1px solid ${theme.border}` : "none",
-                                }}
-                            >
-                                <span
-                                    style={{
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 11.5,
-                                        fontWeight: isToday ? 700 : 400,
-                                        color: isToday ? theme.text : theme.textSecondary,
-                                        textTransform: "capitalize",
-                                    }}
-                                >
-                                    {day}
-                                    {isToday ? " \u00B7" : ""}
-                                </span>
-                                <span
-                                    style={{
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 11.5,
-                                        fontWeight: isToday ? 600 : 400,
-                                        color:
-                                            !hours || hours === "closed"
-                                                ? theme.textMuted
-                                                : isToday
-                                                  ? theme.text
-                                                  : theme.textSecondary,
-                                    }}
-                                >
-                                    {formatHoursRange(hours)}
-                                </span>
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
         </div>
     )
 }
@@ -276,16 +183,105 @@ function ProfileTabs({
     )
 }
 
-// ─── Gallery Tab ──────────────────────────────────────
-function GalleryTab({
-    maker,
-    theme,
-    onImageTap,
-}: {
-    maker: Maker
-    theme: Theme
-    onImageTap?: (index: number) => void
-}) {
+// ─── About Tab ───────────────────────────────────────
+function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
+    const todayStatus = isOpenNow(maker.opening_hours)
+    const todayText = getTodayHours(maker.opening_hours)
+
+    return (
+        <div style={{ padding: "16px 16px 0" }}>
+            {/* Full bio */}
+            {maker.bio && (
+                <p
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 14,
+                        color: theme.textSecondary,
+                        lineHeight: 1.6,
+                        margin: "0 0 16px",
+                    }}
+                >
+                    {maker.bio}
+                </p>
+            )}
+
+            {/* Details */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {maker.city && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={theme.textMuted}
+                            strokeWidth="2"
+                        >
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
+                            {maker.address || maker.city}
+                        </span>
+                    </div>
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 14, width: 14, textAlign: "center", color: theme.textMuted }}>
+                        {"\u25CF"}
+                    </span>
+                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
+                        {todayStatus ? "Open" : "Closed"} {"\u00B7"} {todayText}
+                    </span>
+                </div>
+                {maker.years_active && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 14, width: 14, textAlign: "center", color: theme.textMuted }}>
+                            {"\u2726"}
+                        </span>
+                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
+                            {maker.years_active} years active
+                        </span>
+                    </div>
+                )}
+                {maker.website_url && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={theme.textMuted}
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        <a
+                            href={maker.website_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 13,
+                                color: theme.textSecondary,
+                                textDecoration: "underline",
+                                textUnderlineOffset: 2,
+                            }}
+                        >
+                            {maker.website_url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                        </a>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+// ─── Work Tab ─────────────────────────────────────────
+function WorkTab({ maker, theme, onImageTap }: { maker: Maker; theme: Theme; onImageTap?: (index: number) => void }) {
     const images = maker.gallery_urls || []
     const HEIGHTS_L = [195, 155, 175, 190]
     const HEIGHTS_R = [215, 160, 180, 170]
@@ -302,7 +298,7 @@ function GalleryTab({
                         lineHeight: 1.6,
                     }}
                 >
-                    No gallery images yet.
+                    No work images yet.
                 </p>
             </div>
         )
@@ -389,7 +385,7 @@ function GalleryTab({
 }
 
 // ─── Instagram Tab ────────────────────────────────────
-function InstagramTab({ maker, theme }: { maker: Maker; theme: Theme }) {
+function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const handle = maker.instagram_handle || ""
     const cleanHandle = handle.replace("@", "")
     const images = maker.gallery_urls || []
@@ -755,7 +751,7 @@ export default function MakerProfileV2({
     const [showShare, setShowShare] = useState(false)
     const [showCompact, setShowCompact] = useState(false)
     const [compactMenuOpen, setCompactMenuOpen] = useState(false)
-    const [activeTab, setActiveTab] = useState("gallery")
+    const [activeTab, setActiveTab] = useState("work")
     const [viewerIndex, setViewerIndex] = useState<number | null>(null)
     const heroRef = useRef<HTMLDivElement>(null)
     const { theme, isDark } = useTheme()
@@ -787,7 +783,7 @@ export default function MakerProfileV2({
     }, [scrollContainerRef])
 
     useEffect(() => {
-        setActiveTab("gallery")
+        setActiveTab("work")
     }, [maker.id])
 
     const pageTitle = `${maker.name} \u2014 ${maker.category} in ${maker.city} | maven`
@@ -1084,18 +1080,17 @@ export default function MakerProfileV2({
                 theme={theme}
             />
 
-            {/* About section — inline, always visible */}
-            <AboutSection maker={maker} theme={theme} />
+            {/* Info section — inline, always visible */}
+            <InfoSection maker={maker} theme={theme} />
 
             {/* Tabs — Gallery / Instagram / Events */}
             {visibleTabs.length > 0 && (
                 <>
                     <ProfileTabs tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} theme={theme} />
                     <div style={{ minHeight: 120 }}>
-                        {activeTab === "gallery" && (
-                            <GalleryTab maker={maker} theme={theme} onImageTap={setViewerIndex} />
-                        )}
-                        {activeTab === "instagram" && <InstagramTab maker={maker} theme={theme} />}
+                        {activeTab === "work" && <WorkTab maker={maker} theme={theme} onImageTap={setViewerIndex} />}
+                        {activeTab === "about" && <AboutTab maker={maker} theme={theme} />}
+                        {activeTab === "socials" && <SocialsTab maker={maker} theme={theme} />}
                         {activeTab === "events" && <EventsTab maker={maker} theme={theme} />}
                     </div>
                 </>
