@@ -1,7 +1,14 @@
+export const IMG_QUALITY = {
+    thumbnail: 60,
+    default: 80,
+    hero: 85,
+    lightbox: 90,
+} as const
+
 export function optimizeImageUrl(
     url: string | null | undefined,
     width: number,
-    { quality = 75 } = {},
+    { quality = IMG_QUALITY.default as number } = {},
 ): string | null | undefined {
     if (!url) return url
 
@@ -20,4 +27,17 @@ export function optimizeImageUrl(
     }
 
     return url
+}
+
+/** Returns a `"url1 1x, url2 2x"` srcset string for 1x and 2x displays. */
+export function imageSrcSet(
+    url: string | null | undefined,
+    baseWidth: number,
+    { quality = IMG_QUALITY.default as number } = {},
+): string | undefined {
+    if (!url) return undefined
+    const x1 = optimizeImageUrl(url, baseWidth, { quality })
+    const x2 = optimizeImageUrl(url, baseWidth * 2, { quality })
+    if (!x1 || !x2) return undefined
+    return `${x1} 1x, ${x2} 2x`
 }

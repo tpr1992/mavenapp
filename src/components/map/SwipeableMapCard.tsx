@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react"
 import { isOpenNow, getTodayHours } from "../../utils/time"
 import { formatLocation } from "../../utils/distance"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import { glassStyle } from "../../utils/glass"
 import MakerAvatar from "../ui/MakerAvatar"
 import type { Maker, Theme } from "../../types"
@@ -289,8 +289,14 @@ export default memo(function SwipeableMapCard({
 
     const open = isOpenNow(maker.opening_hours)
     const hours = getTodayHours(maker.opening_hours)
-    const heroUrl = maker.gallery_urls?.[0] ? optimizeImageUrl(maker.gallery_urls[0], 600) : null
-    const thumbUrl = maker.gallery_urls?.[0] ? optimizeImageUrl(maker.gallery_urls[0], 120) : null
+    const heroUrl = maker.gallery_urls?.[0] ? optimizeImageUrl(maker.gallery_urls[0], 400) : null
+    const heroSrcSet = maker.gallery_urls?.[0] ? imageSrcSet(maker.gallery_urls[0], 400) : undefined
+    const thumbUrl = maker.gallery_urls?.[0]
+        ? optimizeImageUrl(maker.gallery_urls[0], 80, { quality: IMG_QUALITY.thumbnail })
+        : null
+    const thumbSrcSet = maker.gallery_urls?.[0]
+        ? imageSrcSet(maker.gallery_urls[0], 80, { quality: IMG_QUALITY.thumbnail })
+        : undefined
 
     return (
         <div
@@ -459,7 +465,10 @@ export default memo(function SwipeableMapCard({
                         >
                             <img
                                 src={thumbUrl}
+                                srcSet={thumbSrcSet}
                                 alt=""
+                                loading="lazy"
+                                decoding="async"
                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                             />
                         </div>
@@ -502,7 +511,10 @@ export default memo(function SwipeableMapCard({
                         >
                             <img
                                 src={heroUrl}
+                                srcSet={heroSrcSet}
                                 alt={maker.name}
+                                loading="lazy"
+                                decoding="async"
                                 style={{
                                     width: "100%",
                                     height: 200,
@@ -555,9 +567,13 @@ export default memo(function SwipeableMapCard({
                                     }}
                                 >
                                     <img
-                                        src={optimizeImageUrl(url, 200) ?? undefined}
+                                        src={
+                                            optimizeImageUrl(url, 100, { quality: IMG_QUALITY.thumbnail }) ?? undefined
+                                        }
+                                        srcSet={imageSrcSet(url, 100, { quality: IMG_QUALITY.thumbnail })}
                                         alt=""
                                         loading="lazy"
+                                        decoding="async"
                                         style={{
                                             width: "100%",
                                             height: "100%",

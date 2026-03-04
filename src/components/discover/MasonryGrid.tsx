@@ -4,7 +4,7 @@ import CategoryIcon from "../ui/CategoryIcon"
 import { formatLocation } from "../../utils/distance"
 import { safeOpen } from "../../utils/safeOpen"
 import Carousel from "../ui/Carousel"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import type { Maker, Theme, SponsoredPost } from "../../types"
 
 interface CardGalleryProps {
@@ -21,9 +21,10 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
             renderItem={(url, i) => (
                 <img
                     src={optimizeImageUrl(url, imageWidth) ?? undefined}
+                    srcSet={imageSrcSet(url, imageWidth)}
                     alt=""
                     loading={eager && i === 0 ? "eager" : "lazy"}
-                    {...(eager && i === 0 ? { fetchpriority: "high" } : {})}
+                    fetchPriority={eager && i === 0 ? "high" : undefined}
                     decoding="async"
                     draggable={false}
                     style={{
@@ -320,6 +321,7 @@ export default memo(function MasonryGrid({
                     src={optimizeImageUrl(ad.image_url, 300) ?? undefined}
                     alt={ad.brand}
                     loading="lazy"
+                    decoding="async"
                     style={{
                         width: "100%",
                         height: "100%",

@@ -1,22 +1,23 @@
 import { useState } from "react"
 import type { Maker } from "../../types"
 import { getInitials } from "../../utils/time"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, IMG_QUALITY } from "../../utils/image"
 
 interface MakerAvatarProps {
     maker: Maker
     size?: number
+    eager?: boolean
 }
 
-export default function MakerAvatar({ maker, size = 48 }: MakerAvatarProps) {
+export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAvatarProps) {
     const [imgError, setImgError] = useState(false)
 
     if (maker.avatar_url && !imgError) {
         return (
             <img
-                src={optimizeImageUrl(maker.avatar_url, size * 2) ?? undefined}
+                src={optimizeImageUrl(maker.avatar_url, size * 2, { quality: IMG_QUALITY.thumbnail }) ?? undefined}
                 alt={maker.name}
-                loading="lazy"
+                loading={eager ? "eager" : "lazy"}
                 decoding="async"
                 onError={() => setImgError(true)}
                 style={{

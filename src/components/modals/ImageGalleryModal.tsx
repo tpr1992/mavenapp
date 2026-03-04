@@ -1,10 +1,38 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react"
+import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 
 interface ImageGalleryModalProps {
     images: string[]
     initialIndex: number
     onClose: () => void
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
+}
+
+function FullResImage({ url, index, total }: { url: string; index: number; total: number }) {
+    const [loaded, setLoaded] = useState(false)
+    return (
+        <img
+            src={optimizeImageUrl(url, 1200, { quality: IMG_QUALITY.lightbox }) ?? undefined}
+            srcSet={imageSrcSet(url, 600, { quality: IMG_QUALITY.lightbox })}
+            alt={`Image ${index + 1} of ${total}`}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            onLoad={() => setLoaded(true)}
+            style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                pointerEvents: "none",
+                opacity: loaded ? 1 : 0,
+                transition: "opacity 0.3s ease",
+            }}
+        />
+    )
 }
 
 export default memo(function ImageGalleryModal({
@@ -325,33 +353,41 @@ export default memo(function ImageGalleryModal({
                         willChange: "transform",
                     }}
                 >
-                    {images.map((url, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                width: `${100 / total}%`,
-                                height: "100%",
-                                flexShrink: 0,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <img
-                                src={url}
-                                alt={`Image ${i + 1} of ${total}`}
-                                draggable={false}
+                    {images.map((url, i) => {
+                        const nearby = Math.abs(i - index) <= 1
+                        return (
+                            <div
+                                key={i}
                                 style={{
-                                    maxWidth: "100%",
-                                    maxHeight: "100%",
-                                    objectFit: "contain",
-                                    userSelect: "none",
-                                    WebkitUserSelect: "none",
-                                    pointerEvents: "none",
+                                    width: `${100 / total}%`,
+                                    height: "100%",
+                                    flexShrink: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    position: "relative",
                                 }}
-                            />
-                        </div>
-                    ))}
+                            >
+                                {/* Preview — 600px, already cached from profile grid */}
+                                <img
+                                    src={optimizeImageUrl(url, 600) ?? undefined}
+                                    alt={`Image ${i + 1} of ${total}`}
+                                    loading={i === index ? "eager" : "lazy"}
+                                    draggable={false}
+                                    style={{
+                                        maxWidth: "100%",
+                                        maxHeight: "100%",
+                                        objectFit: "contain",
+                                        userSelect: "none",
+                                        WebkitUserSelect: "none",
+                                        pointerEvents: "none",
+                                    }}
+                                />
+                                {/* Full-res — 1200px, fades in on load (only rendered for nearby slides) */}
+                                {nearby && <FullResImage url={url} index={i} total={total} />}
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
         </div>
