@@ -6,11 +6,12 @@ import type { Maker } from "../../types"
 interface RelatedMakersFeedProps {
     makers: Maker[]
     onMakerTap: (maker: Maker) => void
+    columnCount?: number
 }
 
 const HEIGHT_VARIANTS = [220, 260, 190, 240, 210]
 
-export default memo(function RelatedMakersFeed({ makers, onMakerTap }: RelatedMakersFeedProps) {
+export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount = 2 }: RelatedMakersFeedProps) {
     const { theme } = useTheme()
 
     if (!makers.length) return null
@@ -41,12 +42,12 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap }: RelatedMa
                 </p>
             </div>
 
-            {/* Masonry grid — two columns with staggered heights */}
+            {/* Masonry grid — responsive columns with staggered heights */}
             <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                {[0, 1].map((col) => (
+                {Array.from({ length: columnCount }, (_, col) => (
                     <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
                         {makers
-                            .filter((_, i) => i % 2 === col)
+                            .filter((_, i) => i % columnCount === col)
                             .map((m, i) => {
                                 const heroUrl = m.gallery_urls?.[0]
                                 const imgHeight = HEIGHT_VARIANTS[(i + col) % HEIGHT_VARIANTS.length]

@@ -13,22 +13,23 @@ interface TrendingCardProps {
     showOpenStatus: boolean
     isDark: boolean
     isDebug?: boolean
+    imageWidth?: number
 }
 
-function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug }: TrendingCardProps) {
+function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidth = 400 }: TrendingCardProps) {
     return (
         <div onClick={() => onTap(maker)} style={{ padding: "0 4px", cursor: "pointer" }}>
             <div
                 style={{
                     background: maker.gallery_urls?.[0]
-                        ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], 400)}) center/cover`
+                        ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], imageWidth)}) center/cover`
                         : maker.hero_color,
                     borderRadius: 20,
                     padding: "28px 24px",
                     position: "relative",
                     overflow: "hidden",
                     filter: isDark ? "brightness(0.78) saturate(0.85)" : "none",
-                    aspectRatio: "3 / 2",
+                    aspectRatio: "4 / 3",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "flex-end",
@@ -117,7 +118,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug }: Trendin
                 >
                     {maker.bio}
                 </p>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
@@ -141,19 +142,21 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug }: Trendin
                     >
                         {`\u25C8 ${formatLocationName(maker, { full: true })}`}
                     </span>
-                    {showOpenStatus && (
-                        <span
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12,
-                                color: isOpenNow(maker.opening_hours)
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 12,
+                            lineHeight: 1,
+                            color: showOpenStatus
+                                ? isOpenNow(maker.opening_hours)
                                     ? "rgba(134,239,172,0.9)"
-                                    : "rgba(255,255,255,0.4)",
-                            }}
-                        >
-                            {isOpenNow(maker.opening_hours) ? "\u25CF Open" : "\u25CB Closed"}
-                        </span>
-                    )}
+                                    : "rgba(255,255,255,0.4)"
+                                : "transparent",
+                            transition: "color 0.2s ease",
+                        }}
+                    >
+                        {isOpenNow(maker.opening_hours) ? "\u25CF Open" : "\u25CB Closed"}
+                    </span>
                 </div>
             </div>
         </div>
@@ -165,9 +168,16 @@ interface TrendingCarouselProps {
     onTap: (maker: Maker) => void
     showOpenStatus: boolean
     isDebug?: boolean
+    imageWidth?: number
 }
 
-export default memo(function TrendingCarousel({ makers, onTap, showOpenStatus, isDebug }: TrendingCarouselProps) {
+export default memo(function TrendingCarousel({
+    makers,
+    onTap,
+    showOpenStatus,
+    isDebug,
+    imageWidth = 400,
+}: TrendingCarouselProps) {
     const { isDark } = useTheme()
     if (!makers.length) return null
     return (
@@ -180,6 +190,7 @@ export default memo(function TrendingCarousel({ makers, onTap, showOpenStatus, i
                     showOpenStatus={showOpenStatus}
                     isDark={isDark}
                     isDebug={isDebug}
+                    imageWidth={imageWidth}
                 />
             )}
             loop

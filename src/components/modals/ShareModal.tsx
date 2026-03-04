@@ -1,4 +1,5 @@
 import { useState, memo } from "react"
+import useBreakpoint from "../../hooks/useBreakpoint"
 import type { Maker, Theme } from "../../types"
 
 interface ShareModalProps {
@@ -9,6 +10,7 @@ interface ShareModalProps {
 }
 
 export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: ShareModalProps) {
+    const breakpoint = useBreakpoint()
     const [copied, setCopied] = useState(false)
 
     const handleCopy = async () => {
@@ -41,7 +43,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                     background: theme.card,
                     borderRadius: "20px 20px 0 0",
                     padding: "28px 24px 36px",
-                    maxWidth: 430,
+                    maxWidth: breakpoint === "mobile" ? 430 : 560,
                     width: "100%",
                     animation: "slideUp 0.25s ease",
                 }}

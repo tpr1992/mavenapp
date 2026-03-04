@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useCallback } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
+import useBreakpoint from "../../hooks/useBreakpoint"
 import { getNearestTown } from "../../utils/distance"
 import type { Town } from "../../utils/distance"
 import { TOWNS } from "../../data/towns"
@@ -20,6 +21,7 @@ export default function LocationPicker({
     onClose,
 }: LocationPickerProps) {
     const { theme } = useTheme()
+    const breakpoint = useBreakpoint()
     const [citySearch, setCitySearch] = useState("")
     const [cityError, setCityError] = useState("")
     const [locationUpdating, setLocationUpdating] = useState(false)
@@ -106,7 +108,7 @@ export default function LocationPicker({
                 style={{
                     background: theme.card,
                     borderRadius: 16,
-                    maxWidth: 380,
+                    maxWidth: breakpoint === "mobile" ? 380 : 480,
                     width: "100%",
                     animation: "fadeSlideIn 0.2s ease",
                     overflow: "visible",

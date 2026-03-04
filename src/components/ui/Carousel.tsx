@@ -97,16 +97,17 @@ const Carousel = memo(function Carousel({
                 ...transition,
                 onComplete: () => {
                     isAnimating.current = false
-                    el.style.scrollSnapType = "x mandatory"
                     // If animation landed in a clone zone, teleport to real zone
                     const idx = Math.round(el.scrollLeft / el.offsetWidth)
                     if (idx < CLONES || idx >= CLONES + count) {
-                        el.style.scrollSnapType = "none"
                         if (idx < CLONES) el.scrollLeft += count * el.offsetWidth
                         else el.scrollLeft -= count * el.offsetWidth
                         scrollMV.set(el.scrollLeft)
-                        el.style.scrollSnapType = "x mandatory"
                     }
+                    // Defer snap re-enable so browser settles on the new scrollLeft first
+                    requestAnimationFrame(() => {
+                        el.style.scrollSnapType = "x mandatory"
+                    })
                 },
             })
         },
@@ -148,16 +149,16 @@ const Carousel = memo(function Carousel({
             isJumping.current = true
             el.style.scrollSnapType = "none"
             el.scrollLeft += count * el.offsetWidth
-            el.style.scrollSnapType = "x mandatory"
             requestAnimationFrame(() => {
+                el.style.scrollSnapType = "x mandatory"
                 isJumping.current = false
             })
         } else if (loopIdx >= CLONES + count) {
             isJumping.current = true
             el.style.scrollSnapType = "none"
             el.scrollLeft -= count * el.offsetWidth
-            el.style.scrollSnapType = "x mandatory"
             requestAnimationFrame(() => {
+                el.style.scrollSnapType = "x mandatory"
                 isJumping.current = false
             })
         }
@@ -277,6 +278,8 @@ const Carousel = memo(function Carousel({
                     overscrollBehavior: "contain",
                     height: "100%",
                     willChange: "scroll-position",
+                    transform: "translateZ(0)",
+                    backfaceVisibility: "hidden",
                 }}
             >
                 {loopedItems.map((item, i) => {
@@ -290,6 +293,8 @@ const Carousel = memo(function Carousel({
                                 scrollSnapStop: "always",
                                 boxSizing: "border-box",
                                 height: "100%",
+                                transform: "translateZ(0)",
+                                willChange: "transform",
                             }}
                         >
                             {renderItem(item, realIdx)}
@@ -341,18 +346,18 @@ const Carousel = memo(function Carousel({
                     }}
                 >
                     {items.map((_, i) => (
-                        <button
+                        <div
                             key={i}
                             onClick={() => handleDotClick(i)}
                             style={{
                                 width: activeIndex === i ? 18 : 7,
                                 height: 7,
                                 borderRadius: 100,
-                                border: "none",
                                 background: activeIndex === i ? theme.text : theme.border,
                                 cursor: "pointer",
-                                padding: 0,
-                                transition: "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+                                transition: "width 0.3s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s ease",
+                                transform: "translateZ(0)",
+                                backfaceVisibility: "hidden",
                             }}
                         />
                     ))}

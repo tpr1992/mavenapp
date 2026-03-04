@@ -21,7 +21,7 @@ export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTa
                 bottom: 0,
                 left: 0,
                 right: 0,
-                height: 64,
+                height: 48,
                 paddingBottom: "env(safe-area-inset-bottom, 0px)",
                 background: theme.tabBg,
                 backdropFilter: "blur(20px)",
@@ -59,19 +59,8 @@ export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTa
                             opacity: isActive ? 1 : 0.45,
                         }}
                     >
-                        <span style={{ fontSize: 20, lineHeight: 1, color: theme.text }}>
+                        <span style={{ fontSize: 22, lineHeight: 1, color: theme.text }}>
                             {tab.id === "saved" && count > 0 ? "\u2665" : tab.icon}
-                        </span>
-                        <span
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 10,
-                                fontWeight: isActive ? 600 : 500,
-                                color: theme.text,
-                                letterSpacing: "0.02em",
-                            }}
-                        >
-                            {tab.label}
                         </span>
                         {isActive && (
                             <div

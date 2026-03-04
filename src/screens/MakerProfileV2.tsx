@@ -12,6 +12,7 @@ import ShareModal from "../components/modals/ShareModal"
 import ImageGalleryModal from "../components/modals/ImageGalleryModal"
 import MakerHero from "../components/makers/MakerHero"
 import type { Maker, Theme } from "../types"
+import type { Breakpoint } from "../hooks/useBreakpoint"
 
 interface TabItem {
     id: string
@@ -27,6 +28,7 @@ interface MakerProfileV2Props {
     onMakerTap: (maker: Maker) => void
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
     onLogoTap: () => void
+    breakpoint?: Breakpoint
 }
 
 const TABS: TabItem[] = [
@@ -281,10 +283,23 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
 }
 
 // ─── Work Tab ─────────────────────────────────────────
-function WorkTab({ maker, theme, onImageTap }: { maker: Maker; theme: Theme; onImageTap?: (index: number) => void }) {
+function WorkTab({
+    maker,
+    theme,
+    onImageTap,
+    columnCount = 2,
+}: {
+    maker: Maker
+    theme: Theme
+    onImageTap?: (index: number) => void
+    columnCount?: number
+}) {
     const images = maker.gallery_urls || []
-    const HEIGHTS_L = [195, 155, 175, 190]
-    const HEIGHTS_R = [215, 160, 180, 170]
+    const HEIGHT_POOLS = [
+        [195, 155, 175, 190],
+        [215, 160, 180, 170],
+        [200, 170, 185, 165],
+    ]
 
     if (!images.length) {
         return (
@@ -304,81 +319,60 @@ function WorkTab({ maker, theme, onImageTap }: { maker: Maker; theme: Theme; onI
         )
     }
 
-    const leftImages = images.filter((_, i) => i % 2 === 0)
-    const rightImages = images.filter((_, i) => i % 2 === 1)
+    const colImages = Array.from({ length: columnCount }, (_, col) => images.filter((_, i) => i % columnCount === col))
 
     return (
         <div style={{ padding: "12px 12px 0" }}>
             <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
-                    {leftImages.map((url, i) => (
-                        <div
-                            key={i}
-                            onClick={() => onImageTap && onImageTap(i * 2)}
-                            style={{
-                                borderRadius: 12,
-                                overflow: "hidden",
-                                height: HEIGHTS_L[i % HEIGHTS_L.length],
-                                background: theme.surface,
-                                animation: `fadeSlideIn 0.4s ease ${i * 0.06}s both`,
-                                cursor: "pointer",
-                            }}
-                        >
-                            <img
-                                src={optimizeImageUrl(url, 300) ?? undefined}
-                                alt={`${maker.name} ${i * 2 + 1}`}
-                                loading="lazy"
-                                decoding="async"
-                                onLoad={(e) => {
-                                    ;(e.currentTarget as HTMLImageElement).style.opacity = "1"
-                                }}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    display: "block",
-                                    opacity: 0,
-                                    transition: "opacity 0.3s ease",
-                                }}
-                            />
-                        </div>
-                    ))}
-                </div>
-
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8, marginTop: 32 }}>
-                    {rightImages.map((url, i) => (
-                        <div
-                            key={i}
-                            onClick={() => onImageTap && onImageTap(i * 2 + 1)}
-                            style={{
-                                borderRadius: 12,
-                                overflow: "hidden",
-                                height: HEIGHTS_R[i % HEIGHTS_R.length],
-                                background: theme.surface,
-                                animation: `fadeSlideIn 0.4s ease ${(i * 2 + 1) * 0.06}s both`,
-                                cursor: "pointer",
-                            }}
-                        >
-                            <img
-                                src={optimizeImageUrl(url, 300) ?? undefined}
-                                alt={`${maker.name} ${i * 2 + 2}`}
-                                loading="lazy"
-                                decoding="async"
-                                onLoad={(e) => {
-                                    ;(e.currentTarget as HTMLImageElement).style.opacity = "1"
-                                }}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    display: "block",
-                                    opacity: 0,
-                                    transition: "opacity 0.3s ease",
-                                }}
-                            />
-                        </div>
-                    ))}
-                </div>
+                {colImages.map((colImgs, col) => (
+                    <div
+                        key={col}
+                        style={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8,
+                            marginTop: col > 0 ? 32 / col : 0,
+                        }}
+                    >
+                        {colImgs.map((url, i) => {
+                            const originalIndex = i * columnCount + col
+                            const heights = HEIGHT_POOLS[col % HEIGHT_POOLS.length]
+                            return (
+                                <div
+                                    key={i}
+                                    onClick={() => onImageTap && onImageTap(originalIndex)}
+                                    style={{
+                                        borderRadius: 12,
+                                        overflow: "hidden",
+                                        height: heights[i % heights.length],
+                                        background: theme.surface,
+                                        animation: `fadeSlideIn 0.4s ease ${originalIndex * 0.06}s both`,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <img
+                                        src={optimizeImageUrl(url, 300) ?? undefined}
+                                        alt={`${maker.name} ${originalIndex + 1}`}
+                                        loading="lazy"
+                                        decoding="async"
+                                        onLoad={(e) => {
+                                            ;(e.currentTarget as HTMLImageElement).style.opacity = "1"
+                                        }}
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            objectFit: "cover",
+                                            display: "block",
+                                            opacity: 0,
+                                            transition: "opacity 0.3s ease",
+                                        }}
+                                    />
+                                </div>
+                            )
+                        })}
+                    </div>
+                ))}
             </div>
         </div>
     )
@@ -747,6 +741,7 @@ export default function MakerProfileV2({
     onMakerTap,
     scrollContainerRef,
     onLogoTap,
+    breakpoint = "mobile",
 }: MakerProfileV2Props) {
     const [showShare, setShowShare] = useState(false)
     const [showCompact, setShowCompact] = useState(false)
@@ -1078,6 +1073,7 @@ export default function MakerProfileV2({
                 heroRef={heroRef}
                 isDark={isDark}
                 theme={theme}
+                minHeroHeight={breakpoint === "mobile" ? 190 : 280}
             />
 
             {/* Info section — inline, always visible */}
@@ -1088,7 +1084,14 @@ export default function MakerProfileV2({
                 <>
                     <ProfileTabs tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} theme={theme} />
                     <div style={{ minHeight: 120 }}>
-                        {activeTab === "work" && <WorkTab maker={maker} theme={theme} onImageTap={setViewerIndex} />}
+                        {activeTab === "work" && (
+                            <WorkTab
+                                maker={maker}
+                                theme={theme}
+                                onImageTap={setViewerIndex}
+                                columnCount={breakpoint === "mobile" ? 2 : 3}
+                            />
+                        )}
                         {activeTab === "about" && <AboutTab maker={maker} theme={theme} />}
                         {activeTab === "socials" && <SocialsTab maker={maker} theme={theme} />}
                         {activeTab === "events" && <EventsTab maker={maker} theme={theme} />}
@@ -1096,7 +1099,11 @@ export default function MakerProfileV2({
                 </>
             )}
 
-            <RelatedMakersFeed makers={relatedMakers} onMakerTap={onMakerTap} />
+            <RelatedMakersFeed
+                makers={relatedMakers}
+                onMakerTap={onMakerTap}
+                columnCount={breakpoint === "mobile" ? 2 : 3}
+            />
 
             {/* Image viewer modal */}
             {viewerIndex !== null && maker.gallery_urls && (

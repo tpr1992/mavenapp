@@ -10,6 +10,7 @@ import useUserLocation from "./hooks/useUserLocation"
 import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
+import useBreakpoint from "./hooks/useBreakpoint"
 import { optimizeImageUrl } from "./utils/image"
 import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
@@ -74,6 +75,7 @@ export default function App() {
     const { savedIds, toggleSave } = useSavedMakers()
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
+    const breakpoint = useBreakpoint()
     const [discoverCategory, setDiscoverCategory] = useState(() => {
         try {
             const prefs = JSON.parse(localStorage.getItem("maven_preferred_categories") || "[]")
@@ -211,6 +213,7 @@ export default function App() {
                     onMakerTap={handleMakerTap}
                     scrollContainerRef={containerRef}
                     onLogoTap={handleLogoTap}
+                    breakpoint={breakpoint}
                 />
             )
         }
@@ -242,6 +245,7 @@ export default function App() {
                             onToggleSave={handleToggleSave}
                             onTabChange={handleTabChange}
                             onLogoTap={handleLogoTap}
+                            breakpoint={breakpoint}
                         />
                     </Suspense>
                 )
@@ -277,21 +281,21 @@ export default function App() {
         <div
             style={{
                 width: "100%",
-                maxWidth: 430,
+                maxWidth: "var(--app-max-width)",
                 margin: "0 auto",
                 height: "100vh",
                 background: theme.bg,
                 position: "relative",
                 overflow: "hidden",
                 fontFamily: "'DM Sans', sans-serif",
-                borderLeft: `1px solid ${theme.border}`,
-                borderRight: `1px solid ${theme.border}`,
+                borderLeft: "var(--app-border)",
+                borderRight: "var(--app-border)",
             }}
         >
             <div
                 ref={containerRef}
                 style={{
-                    height: "calc(100vh - 64px - env(safe-area-inset-bottom, 0px))",
+                    height: "calc(100vh - 48px - env(safe-area-inset-bottom, 0px))",
                     overflowY: "auto",
                     overflowX: "hidden",
                 }}
@@ -324,6 +328,7 @@ export default function App() {
                             debugMeta={{ p95, isLowData, makersWithClicks, totalMakers }}
                             feedLayout={feedLayout}
                             setFeedLayout={setFeedLayout}
+                            breakpoint={breakpoint}
                         />
                     </div>
                 )}

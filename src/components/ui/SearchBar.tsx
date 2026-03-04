@@ -8,11 +8,12 @@ interface SearchBarProps {
     onBlur?: () => void
     placeholder?: string
     elevated?: boolean
+    containerStyle?: React.CSSProperties
     children?: React.ReactNode
 }
 
 const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBar(
-    { value, onChange, onFocus, onBlur, placeholder = "Search...", elevated, children },
+    { value, onChange, onFocus, onBlur, placeholder = "Search...", elevated, containerStyle, children },
     ref,
 ) {
     const { theme } = useTheme()
@@ -29,6 +30,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                     padding: "10px 16px",
                     border: `1px solid ${theme.border}`,
                     ...(elevated ? { boxShadow: "0 2px 12px rgba(0,0,0,0.08)" } : {}),
+                    ...containerStyle,
                 }}
             >
                 <span style={{ fontSize: 16, color: theme.textSecondary }}>{"\u2315"}</span>
