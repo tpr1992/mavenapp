@@ -11,6 +11,7 @@ interface SavedScreenProps {
     savedIds: Set<string>
     onToggleSave: (id: string) => void
     onTabChange: (tab: string) => void
+    onLogoTap: () => void
 }
 
 export default function SavedScreen({
@@ -20,6 +21,7 @@ export default function SavedScreen({
     savedIds,
     onToggleSave,
     onTabChange,
+    onLogoTap,
 }: SavedScreenProps) {
     const { theme } = useTheme()
     const { user } = useAuth()
@@ -30,19 +32,24 @@ export default function SavedScreen({
             <Helmet>
                 <title>Saved Makers — maven</title>
             </Helmet>
-            <div style={{ padding: "16px 20px 20px" }}>
+            <div style={{ padding: "12px 16px 14px" }}>
                 <h1
+                    onClick={onLogoTap}
                     style={{
                         fontFamily: "'Playfair Display', serif",
-                        fontSize: 28,
+                        fontSize: 30,
                         fontWeight: 700,
                         color: theme.text,
-                        margin: "0 0 4px",
-                        letterSpacing: "-0.02em",
+                        margin: 0,
+                        letterSpacing: "-0.03em",
+                        lineHeight: 0.75,
+                        cursor: "pointer",
                     }}
                 >
-                    Saved
+                    maven
                 </h1>
+            </div>
+            <div style={{ padding: "14px 16px 14px" }}>
                 <p
                     style={{
                         fontFamily: "'DM Sans', sans-serif",

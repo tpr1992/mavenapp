@@ -26,6 +26,7 @@ interface MapScreenProps {
     savedIds: Set<string>
     onToggleSave: (id: string) => void
     userLocation: UserLocation | null
+    isDebug?: boolean
 }
 
 // Fix Leaflet default icon path issue with bundlers
@@ -37,7 +38,14 @@ L.Icon.Default.mergeOptions({
     shadowUrl: undefined,
 })
 
-export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleSave, userLocation }: MapScreenProps) {
+export default function MapScreen({
+    makers = [],
+    onMakerTap,
+    savedIds,
+    onToggleSave,
+    userLocation,
+    isDebug,
+}: MapScreenProps) {
     const { isDark, theme } = useTheme()
 
     const [category, setCategory] = useState("All")
@@ -389,6 +397,7 @@ export default function MapScreen({ makers = [], onMakerTap, savedIds, onToggleS
                     onToggleSave={onToggleSave}
                     isSaved={savedIds.has(selectedMaker.id)}
                     theme={theme}
+                    isDebug={isDebug}
                 />
             )}
         </div>
