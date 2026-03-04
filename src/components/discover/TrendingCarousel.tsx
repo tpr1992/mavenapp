@@ -21,9 +21,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
         <div onClick={() => onTap(maker)} style={{ padding: "0 4px", cursor: "pointer" }}>
             <div
                 style={{
-                    background: maker.gallery_urls?.[0]
-                        ? `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%), url(${optimizeImageUrl(maker.gallery_urls[0], imageWidth)}) center/cover`
-                        : maker.hero_color,
+                    background: maker.gallery_urls?.[0] ? undefined : maker.hero_color,
                     borderRadius: 20,
                     padding: "28px 24px",
                     position: "relative",
@@ -35,6 +33,32 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                     justifyContent: "flex-end",
                 }}
             >
+                {maker.gallery_urls?.[0] && (
+                    <>
+                        <img
+                            src={optimizeImageUrl(maker.gallery_urls[0], imageWidth) ?? undefined}
+                            alt=""
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                            }}
+                        />
+                        <div
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%)",
+                            }}
+                        />
+                    </>
+                )}
                 {isDebug && (
                     <span
                         style={{
@@ -76,7 +100,15 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         background: "rgba(255,255,255,0.04)",
                     }}
                 />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 8,
+                        position: "relative",
+                    }}
+                >
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
@@ -98,6 +130,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         color: "#fff",
                         margin: "10px 0 8px",
                         lineHeight: 1.2,
+                        position: "relative",
                     }}
                 >
                     {maker.name}
@@ -114,11 +147,12 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         WebkitLineClamp: 3,
                         WebkitBoxOrient: "vertical",
                         overflow: "hidden",
+                        position: "relative",
                     }}
                 >
                     {maker.bio}
                 </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16, position: "relative" }}>
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",

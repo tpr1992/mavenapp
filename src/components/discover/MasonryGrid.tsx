@@ -30,7 +30,6 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
-                        willChange: "transform",
                         backfaceVisibility: "hidden",
                     }}
                 />

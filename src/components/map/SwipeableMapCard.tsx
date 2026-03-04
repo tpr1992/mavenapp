@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, memo } from "react"
 import { isOpenNow, getTodayHours } from "../../utils/time"
 import { formatLocation } from "../../utils/distance"
 import { optimizeImageUrl } from "../../utils/image"
+import { glassStyle } from "../../utils/glass"
 import MakerAvatar from "../ui/MakerAvatar"
 import type { Maker, Theme } from "../../types"
 
@@ -24,6 +25,7 @@ export default memo(function SwipeableMapCard({
     theme,
     isDebug,
 }: SwipeableMapCardProps) {
+    const g = glassStyle(theme.card !== "#fff")
     const cardRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
     const dragRef = useRef<{ startY: number; startTime: number; active: boolean }>({
@@ -302,12 +304,12 @@ export default memo(function SwipeableMapCard({
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
-                background: theme.card === "#fff" ? "rgba(255,255,255,0.55)" : "rgba(30,30,30,0.55)",
-                backdropFilter: "blur(20px) saturate(1.4)",
-                WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+                background: g.background,
+                backdropFilter: g.backdropFilter,
+                WebkitBackdropFilter: g.WebkitBackdropFilter,
                 borderRadius: "18px 18px 0 0",
-                boxShadow: "0 -4px 20px rgba(0,0,0,0.12)",
-                borderTop: `1px solid ${theme.border}`,
+                boxShadow: g.boxShadow,
+                borderTop: g.border,
                 zIndex: 1002,
                 transform: `translateY(${translateY}px)`,
                 transition,

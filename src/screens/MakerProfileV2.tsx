@@ -6,6 +6,7 @@ import { isOpenNow, getTodayHours } from "../utils/time"
 
 import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
 import { useTheme } from "../contexts/ThemeContext"
+import { glassBarStyle } from "../utils/glass"
 import { safeOpen } from "../utils/safeOpen"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
 import ShareModal from "../components/modals/ShareModal"
@@ -817,11 +818,12 @@ export default function MakerProfileV2({
             <div style={{ position: "sticky", top: 0, zIndex: 50, height: 0 }}>
                 <div
                     style={{
-                        background: theme.bg,
-                        borderBottom: showCompact ? `1px solid ${theme.border}` : "1px solid transparent",
+                        ...glassBarStyle(isDark),
+                        borderBottom: showCompact ? glassBarStyle(isDark).border : "1px solid transparent",
                         transform: showCompact ? "translateY(0)" : "translateY(-100%)",
                         transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.3s ease",
                         pointerEvents: showCompact ? "auto" : "none",
+                        willChange: "transform",
                     }}
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px 10px 12px" }}>

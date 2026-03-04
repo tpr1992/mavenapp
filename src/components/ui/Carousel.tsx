@@ -294,7 +294,6 @@ const Carousel = memo(function Carousel({
                                 boxSizing: "border-box",
                                 height: "100%",
                                 transform: "translateZ(0)",
-                                willChange: "transform",
                             }}
                         >
                             {renderItem(item, realIdx)}

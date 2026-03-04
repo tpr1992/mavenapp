@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect, lazy, Suspense } from "react"
+import { useState, useRef, useCallback, useEffect, useMemo, lazy, Suspense } from "react"
 import useSavedMakers from "./hooks/useSavedMakers"
 import useMakers from "./hooks/useMakers"
 import { supabase } from "./lib/supabase"
@@ -67,6 +67,10 @@ export default function App() {
         makersWithClicks,
         totalMakers,
     } = useMakers(userLocation)
+    const debugMeta = useMemo(
+        () => ({ p95, isLowData, makersWithClicks, totalMakers }),
+        [p95, isLowData, makersWithClicks, totalMakers],
+    )
     const [isDebug, toggleDebug] = useDebugMode()
     const [feedLayout, setFeedLayout] = useFeedLayout()
     const { sponsoredPosts } = useSponsoredPosts(userLocation)
@@ -295,9 +299,10 @@ export default function App() {
             <div
                 ref={containerRef}
                 style={{
-                    height: "calc(100vh - 48px - env(safe-area-inset-bottom, 0px))",
+                    height: "100vh",
                     overflowY: "auto",
                     overflowX: "hidden",
+                    paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
                 }}
             >
                 {activeTab === "discover" && (
@@ -325,7 +330,7 @@ export default function App() {
                             refreshKey={discoverKey}
                             onOpenNowChange={setDiscoverOpenNow}
                             isDebug={isDebug}
-                            debugMeta={{ p95, isLowData, makersWithClicks, totalMakers }}
+                            debugMeta={debugMeta}
                             feedLayout={feedLayout}
                             setFeedLayout={setFeedLayout}
                             breakpoint={breakpoint}

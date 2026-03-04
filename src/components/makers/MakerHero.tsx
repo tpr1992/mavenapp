@@ -2,6 +2,7 @@ import React, { useState, memo } from "react"
 import { optimizeImageUrl } from "../../utils/image"
 import { formatDistance } from "../../utils/distance"
 import { safeOpen } from "../../utils/safeOpen"
+import { GLASS } from "../../utils/glass"
 import type { Maker, Theme } from "../../types"
 
 interface MakerHeroProps {
@@ -34,10 +35,10 @@ export default memo(function MakerHero({
     const [menuOpen, setMenuOpen] = useState(false)
 
     const frostedBtn = {
-        background: "rgba(20,20,20,0.35)",
-        backdropFilter: "blur(20px) saturate(1.4)",
-        WebkitBackdropFilter: "blur(20px) saturate(1.4)",
-        border: "1px solid rgba(255,255,255,0.15)",
+        background: GLASS.overlay.background,
+        backdropFilter: GLASS.overlay.backdropFilter,
+        WebkitBackdropFilter: GLASS.overlay.WebkitBackdropFilter,
+        border: GLASS.overlay.border,
         borderRadius: "50%",
         width: 36,
         height: 36,
@@ -46,7 +47,7 @@ export default memo(function MakerHero({
         justifyContent: "center",
         cursor: "pointer",
         flexShrink: 0,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        boxShadow: GLASS.overlay.boxShadow,
     }
 
     const iconColor = "rgba(255,255,255,0.7)"
@@ -242,11 +243,11 @@ export default memo(function MakerHero({
                                     position: "absolute",
                                     top: "calc(100% + 8px)",
                                     right: 0,
-                                    background: "rgba(30,30,30,0.55)",
-                                    backdropFilter: "blur(20px) saturate(1.4)",
-                                    WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+                                    background: GLASS.dark.background,
+                                    backdropFilter: GLASS.dark.backdropFilter,
+                                    WebkitBackdropFilter: GLASS.dark.WebkitBackdropFilter,
                                     borderRadius: 14,
-                                    border: "1px solid rgba(255,255,255,0.12)",
+                                    border: GLASS.dark.border,
                                     boxShadow: "0 4px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.15)",
                                     minWidth: 180,
                                     zIndex: 100,
