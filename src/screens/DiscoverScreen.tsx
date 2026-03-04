@@ -6,12 +6,19 @@ import { isOpenNow } from "../utils/time"
 import { formatLocation } from "../utils/distance"
 import useDebounce from "../hooks/useDebounce"
 import CategoryPills from "../components/ui/CategoryPills"
-import MakerListItem from "../components/makers/MakerListItem"
+import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
 import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
+
+interface DebugMeta {
+    p95: number
+    isLowData: boolean
+    makersWithClicks: number
+    totalMakers: number
+}
 
 interface DiscoverScreenProps {
     makers?: Maker[]
@@ -35,6 +42,10 @@ interface DiscoverScreenProps {
     openNow: boolean
     onOpenNowChange: (val: boolean) => void
     refreshKey?: number
+    isDebug?: boolean
+    debugMeta?: DebugMeta
+    feedLayout: FeedLayout
+    setFeedLayout: (layout: FeedLayout) => void
 }
 
 export default function DiscoverScreen({
@@ -59,8 +70,11 @@ export default function DiscoverScreen({
     openNow,
     onOpenNowChange,
     refreshKey,
+    isDebug,
+    debugMeta,
+    feedLayout,
+    setFeedLayout,
 }: DiscoverScreenProps) {
-    const [viewMode, setViewMode] = useState<"gallery" | "list">("gallery")
     const [searchOpen, setSearchOpen] = useState(false)
     const [showLocationPicker, setShowLocationPicker] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
@@ -410,7 +424,7 @@ export default function DiscoverScreen({
 
     return (
         <div
-            style={{ paddingBottom: 100 }}
+            style={{ paddingBottom: 0 }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -984,7 +998,7 @@ export default function DiscoverScreen({
                             </button>
                         </div>
                     </div>
-                    <p
+                    {/* <p
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: 14.5,
@@ -995,7 +1009,7 @@ export default function DiscoverScreen({
                         }}
                     >
                         Discover local makers &amp; craftspeople
-                    </p>
+                    </p> */}
 
                     {/* Search bar */}
                     <div
@@ -1161,7 +1175,40 @@ export default function DiscoverScreen({
                         </div>
                     )}
                 </div>
+            </div>
 
+            {/* Debug scoring summary bar */}
+            {isDebug && debugMeta && (
+                <div
+                    style={{
+                        margin: "0 16px 8px",
+                        padding: "6px 10px",
+                        background: "rgba(0,0,0,0.75)",
+                        borderRadius: 8,
+                        fontFamily: "monospace",
+                        fontSize: 10,
+                        color: "#fff",
+                        lineHeight: 1.5,
+                    }}
+                >
+                    {debugMeta.isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} {"\u00B7"} p95: {debugMeta.p95}{" "}
+                    {"\u00B7"} {debugMeta.makersWithClicks}/{debugMeta.totalMakers} makers w/ ≥10 clicks
+                </div>
+            )}
+
+            {/* Trending Makers Carousel */}
+            {trendingMakers.length > 0 && (
+                <TrendingCarousel
+                    key={refreshKey}
+                    makers={trendingMakers}
+                    onTap={onMakerTap}
+                    showOpenStatus={openNow}
+                    isDebug={isDebug}
+                />
+            )}
+
+            {/* Category filter pills */}
+            <div style={{ marginTop: 20 }}>
                 <CategoryPills
                     selected={category}
                     onSelect={onCategoryChange}
@@ -1171,18 +1218,8 @@ export default function DiscoverScreen({
                 />
             </div>
 
-            {/* Trending Makers Carousel */}
-            {trendingMakers.length > 0 && (
-                <TrendingCarousel
-                    key={refreshKey}
-                    makers={trendingMakers}
-                    onTap={onMakerTap}
-                    showOpenStatus={openNow}
-                />
-            )}
-
             {/* All Makers */}
-            <div style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 12 }}>
                 <div
                     style={{
                         display: "flex",
@@ -1213,19 +1250,19 @@ export default function DiscoverScreen({
                         }}
                     >
                         <button
-                            onClick={() => setViewMode("gallery")}
+                            onClick={() => setFeedLayout("grid")}
                             style={{
                                 width: 30,
                                 height: 26,
                                 borderRadius: 6,
                                 border: "none",
-                                background: viewMode === "gallery" ? theme.card : "transparent",
+                                background: feedLayout === "grid" ? theme.card : "transparent",
                                 cursor: "pointer",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 transition: "all 0.2s ease",
-                                boxShadow: viewMode === "gallery" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                                boxShadow: feedLayout === "grid" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                             }}
                         >
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -1235,7 +1272,7 @@ export default function DiscoverScreen({
                                     width="6"
                                     height="6"
                                     rx="1.5"
-                                    fill={viewMode === "gallery" ? theme.text : theme.textMuted}
+                                    fill={feedLayout === "grid" ? theme.text : theme.textMuted}
                                 />
                                 <rect
                                     x="8"
@@ -1243,7 +1280,7 @@ export default function DiscoverScreen({
                                     width="6"
                                     height="6"
                                     rx="1.5"
-                                    fill={viewMode === "gallery" ? theme.text : theme.textMuted}
+                                    fill={feedLayout === "grid" ? theme.text : theme.textMuted}
                                 />
                                 <rect
                                     x="0"
@@ -1251,7 +1288,7 @@ export default function DiscoverScreen({
                                     width="6"
                                     height="6"
                                     rx="1.5"
-                                    fill={viewMode === "gallery" ? theme.text : theme.textMuted}
+                                    fill={feedLayout === "grid" ? theme.text : theme.textMuted}
                                 />
                                 <rect
                                     x="8"
@@ -1259,50 +1296,34 @@ export default function DiscoverScreen({
                                     width="6"
                                     height="6"
                                     rx="1.5"
-                                    fill={viewMode === "gallery" ? theme.text : theme.textMuted}
+                                    fill={feedLayout === "grid" ? theme.text : theme.textMuted}
                                 />
                             </svg>
                         </button>
                         <button
-                            onClick={() => setViewMode("list")}
+                            onClick={() => setFeedLayout("single")}
                             style={{
                                 width: 30,
                                 height: 26,
                                 borderRadius: 6,
                                 border: "none",
-                                background: viewMode === "list" ? theme.card : "transparent",
+                                background: feedLayout === "single" ? theme.card : "transparent",
                                 cursor: "pointer",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 transition: "all 0.2s ease",
-                                boxShadow: viewMode === "list" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                                boxShadow: feedLayout === "single" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                             }}
                         >
                             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                                 <rect
                                     x="0"
-                                    y="1"
+                                    y="0"
                                     width="14"
-                                    height="2.5"
-                                    rx="1"
-                                    fill={viewMode === "list" ? theme.text : theme.textMuted}
-                                />
-                                <rect
-                                    x="0"
-                                    y="5.75"
-                                    width="14"
-                                    height="2.5"
-                                    rx="1"
-                                    fill={viewMode === "list" ? theme.text : theme.textMuted}
-                                />
-                                <rect
-                                    x="0"
-                                    y="10.5"
-                                    width="14"
-                                    height="2.5"
-                                    rx="1"
-                                    fill={viewMode === "list" ? theme.text : theme.textMuted}
+                                    height="14"
+                                    rx="2"
+                                    fill={feedLayout === "single" ? theme.text : theme.textMuted}
                                 />
                             </svg>
                         </button>
@@ -1339,20 +1360,6 @@ export default function DiscoverScreen({
                             Try a different search or category
                         </p>
                     </div>
-                ) : viewMode === "list" ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "0 4px" }}>
-                        {visibleMakers.map((maker, i) => (
-                            <MakerListItem
-                                key={maker.id}
-                                maker={maker}
-                                index={i}
-                                isSaved={savedIds.has(maker.id)}
-                                onTap={onMakerTap}
-                                onToggleSave={onToggleSave}
-                                highlightQuery={q}
-                            />
-                        ))}
-                    </div>
                 ) : (
                     <MasonryGrid
                         allMakers={makers}
@@ -1362,6 +1369,8 @@ export default function DiscoverScreen({
                         onMakerTap={onMakerTap}
                         onToggleSave={onToggleSave}
                         theme={theme}
+                        isDebug={isDebug}
+                        singleColumn={feedLayout === "single"}
                     />
                 )}
                 {hasMore && (
@@ -1394,6 +1403,29 @@ export default function DiscoverScreen({
                         <div ref={sentinelRef} style={{ height: 1 }} />
                     </>
                 )}
+            </div>
+
+            <div style={{ paddingTop: 48, paddingBottom: 24, textAlign: "center" }}>
+                <span
+                    style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: theme.textMuted,
+                    }}
+                >
+                    maven
+                </span>
+                <p
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 11,
+                        color: theme.textMuted,
+                        margin: "4px 0 0",
+                    }}
+                >
+                    v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
+                </p>
             </div>
 
             {showLocationPicker && (

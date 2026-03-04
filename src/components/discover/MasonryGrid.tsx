@@ -9,7 +9,7 @@ import type { Maker, Theme, SponsoredPost } from "../../types"
 
 interface CardGalleryProps {
     urls: string[]
-    height: number
+    height?: number
     eager?: boolean
 }
 
@@ -31,7 +31,7 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false }: C
             loop
             dots="mini"
             dotPosition="overlay"
-            style={{ height }}
+            style={{ height: height ?? "100%" }}
         />
     )
 })
@@ -58,6 +58,8 @@ interface MasonryGridProps {
     onMakerTap: (maker: Maker) => void
     onToggleSave: (id: string) => void
     theme: Theme
+    isDebug?: boolean
+    singleColumn?: boolean
 }
 
 export default memo(function MasonryGrid({
@@ -68,6 +70,8 @@ export default memo(function MasonryGrid({
     onMakerTap,
     onToggleSave,
     theme,
+    isDebug,
+    singleColumn,
 }: MasonryGridProps) {
     const hasAnimated = useRef(false)
     useEffect(() => {
@@ -96,6 +100,9 @@ export default memo(function MasonryGrid({
                 adIdx++
             }
         })
+        if (singleColumn) {
+            return [items.map((item, idx) => ({ ...item, col: 0, idx }))]
+        }
         const cols: Array<Array<{ type: string; maker?: Maker; ad?: SponsoredPost; col: number; idx: number }>> = [
             [],
             [],
@@ -111,7 +118,7 @@ export default memo(function MasonryGrid({
             colHeights[col] += itemHeight + GAP
         })
         return cols
-    }, [allMakers, sponsoredPosts])
+    }, [allMakers, sponsoredPosts, singleColumn])
 
     const tapProps = (fn: () => void) => ({
         onPointerDown,
@@ -122,7 +129,7 @@ export default memo(function MasonryGrid({
     })
 
     const renderMakerCard = (maker: Maker, col: number, idx: number) => {
-        const cardHeight = getCardHeight(maker.id)
+        const cardHeight = singleColumn ? undefined : getCardHeight(maker.id)
         const shapes = patternShapes[(parseInt(maker.id) - 1) % patternShapes.length]
         const hidden = !visibleIds.has(maker.id)
         return (
@@ -144,7 +151,34 @@ export default memo(function MasonryGrid({
                     display: hidden ? "none" : undefined,
                 }}
             >
-                <div style={{ height: cardHeight, position: "relative", overflow: "hidden", borderRadius: 12 }}>
+                <div
+                    style={{
+                        ...(singleColumn ? { aspectRatio: "4 / 5", width: "100%" } : { height: cardHeight }),
+                        position: "relative",
+                        overflow: "hidden",
+                        borderRadius: 12,
+                    }}
+                >
+                    {isDebug && (
+                        <span
+                            style={{
+                                position: "absolute",
+                                top: 4,
+                                left: 4,
+                                background: "rgba(0,0,0,0.7)",
+                                color: "#fff",
+                                fontSize: 10,
+                                fontFamily: "monospace",
+                                padding: "2px 6px",
+                                borderRadius: 6,
+                                zIndex: 5,
+                                pointerEvents: "none",
+                            }}
+                        >
+                            #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                            {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
+                        </span>
+                    )}
                     {maker.gallery_urls?.length > 0 ? (
                         <CardGallery urls={maker.gallery_urls} height={cardHeight} eager={idx < 6} />
                     ) : (
@@ -189,12 +223,18 @@ export default memo(function MasonryGrid({
                     )}
                     <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 }}></div>
                 </div>
-                <div style={{ padding: "8px 10px 9px", minWidth: 0, overflow: "hidden" }}>
+                <div
+                    style={{
+                        padding: singleColumn ? "10px 12px 11px" : "8px 10px 9px",
+                        minWidth: 0,
+                        overflow: "hidden",
+                    }}
+                >
                     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                         <span
                             style={{
                                 fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12.5,
+                                fontSize: singleColumn ? 14 : 12.5,
                                 fontWeight: 600,
                                 color: theme.text,
                                 lineHeight: 1.2,
@@ -207,7 +247,6 @@ export default memo(function MasonryGrid({
                         >
                             {maker.name}
                         </span>
-                        {/* {maker.is_verified && <span style={{ fontSize: 9, flexShrink: 0, color: theme.textSecondary }}>✓</span>} */}
                         <button
                             onClick={(e) => {
                                 e.stopPropagation()
@@ -218,21 +257,21 @@ export default memo(function MasonryGrid({
                                 border: "none",
                                 cursor: "pointer",
                                 padding: 0,
-                                fontSize: 14,
+                                fontSize: singleColumn ? 16 : 14,
                                 lineHeight: 1,
                                 flexShrink: 0,
                                 color: savedIds.has(maker.id) ? "#c53030" : theme.textMuted,
                             }}
                         >
-                            {savedIds.has(maker.id) ? "♥" : "♡"}
+                            {savedIds.has(maker.id) ? "\u2665" : "\u2661"}
                         </button>
                     </div>
                     <div
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 10.5,
+                            fontSize: singleColumn ? 12 : 10.5,
                             color: theme.textMuted,
-                            marginTop: 1,
+                            marginTop: singleColumn ? 2 : 1,
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -318,12 +357,19 @@ export default memo(function MasonryGrid({
     )
 
     return (
-        <div style={{ padding: "0 4px" }}>
+        <div style={{ padding: singleColumn ? "0 6px" : "0 4px" }}>
             <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
                 {columns.map((colItems, col) => (
                     <div
                         key={col}
-                        style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, minWidth: 0, marginTop: 0 }}
+                        style={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: singleColumn ? 10 : 6,
+                            minWidth: 0,
+                            marginTop: 0,
+                        }}
                     >
                         {(() => {
                             let visibleCount = 0

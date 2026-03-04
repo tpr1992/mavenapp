@@ -3,6 +3,9 @@ import useSavedMakers from "./hooks/useSavedMakers"
 import useMakers from "./hooks/useMakers"
 import { supabase } from "./lib/supabase"
 import useSponsoredPosts from "./hooks/useSponsoredPosts"
+import useDebugMode from "./hooks/useDebugMode"
+import useFeedLayout from "./hooks/useFeedLayout"
+import useProfileName from "./hooks/useProfileName"
 import useUserLocation from "./hooks/useUserLocation"
 import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
@@ -53,9 +56,21 @@ export default function App() {
     const deepLinkResolved = useRef(false)
     const [authToast, setAuthToast] = useState(false)
     const { userLocation, locationLabel, locationSource, setLocation } = useUserLocation()
-    const { makers, loading: makersLoading, error: makersError, refetch } = useMakers(userLocation)
+    const {
+        makers,
+        loading: makersLoading,
+        error: makersError,
+        refetch,
+        p95,
+        isLowData,
+        makersWithClicks,
+        totalMakers,
+    } = useMakers(userLocation)
+    const [isDebug, toggleDebug] = useDebugMode()
+    const [feedLayout, setFeedLayout] = useFeedLayout()
     const { sponsoredPosts } = useSponsoredPosts(userLocation)
     const { user } = useAuth()
+    const profileName = useProfileName(user)
     const { savedIds, toggleSave } = useSavedMakers()
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
@@ -103,6 +118,8 @@ export default function App() {
             if (tab === "discover") {
                 refetch()
                 setDiscoverKey((k) => k + 1)
+                setDiscoverCategory("All")
+                setDiscoverOpenNow(false)
                 tabScrollRef.current["discover"] = 0
                 requestAnimationFrame(() => {
                     if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
@@ -210,6 +227,7 @@ export default function App() {
                             savedIds={savedIds}
                             onToggleSave={handleToggleSave}
                             userLocation={userLocation}
+                            isDebug={isDebug}
                         />
                     </Suspense>
                 )
@@ -223,13 +241,23 @@ export default function App() {
                             savedIds={savedIds}
                             onToggleSave={handleToggleSave}
                             onTabChange={handleTabChange}
+                            onLogoTap={handleLogoTap}
                         />
                     </Suspense>
                 )
             case "profile":
                 return (
                     <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                        <ProfileScreen />
+                        <ProfileScreen
+                            isDebug={isDebug}
+                            toggleDebug={toggleDebug}
+                            makers={makers}
+                            refetch={refetch}
+                            feedLayout={feedLayout}
+                            setFeedLayout={setFeedLayout}
+                            onLogoTap={handleLogoTap}
+                            profileName={profileName}
+                        />
                     </Suspense>
                 )
             default:
@@ -292,6 +320,10 @@ export default function App() {
                             openNow={discoverOpenNow}
                             refreshKey={discoverKey}
                             onOpenNowChange={setDiscoverOpenNow}
+                            isDebug={isDebug}
+                            debugMeta={{ p95, isLowData, makersWithClicks, totalMakers }}
+                            feedLayout={feedLayout}
+                            setFeedLayout={setFeedLayout}
                         />
                     </div>
                 )}

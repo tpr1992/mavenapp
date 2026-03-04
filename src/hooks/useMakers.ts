@@ -76,8 +76,8 @@ export default function useMakers(userLocation: UserLocation | null) {
     }, [fetchMakers])
 
     // Compute composite scores, sort, and interleave categories
-    const makers = useMemo(() => {
-        if (!rawMakers.length) return rawMakers
+    const { makers, p95, isLowData, makersWithClicks } = useMemo(() => {
+        if (!rawMakers.length) return { makers: rawMakers, p95: 0, isLowData: false, makersWithClicks: 0 }
 
         // Compute p95 clicks for popularity normalization
         const clickValues = Object.values(clickStats)
@@ -129,13 +129,13 @@ export default function useMakers(userLocation: UserLocation | null) {
                 .slice()
                 .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
                 .map((m) => ({
-                    name: m.name,
-                    dist: m.distance != null ? `${m.distance.toFixed(1)}km` : "—",
-                    curr: m.currentWeekClicks,
-                    prev: m.previousWeekClicks,
+                    nm: m.name,
+                    km: m.distance != null ? m.distance.toFixed(1) : "—",
+                    cur: m.currentWeekClicks,
+                    prv: m.previousWeekClicks,
                     vel: m.velocity?.toFixed(3),
                     pop: Math.min(1, m.currentWeekClicks / p95).toFixed(3),
-                    score: m.score?.toFixed(4),
+                    scr: m.score?.toFixed(4),
                 })),
         )
 
@@ -146,8 +146,11 @@ export default function useMakers(userLocation: UserLocation | null) {
         })
 
         // Post-sort: prevent 3+ consecutive same-category makers
-        return interleavedByCategory(scored)
+        // Add rank based on pre-interleave sort order (score rank)
+        const ranked = scored.map((m, i) => ({ ...m, rank: i + 1 }))
+
+        return { makers: interleavedByCategory(ranked), p95, isLowData, makersWithClicks }
     }, [rawMakers, userLocation, clickStats])
 
-    return { makers, loading, error, refetch }
+    return { makers, loading, error, refetch, p95, isLowData, makersWithClicks, totalMakers: rawMakers.length }
 }

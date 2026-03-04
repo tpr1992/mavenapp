@@ -12,9 +12,10 @@ interface TrendingCardProps {
     onTap: (maker: Maker) => void
     showOpenStatus: boolean
     isDark: boolean
+    isDebug?: boolean
 }
 
-function TrendingCard({ maker, onTap, showOpenStatus, isDark }: TrendingCardProps) {
+function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug }: TrendingCardProps) {
     return (
         <div onClick={() => onTap(maker)} style={{ padding: "0 4px", cursor: "pointer" }}>
             <div
@@ -27,9 +28,31 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark }: TrendingCardProp
                     position: "relative",
                     overflow: "hidden",
                     filter: isDark ? "brightness(0.78) saturate(0.85)" : "none",
-                    minHeight: 160,
+                    aspectRatio: "3 / 2",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
                 }}
             >
+                {isDebug && (
+                    <span
+                        style={{
+                            position: "absolute",
+                            top: 8,
+                            left: 8,
+                            background: "rgba(0,0,0,0.7)",
+                            color: "#fff",
+                            fontSize: 10,
+                            fontFamily: "monospace",
+                            padding: "2px 6px",
+                            borderRadius: 6,
+                            zIndex: 5,
+                        }}
+                    >
+                        #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                        {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
+                    </span>
+                )}
                 <div
                     style={{
                         position: "absolute",
@@ -141,16 +164,23 @@ interface TrendingCarouselProps {
     makers: Maker[]
     onTap: (maker: Maker) => void
     showOpenStatus: boolean
+    isDebug?: boolean
 }
 
-export default memo(function TrendingCarousel({ makers, onTap, showOpenStatus }: TrendingCarouselProps) {
+export default memo(function TrendingCarousel({ makers, onTap, showOpenStatus, isDebug }: TrendingCarouselProps) {
     const { isDark } = useTheme()
     if (!makers.length) return null
     return (
         <Carousel
             items={makers}
             renderItem={(maker) => (
-                <TrendingCard maker={maker} onTap={onTap} showOpenStatus={showOpenStatus} isDark={isDark} />
+                <TrendingCard
+                    maker={maker}
+                    onTap={onTap}
+                    showOpenStatus={showOpenStatus}
+                    isDark={isDark}
+                    isDebug={isDebug}
+                />
             )}
             loop
             autoPlay={7000}

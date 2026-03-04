@@ -14,6 +14,7 @@ interface MakerListItemProps {
     onToggleSave?: (id: string) => void
     showHours?: boolean
     highlightQuery?: string
+    isDebug?: boolean
 }
 
 export default memo(function MakerListItem({
@@ -24,6 +25,7 @@ export default memo(function MakerListItem({
     onToggleSave,
     showHours = true,
     highlightQuery,
+    isDebug,
 }: MakerListItemProps) {
     const { theme } = useTheme()
 
@@ -64,6 +66,22 @@ export default memo(function MakerListItem({
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    {isDebug && (
+                        <span
+                            style={{
+                                background: "rgba(0,0,0,0.7)",
+                                color: "#fff",
+                                fontSize: 9,
+                                fontFamily: "monospace",
+                                padding: "1px 5px",
+                                borderRadius: 4,
+                                flexShrink: 0,
+                            }}
+                        >
+                            #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                            {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
+                        </span>
+                    )}
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",

@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Helmet } from "react-helmet-async"
 import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
 import { supabase } from "../lib/supabase"
+import { resetClicks, simulateScenario } from "../utils/simulateClicks"
+import type { Scenario } from "../utils/simulateClicks"
+import type { Maker } from "../types"
 
 const GREETINGS_MORNING = [
     (n: string) => `Good morning, ${n}!`,
@@ -61,7 +64,34 @@ function getGreeting(name: string): string {
     return pool[Math.floor(Math.random() * pool.length)](name)
 }
 
-export default function ProfileScreen() {
+interface ProfileScreenProps {
+    isDebug: boolean
+    toggleDebug: () => void
+    makers: Maker[]
+    refetch: () => void
+    feedLayout: "grid" | "single"
+    setFeedLayout: (layout: "grid" | "single") => void
+    onLogoTap: () => void
+    profileName: string
+}
+
+const SCENARIO_BUTTONS: { label: string; value: Scenario }[] = [
+    { label: "Launch", value: "launch" },
+    { label: "Trending", value: "trending" },
+    { label: "Low-Data", value: "low-data" },
+    { label: "Even", value: "even" },
+]
+
+export default function ProfileScreen({
+    isDebug,
+    toggleDebug,
+    makers,
+    refetch,
+    feedLayout,
+    setFeedLayout,
+    onLogoTap,
+    profileName,
+}: ProfileScreenProps) {
     const { user, loading, signIn, signUp, signOut, resetPassword } = useAuth()
     const { isDark, theme, toggleTheme } = useTheme()
     const [mode, setMode] = useState<"signin" | "signup">("signin")
@@ -75,33 +105,64 @@ export default function ProfileScreen() {
     const [welcomeToast, setWelcomeToast] = useState("")
     const [failCount, setFailCount] = useState(0)
     const [lockedUntil, setLockedUntil] = useState(0)
-    const [profileName, setProfileName] = useState("")
+    const [simRunning, setSimRunning] = useState<Scenario | "reset" | null>(null)
+    const [simStatus, setSimStatus] = useState("")
+    const [confirmAction, setConfirmAction] = useState<{ scenario?: Scenario; isReset?: boolean } | null>(null)
 
-    // Fetch profile name when logged in
-    useEffect(() => {
-        if (!user) {
-            setProfileName("")
-            return
+    const executeSimulate = useCallback(
+        async (scenario: Scenario) => {
+            setSimRunning(scenario)
+            setSimStatus("")
+            try {
+                const count = await simulateScenario(scenario, makers)
+                setSimStatus(`${count.toLocaleString()} clicks simulated (${scenario})`)
+                refetch()
+            } catch (e) {
+                setSimStatus(`Error: ${e instanceof Error ? e.message : "unknown"}`)
+            } finally {
+                setSimRunning(null)
+            }
+        },
+        [makers, refetch],
+    )
+
+    const executeReset = useCallback(async () => {
+        setSimRunning("reset")
+        setSimStatus("")
+        try {
+            await resetClicks()
+            setSimStatus("Clicks cleared")
+            refetch()
+        } catch (e) {
+            setSimStatus(`Error: ${e instanceof Error ? e.message : "unknown"}`)
+        } finally {
+            setSimRunning(null)
         }
-        supabase
-            .from("profiles")
-            .select("first_name")
-            .eq("id", user.id)
-            .single()
-            .then(({ data }) => {
-                if (data?.first_name) setProfileName(data.first_name)
-            })
-    }, [user])
+    }, [refetch])
+
+    const handleConfirm = useCallback(() => {
+        if (!confirmAction) return
+        setConfirmAction(null)
+        if (confirmAction.isReset) executeReset()
+        else if (confirmAction.scenario) executeSimulate(confirmAction.scenario)
+    }, [confirmAction, executeSimulate, executeReset])
+
+    // Auto-clear status after 3s
+    useEffect(() => {
+        if (!simStatus) return
+        const t = setTimeout(() => setSimStatus(""), 3000)
+        return () => clearTimeout(t)
+    }, [simStatus])
 
     const SETTINGS_ITEMS = [
         { icon: "\u25D4", label: "Notifications", subtitle: "Coming soon", action: () => {} },
         { icon: "\u25C7", label: "About maven", action: () => setShowAbout(true) },
-        {
-            icon: "\u2197",
-            label: "Suggest a Maker",
-            action: () =>
-                window.open("mailto:hello@maven.ie?subject=Maker%20Suggestion", "_blank", "noopener,noreferrer"),
-        },
+        // {
+        //     icon: "\u2197",
+        //     label: "Suggest a Maker",
+        //     action: () =>
+        //         window.open("mailto:hello@maven.ie?subject=Maker%20Suggestion", "_blank", "noopener,noreferrer"),
+        // },
     ]
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -193,27 +254,37 @@ export default function ProfileScreen() {
         setTimeout(() => setWelcomeToast(""), 3000)
     }
 
-    const initial = profileName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "?"
+    const initial = profileName ? profileName[0].toUpperCase() : user?.email?.[0]?.toUpperCase() || ""
 
     return (
-        <div style={{ paddingBottom: 100 }}>
+        <div
+            style={{
+                minHeight: "calc(100vh - 64px - env(safe-area-inset-bottom, 0px))",
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
             <Helmet>
                 <title>Profile — maven</title>
             </Helmet>
-            <div style={{ padding: "16px 20px 20px" }}>
+            <div style={{ padding: "12px 16px 14px" }}>
                 <h1
+                    onClick={onLogoTap}
                     style={{
                         fontFamily: "'Playfair Display', serif",
-                        fontSize: 28,
+                        fontSize: 30,
                         fontWeight: 700,
                         color: theme.text,
-                        margin: "0 0 24px",
-                        letterSpacing: "-0.02em",
+                        margin: 0,
+                        letterSpacing: "-0.03em",
+                        lineHeight: 0.75,
+                        cursor: "pointer",
                     }}
                 >
-                    Profile
+                    maven
                 </h1>
-
+            </div>
+            <div style={{ padding: "18px 16px 14px" }}>
                 {/* Welcome / sign-out toast */}
                 <div
                     style={{
@@ -264,91 +335,87 @@ export default function ProfileScreen() {
                 </div>
 
                 {loading ? (
-                    <div
-                        style={{
-                            background: theme.surface,
-                            borderRadius: 18,
-                            padding: "32px 24px",
-                            textAlign: "center",
-                            marginBottom: 20,
-                        }}
-                    >
-                        <p
+                    <div style={{ marginBottom: 20, padding: "8px 0" }}>
+                        <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                color: theme.textMuted,
-                                margin: 0,
+                                width: 44,
+                                height: 44,
+                                borderRadius: "50%",
+                                background: theme.surface,
                             }}
-                        >
-                            Loading...
-                        </p>
+                        />
                     </div>
                 ) : user ? (
                     /* Logged in state */
                     <div
                         style={{
-                            background: theme.surface,
-                            borderRadius: 18,
-                            padding: "32px 24px",
-                            textAlign: "center",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 14,
                             marginBottom: 20,
                         }}
                     >
                         <div
                             style={{
-                                width: 72,
-                                height: 72,
+                                width: 44,
+                                height: 44,
                                 borderRadius: "50%",
                                 background: theme.btnBg,
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                margin: "0 auto 14px",
-                                fontSize: 28,
+                                fontSize: 18,
                                 fontWeight: 700,
                                 color: theme.btnText,
                                 fontFamily: "'DM Sans', sans-serif",
+                                flexShrink: 0,
                             }}
                         >
                             {initial}
                         </div>
-                        {profileName && (
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            {profileName && (
+                                <p
+                                    style={{
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 15,
+                                        fontWeight: 600,
+                                        color: theme.text,
+                                        margin: 0,
+                                        lineHeight: 1.3,
+                                    }}
+                                >
+                                    {profileName}
+                                </p>
+                            )}
                             <p
                                 style={{
                                     fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 16,
-                                    fontWeight: 600,
-                                    color: theme.text,
-                                    margin: "0 0 4px",
+                                    fontSize: 12.5,
+                                    color: theme.textMuted,
+                                    margin: 0,
+                                    lineHeight: 1.4,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
                                 }}
                             >
-                                {profileName}
+                                {user.email}
                             </p>
-                        )}
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                color: theme.textMuted,
-                                margin: "0 0 16px",
-                                lineHeight: 1.6,
-                            }}
-                        >
-                            {user.email}
-                        </p>
+                        </div>
                         <button
                             onClick={handleSignOut}
                             style={{
-                                padding: "12px 28px",
+                                padding: "8px 16px",
                                 borderRadius: 100,
                                 border: `1px solid ${theme.border}`,
-                                background: theme.card,
-                                color: theme.text,
+                                background: "transparent",
+                                color: theme.textMuted,
                                 fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                fontWeight: 600,
+                                fontSize: 12.5,
+                                fontWeight: 500,
                                 cursor: "pointer",
+                                flexShrink: 0,
                             }}
                         >
                             Sign Out
@@ -581,6 +648,196 @@ export default function ProfileScreen() {
                     </button>
                 </div>
 
+                {/* Feed layout preference */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        padding: "16px 0",
+                        borderBottom: `1px solid ${theme.border}`,
+                    }}
+                >
+                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                        {"\u25A6"}
+                    </span>
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 14.5,
+                            color: theme.text,
+                            flex: 1,
+                        }}
+                    >
+                        Default Feed
+                    </span>
+                    <div
+                        style={{
+                            display: "flex",
+                            background: theme.pill || theme.border,
+                            borderRadius: 8,
+                            padding: 2,
+                            gap: 2,
+                            flexShrink: 0,
+                        }}
+                    >
+                        {(["grid", "single"] as const).map((opt) => (
+                            <button
+                                key={opt}
+                                onClick={() => setFeedLayout(opt)}
+                                style={{
+                                    padding: "5px 12px",
+                                    borderRadius: 6,
+                                    border: "none",
+                                    background: feedLayout === opt ? theme.card : "transparent",
+                                    cursor: "pointer",
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 12.5,
+                                    fontWeight: feedLayout === opt ? 600 : 400,
+                                    color: feedLayout === opt ? theme.text : theme.textMuted,
+                                    transition: "all 0.2s ease",
+                                    boxShadow: feedLayout === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                                }}
+                            >
+                                {opt === "grid" ? "Grid" : "Single"}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Debug mode toggle */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 14,
+                        padding: "16px 0",
+                        borderBottom: `1px solid ${theme.border}`,
+                    }}
+                >
+                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                        {"\u2699"}
+                    </span>
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 14.5,
+                            color: theme.text,
+                            flex: 1,
+                        }}
+                    >
+                        Debug Mode
+                    </span>
+                    <button
+                        onClick={toggleDebug}
+                        style={{
+                            width: 48,
+                            height: 28,
+                            borderRadius: 100,
+                            border: "none",
+                            background: isDebug ? theme.text : theme.border,
+                            cursor: "pointer",
+                            position: "relative",
+                            transition: "background 0.2s ease",
+                            padding: 0,
+                            flexShrink: 0,
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: "50%",
+                                background: isDebug ? theme.bg : "#fff",
+                                position: "absolute",
+                                top: 3,
+                                left: isDebug ? 23 : 3,
+                                transition: "left 0.2s ease",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                            }}
+                        />
+                    </button>
+                </div>
+
+                {/* Click simulation — debug only */}
+                {isDebug && (
+                    <div
+                        style={{
+                            padding: "16px 0",
+                            borderBottom: `1px solid ${theme.border}`,
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: theme.textMuted,
+                                margin: "0 0 10px",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
+                            }}
+                        >
+                            Click Simulation
+                        </p>
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                            {SCENARIO_BUTTONS.map(({ label, value }) => (
+                                <button
+                                    key={value}
+                                    onClick={() => setConfirmAction({ scenario: value })}
+                                    disabled={simRunning !== null}
+                                    style={{
+                                        padding: "8px 14px",
+                                        borderRadius: 100,
+                                        border: `1px solid ${theme.border}`,
+                                        background: theme.surface,
+                                        color: theme.text,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                        cursor: simRunning ? "default" : "pointer",
+                                        opacity: simRunning && simRunning !== value ? 0.4 : 1,
+                                        minWidth: 70,
+                                        textAlign: "center",
+                                    }}
+                                >
+                                    {simRunning === value ? "\u23F3" : label}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setConfirmAction({ isReset: true })}
+                            disabled={simRunning !== null}
+                            style={{
+                                padding: "8px 14px",
+                                borderRadius: 100,
+                                border: "1px solid #e53e3e40",
+                                background: "transparent",
+                                color: "#c53030",
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 13,
+                                fontWeight: 500,
+                                cursor: simRunning ? "default" : "pointer",
+                                opacity: simRunning && simRunning !== "reset" ? 0.4 : 1,
+                            }}
+                        >
+                            {simRunning === "reset" ? "\u23F3 Clearing..." : "Reset Clicks"}
+                        </button>
+                        {simStatus && (
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 12,
+                                    color: simStatus.startsWith("Error") ? "#c53030" : theme.textMuted,
+                                    margin: "8px 0 0",
+                                }}
+                            >
+                                {simStatus}
+                            </p>
+                        )}
+                    </div>
+                )}
+
                 {/* Settings items */}
                 {SETTINGS_ITEMS.map((item, i) => (
                     <div
@@ -626,32 +883,121 @@ export default function ProfileScreen() {
                         <span style={{ color: theme.textMuted, fontSize: 14 }}>{"\u203A"}</span>
                     </div>
                 ))}
-
-                <div style={{ marginTop: 32, textAlign: "center" }}>
-                    <span
-                        style={{
-                            fontFamily: "'Playfair Display', serif",
-                            fontSize: 18,
-                            fontWeight: 700,
-                            color: theme.textMuted,
-                        }}
-                    >
-                        maven
-                    </span>
-                    <p
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 11,
-                            color: theme.textMuted,
-                            margin: "4px 0 0",
-                        }}
-                    >
-                        v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
-                    </p>
-                </div>
+            </div>
+            <div style={{ marginTop: "auto", paddingTop: 32, paddingBottom: 24, textAlign: "center" }}>
+                <span
+                    style={{
+                        fontFamily: "'Playfair Display', serif",
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: theme.textMuted,
+                    }}
+                >
+                    maven
+                </span>
+                <p
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 11,
+                        color: theme.textMuted,
+                        margin: "4px 0 0",
+                    }}
+                >
+                    v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
+                </p>
             </div>
 
             {/* Welcome toast — inline, below heading */}
+
+            {/* Confirm simulation modal */}
+            {confirmAction && (
+                <div
+                    onClick={() => setConfirmAction(null)}
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.4)",
+                        zIndex: 200,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 24,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: theme.card,
+                            borderRadius: 20,
+                            padding: "28px 24px",
+                            maxWidth: 320,
+                            width: "100%",
+                            textAlign: "center",
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 15,
+                                fontWeight: 600,
+                                color: theme.text,
+                                margin: "0 0 8px",
+                            }}
+                        >
+                            {confirmAction.isReset ? "Reset all clicks?" : "Run simulation?"}
+                        </p>
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 13.5,
+                                color: theme.textSecondary,
+                                lineHeight: 1.5,
+                                margin: "0 0 20px",
+                            }}
+                        >
+                            {confirmAction.isReset
+                                ? "This will delete all existing click data. You can re-simulate afterwards."
+                                : "This will reset all existing click data and replace it with simulated clicks."}
+                        </p>
+                        <div style={{ display: "flex", gap: 10 }}>
+                            <button
+                                onClick={() => setConfirmAction(null)}
+                                style={{
+                                    flex: 1,
+                                    padding: "12px 0",
+                                    borderRadius: 100,
+                                    border: `1px solid ${theme.border}`,
+                                    background: theme.card,
+                                    color: theme.text,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirm}
+                                style={{
+                                    flex: 1,
+                                    padding: "12px 0",
+                                    borderRadius: 100,
+                                    border: "none",
+                                    background: confirmAction.isReset ? "#c53030" : theme.btnBg,
+                                    color: confirmAction.isReset ? "#fff" : theme.btnText,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                }}
+                            >
+                                {confirmAction.isReset ? "Reset" : "Simulate"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* About modal */}
             {showAbout && (

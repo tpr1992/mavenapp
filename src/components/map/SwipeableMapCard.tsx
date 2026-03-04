@@ -12,6 +12,7 @@ interface SwipeableMapCardProps {
     onToggleSave: (id: string) => void
     isSaved: boolean
     theme: Theme
+    isDebug?: boolean
 }
 
 export default memo(function SwipeableMapCard({
@@ -21,6 +22,7 @@ export default memo(function SwipeableMapCard({
     onToggleSave,
     isSaved,
     theme,
+    isDebug,
 }: SwipeableMapCardProps) {
     const cardRef = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
@@ -306,7 +308,7 @@ export default memo(function SwipeableMapCard({
                 borderRadius: "18px 18px 0 0",
                 boxShadow: "0 -4px 20px rgba(0,0,0,0.12)",
                 borderTop: `1px solid ${theme.border}`,
-                zIndex: 1000,
+                zIndex: 1002,
                 transform: `translateY(${translateY}px)`,
                 transition,
                 willChange: "height, transform",
@@ -329,6 +331,25 @@ export default memo(function SwipeableMapCard({
                     <div style={{ width: 36, height: 4, borderRadius: 2, background: theme.border }} />
                 </div>
             </div>
+
+            {/* Debug badge */}
+            {isDebug && (
+                <div style={{ padding: "0 18px 4px", flexShrink: 0 }}>
+                    <span
+                        style={{
+                            background: "rgba(0,0,0,0.7)",
+                            color: "#fff",
+                            fontSize: 10,
+                            fontFamily: "monospace",
+                            padding: "2px 6px",
+                            borderRadius: 6,
+                        }}
+                    >
+                        #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                        {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
+                    </span>
+                </div>
+            )}
 
             {/* ── Content zone ── */}
             <div
