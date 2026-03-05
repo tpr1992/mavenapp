@@ -199,7 +199,7 @@ export default memo(function MakerHero({
                     onClick={onLogoTap}
                     style={{
                         fontFamily: "'Playfair Display', serif",
-                        fontSize: 17,
+                        fontSize: 22,
                         fontWeight: 700,
                         color: "rgba(255,255,255,0.9)",
                         letterSpacing: "-0.02em",
