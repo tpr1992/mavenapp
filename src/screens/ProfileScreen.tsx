@@ -267,7 +267,15 @@ export default function ProfileScreen({
             <Helmet>
                 <title>Profile — maven</title>
             </Helmet>
-            <div style={{ padding: "12px 16px 14px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    height: 50,
+                    boxSizing: "border-box",
+                    padding: "10px 16px 10px 20px",
+                }}
+            >
                 <h1
                     onClick={onLogoTap}
                     style={{
@@ -284,173 +292,195 @@ export default function ProfileScreen({
                     maven
                 </h1>
             </div>
-            <div style={{ padding: "18px 16px 14px" }}>
-                {/* Welcome / sign-out toast */}
-                <div
-                    style={{
-                        overflow: "hidden",
-                        maxHeight: welcomeToast ? 60 : 0,
-                        opacity: welcomeToast ? 1 : 0,
-                        marginBottom: welcomeToast ? 16 : 0,
-                        transition: "max-height 0.35s ease, opacity 0.3s ease, margin-bottom 0.35s ease",
-                    }}
-                >
+            <div style={{ animation: "fadeIn 0.15s ease" }}>
+                <div style={{ padding: "18px 16px 14px" }}>
+                    {/* Welcome / sign-out toast */}
                     <div
                         style={{
-                            background: theme.surface,
-                            border: `1px solid ${theme.border}`,
-                            borderRadius: 14,
-                            padding: "12px 16px",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
+                            overflow: "hidden",
+                            maxHeight: welcomeToast ? 60 : 0,
+                            opacity: welcomeToast ? 1 : 0,
+                            marginBottom: welcomeToast ? 16 : 0,
+                            transition: "max-height 0.35s ease, opacity 0.3s ease, margin-bottom 0.35s ease",
                         }}
                     >
-                        <span
-                            style={{
-                                width: 26,
-                                height: 26,
-                                borderRadius: "50%",
-                                background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: 13,
-                                flexShrink: 0,
-                            }}
-                        >
-                            {welcomeToast === "Signed out" ? "\u2713" : "\u2728"}
-                        </span>
-                        <span
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13.5,
-                                fontWeight: 500,
-                                color: theme.text,
-                            }}
-                        >
-                            {welcomeToast}
-                        </span>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <div style={{ marginBottom: 20, padding: "8px 0" }}>
                         <div
                             style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: "50%",
                                 background: theme.surface,
-                            }}
-                        />
-                    </div>
-                ) : user ? (
-                    /* Logged in state */
-                    <div
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 14,
-                            marginBottom: 20,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: "50%",
-                                background: theme.btnBg,
+                                border: `1px solid ${theme.border}`,
+                                borderRadius: 14,
+                                padding: "12px 16px",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: 18,
-                                fontWeight: 700,
-                                color: theme.btnText,
-                                fontFamily: "'DM Sans', sans-serif",
-                                flexShrink: 0,
+                                gap: 10,
                             }}
                         >
-                            {initial}
+                            <span
+                                style={{
+                                    width: 26,
+                                    height: 26,
+                                    borderRadius: "50%",
+                                    background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 13,
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {welcomeToast === "Signed out" ? "\u2713" : "\u2728"}
+                            </span>
+                            <span
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight: 500,
+                                    color: theme.text,
+                                }}
+                            >
+                                {welcomeToast}
+                            </span>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            {profileName && (
+                    </div>
+
+                    {loading ? (
+                        <div style={{ marginBottom: 20, padding: "8px 0" }}>
+                            <div
+                                style={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: "50%",
+                                    background: theme.surface,
+                                }}
+                            />
+                        </div>
+                    ) : user ? (
+                        /* Logged in state */
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 14,
+                                marginBottom: 20,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: "50%",
+                                    background: theme.btnBg,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 18,
+                                    fontWeight: 700,
+                                    color: theme.btnText,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {initial}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                {profileName && (
+                                    <p
+                                        style={{
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 15,
+                                            fontWeight: 600,
+                                            color: theme.text,
+                                            margin: 0,
+                                            lineHeight: 1.3,
+                                        }}
+                                    >
+                                        {profileName}
+                                    </p>
+                                )}
                                 <p
                                     style={{
                                         fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 15,
-                                        fontWeight: 600,
-                                        color: theme.text,
+                                        fontSize: 12.5,
+                                        color: theme.textMuted,
                                         margin: 0,
-                                        lineHeight: 1.3,
+                                        lineHeight: 1.4,
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
                                     }}
                                 >
-                                    {profileName}
+                                    {user.email}
                                 </p>
-                            )}
+                            </div>
+                            <button
+                                onClick={handleSignOut}
+                                style={{
+                                    padding: "8px 16px",
+                                    borderRadius: 100,
+                                    border: `1px solid ${theme.border}`,
+                                    background: "transparent",
+                                    color: theme.textMuted,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 12.5,
+                                    fontWeight: 500,
+                                    cursor: "pointer",
+                                    flexShrink: 0,
+                                }}
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    ) : (
+                        /* Logged out state — auth form */
+                        <div
+                            style={{
+                                background: theme.surface,
+                                borderRadius: 18,
+                                padding: "28px 24px",
+                                marginBottom: 20,
+                            }}
+                        >
                             <p
                                 style={{
                                     fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 12.5,
+                                    fontSize: 14,
                                     color: theme.textMuted,
-                                    margin: 0,
-                                    lineHeight: 1.4,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
+                                    margin: "0 0 20px",
+                                    textAlign: "center",
+                                    lineHeight: 1.6,
                                 }}
                             >
-                                {user.email}
+                                Sign in to sync your saved makers across devices
                             </p>
-                        </div>
-                        <button
-                            onClick={handleSignOut}
-                            style={{
-                                padding: "8px 16px",
-                                borderRadius: 100,
-                                border: `1px solid ${theme.border}`,
-                                background: "transparent",
-                                color: theme.textMuted,
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12.5,
-                                fontWeight: 500,
-                                cursor: "pointer",
-                                flexShrink: 0,
-                            }}
-                        >
-                            Sign Out
-                        </button>
-                    </div>
-                ) : (
-                    /* Logged out state — auth form */
-                    <div
-                        style={{
-                            background: theme.surface,
-                            borderRadius: 18,
-                            padding: "28px 24px",
-                            marginBottom: 20,
-                        }}
-                    >
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                color: theme.textMuted,
-                                margin: "0 0 20px",
-                                textAlign: "center",
-                                lineHeight: 1.6,
-                            }}
-                        >
-                            Sign in to sync your saved makers across devices
-                        </p>
 
-                        <form onSubmit={handleSubmit}>
-                            {mode === "signup" && (
+                            <form onSubmit={handleSubmit}>
+                                {mode === "signup" && (
+                                    <input
+                                        type="text"
+                                        placeholder="First name"
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        required
+                                        style={{
+                                            width: "100%",
+                                            padding: "12px 16px",
+                                            borderRadius: 12,
+                                            border: `1px solid ${theme.border}`,
+                                            background: theme.inputBg,
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 16,
+                                            color: theme.text,
+                                            outline: "none",
+                                            marginBottom: 10,
+                                            boxSizing: "border-box",
+                                        }}
+                                    />
+                                )}
                                 <input
-                                    type="text"
-                                    placeholder="First name"
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
                                     style={{
                                         width: "100%",
@@ -466,69 +496,582 @@ export default function ProfileScreen({
                                         boxSizing: "border-box",
                                     }}
                                 />
-                            )}
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                style={{
-                                    width: "100%",
-                                    padding: "12px 16px",
-                                    borderRadius: 12,
-                                    border: `1px solid ${theme.border}`,
-                                    background: theme.inputBg,
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 16,
-                                    color: theme.text,
-                                    outline: "none",
-                                    marginBottom: 10,
-                                    boxSizing: "border-box",
-                                }}
-                            />
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                minLength={6}
-                                style={{
-                                    width: "100%",
-                                    padding: "12px 16px",
-                                    borderRadius: 12,
-                                    border: `1px solid ${theme.border}`,
-                                    background: theme.inputBg,
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 16,
-                                    color: theme.text,
-                                    outline: "none",
-                                    marginBottom: 14,
-                                    boxSizing: "border-box",
-                                }}
-                            />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    minLength={6}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 16px",
+                                        borderRadius: 12,
+                                        border: `1px solid ${theme.border}`,
+                                        background: theme.inputBg,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 16,
+                                        color: theme.text,
+                                        outline: "none",
+                                        marginBottom: 14,
+                                        boxSizing: "border-box",
+                                    }}
+                                />
 
-                            {error && (
+                                {error && (
+                                    <p
+                                        style={{
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 13,
+                                            color: "#9b2c2c",
+                                            margin: "0 0 12px",
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                        {error}
+                                    </p>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    style={{
+                                        width: "100%",
+                                        padding: "12px 28px",
+                                        borderRadius: 100,
+                                        border: "none",
+                                        background: theme.btnBg,
+                                        color: theme.btnText,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        cursor: submitting ? "default" : "pointer",
+                                        opacity: submitting ? 0.6 : 1,
+                                    }}
+                                >
+                                    {submitting ? "..." : mode === "signup" ? "Create Account" : "Sign In"}
+                                </button>
+                            </form>
+
+                            {mode === "signin" && (
                                 <p
                                     style={{
                                         fontFamily: "'DM Sans', sans-serif",
                                         fontSize: 13,
-                                        color: "#9b2c2c",
-                                        margin: "0 0 12px",
+                                        color: resetSent ? "#22543d" : theme.textMuted,
+                                        margin: "12px 0 0",
                                         textAlign: "center",
+                                        cursor: resetSent ? "default" : "pointer",
+                                    }}
+                                    onClick={async () => {
+                                        if (resetSent) return
+                                        if (!email.trim()) {
+                                            setError("Enter your email first")
+                                            return
+                                        }
+                                        await resetPassword(email.trim())
+                                        setResetSent(true)
+                                        setError("")
+                                        setTimeout(() => setResetSent(false), 5000)
                                     }}
                                 >
-                                    {error}
+                                    {resetSent ? "Reset link sent — check your email" : "Forgot password?"}
                                 </p>
                             )}
 
-                            <button
-                                type="submit"
-                                disabled={submitting}
+                            <p
                                 style={{
-                                    width: "100%",
-                                    padding: "12px 28px",
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13,
+                                    color: theme.textMuted,
+                                    margin: "16px 0 0",
+                                    textAlign: "center",
+                                }}
+                            >
+                                {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
+                                <span
+                                    onClick={() => {
+                                        setMode(mode === "signin" ? "signup" : "signin")
+                                        setError("")
+                                        setResetSent(false)
+                                    }}
+                                    style={{ color: theme.text, fontWeight: 600, cursor: "pointer" }}
+                                >
+                                    {mode === "signin" ? "Sign Up" : "Sign In"}
+                                </span>
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Light mode toggle */}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 14,
+                            padding: "16px 0",
+                            borderBottom: `1px solid ${theme.border}`,
+                        }}
+                    >
+                        <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                            {"\u2600"}
+                        </span>
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 14.5,
+                                color: theme.text,
+                                flex: 1,
+                            }}
+                        >
+                            Light Mode
+                        </span>
+                        <button
+                            onClick={toggleTheme}
+                            style={{
+                                width: 48,
+                                height: 28,
+                                borderRadius: 100,
+                                border: "none",
+                                background: !isDark ? theme.text : theme.border,
+                                cursor: "pointer",
+                                position: "relative",
+                                transition: "background 0.2s ease",
+                                padding: 0,
+                                flexShrink: 0,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: "50%",
+                                    background: !isDark ? theme.bg : "#fff",
+                                    position: "absolute",
+                                    top: 3,
+                                    left: !isDark ? 23 : 3,
+                                    transition: "left 0.2s ease",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                                }}
+                            />
+                        </button>
+                    </div>
+
+                    {/* Feed layout preference */}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 14,
+                            padding: "16px 0",
+                            borderBottom: `1px solid ${theme.border}`,
+                        }}
+                    >
+                        <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                            {"\u25A6"}
+                        </span>
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 14.5,
+                                color: theme.text,
+                                flex: 1,
+                            }}
+                        >
+                            Default Feed
+                        </span>
+                        <div
+                            style={{
+                                display: "flex",
+                                background: theme.pill || theme.border,
+                                borderRadius: 8,
+                                padding: 2,
+                                gap: 2,
+                                flexShrink: 0,
+                            }}
+                        >
+                            {(["grid", "single"] as const).map((opt) => (
+                                <button
+                                    key={opt}
+                                    onClick={() => setFeedLayout(opt)}
+                                    style={{
+                                        padding: "5px 12px",
+                                        borderRadius: 6,
+                                        border: "none",
+                                        background: feedLayout === opt ? theme.card : "transparent",
+                                        cursor: "pointer",
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 12.5,
+                                        fontWeight: feedLayout === opt ? 600 : 400,
+                                        color: feedLayout === opt ? theme.text : theme.textMuted,
+                                        transition: "all 0.2s ease",
+                                        boxShadow: feedLayout === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                                    }}
+                                >
+                                    {opt === "grid" ? "Grid" : "Single"}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Debug mode toggle */}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 14,
+                            padding: "16px 0",
+                            borderBottom: `1px solid ${theme.border}`,
+                        }}
+                    >
+                        <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                            {"\u2699"}
+                        </span>
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 14.5,
+                                color: theme.text,
+                                flex: 1,
+                            }}
+                        >
+                            Debug Mode
+                        </span>
+                        <button
+                            onClick={toggleDebug}
+                            style={{
+                                width: 48,
+                                height: 28,
+                                borderRadius: 100,
+                                border: "none",
+                                background: isDebug ? theme.text : theme.border,
+                                cursor: "pointer",
+                                position: "relative",
+                                transition: "background 0.2s ease",
+                                padding: 0,
+                                flexShrink: 0,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: "50%",
+                                    background: isDebug ? theme.bg : "#fff",
+                                    position: "absolute",
+                                    top: 3,
+                                    left: isDebug ? 23 : 3,
+                                    transition: "left 0.2s ease",
+                                    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                                }}
+                            />
+                        </button>
+                    </div>
+
+                    {/* Click simulation — debug only */}
+                    {isDebug && (
+                        <div
+                            style={{
+                                padding: "16px 0",
+                                borderBottom: `1px solid ${theme.border}`,
+                            }}
+                        >
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    color: theme.textMuted,
+                                    margin: "0 0 10px",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.05em",
+                                }}
+                            >
+                                Click Simulation
+                            </p>
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                                {SCENARIO_BUTTONS.map(({ label, value }) => (
+                                    <button
+                                        key={value}
+                                        onClick={() => setConfirmAction({ scenario: value })}
+                                        disabled={simRunning !== null}
+                                        style={{
+                                            padding: "8px 14px",
+                                            borderRadius: 100,
+                                            border: `1px solid ${theme.border}`,
+                                            background: theme.surface,
+                                            color: theme.text,
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                            cursor: simRunning ? "default" : "pointer",
+                                            opacity: simRunning && simRunning !== value ? 0.4 : 1,
+                                            minWidth: 70,
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                        {simRunning === value ? "\u23F3" : label}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => setConfirmAction({ isReset: true })}
+                                disabled={simRunning !== null}
+                                style={{
+                                    padding: "8px 14px",
+                                    borderRadius: 100,
+                                    border: "1px solid #e53e3e40",
+                                    background: "transparent",
+                                    color: "#c53030",
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                    cursor: simRunning ? "default" : "pointer",
+                                    opacity: simRunning && simRunning !== "reset" ? 0.4 : 1,
+                                }}
+                            >
+                                {simRunning === "reset" ? "\u23F3 Clearing..." : "Reset Clicks"}
+                            </button>
+                            {simStatus && (
+                                <p
+                                    style={{
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 12,
+                                        color: simStatus.startsWith("Error") ? "#c53030" : theme.textMuted,
+                                        margin: "8px 0 0",
+                                    }}
+                                >
+                                    {simStatus}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Settings items */}
+                    {SETTINGS_ITEMS.map((item, i) => (
+                        <div
+                            key={i}
+                            onClick={item.action}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 14,
+                                padding: "16px 0",
+                                borderBottom: i < SETTINGS_ITEMS.length - 1 ? `1px solid ${theme.border}` : "none",
+                                cursor: "pointer",
+                            }}
+                        >
+                            <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
+                                {item.icon}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                                <span
+                                    style={{
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 14.5,
+                                        color: theme.text,
+                                        display: "block",
+                                    }}
+                                >
+                                    {item.label}
+                                </span>
+                                {item.subtitle && (
+                                    <span
+                                        style={{
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 12.5,
+                                            color: theme.textMuted,
+                                            display: "block",
+                                            marginTop: 2,
+                                        }}
+                                    >
+                                        {item.subtitle}
+                                    </span>
+                                )}
+                            </div>
+                            <span style={{ color: theme.textMuted, fontSize: 14 }}>{"\u203A"}</span>
+                        </div>
+                    ))}
+                </div>
+                <div style={{ marginTop: "auto", paddingTop: 32, paddingBottom: 24, textAlign: "center" }}>
+                    <span
+                        style={{
+                            fontFamily: "'Playfair Display', serif",
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: theme.textMuted,
+                        }}
+                    >
+                        maven
+                    </span>
+                    <p
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 11,
+                            color: theme.textMuted,
+                            margin: "4px 0 0",
+                        }}
+                    >
+                        v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
+                    </p>
+                </div>
+
+                {/* Welcome toast — inline, below heading */}
+
+                {/* Confirm simulation modal */}
+                {confirmAction && (
+                    <div
+                        onClick={() => setConfirmAction(null)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.4)",
+                            zIndex: 200,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 24,
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: theme.card,
+                                borderRadius: 20,
+                                padding: "28px 24px",
+                                maxWidth: 320,
+                                width: "100%",
+                                textAlign: "center",
+                            }}
+                        >
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 15,
+                                    fontWeight: 600,
+                                    color: theme.text,
+                                    margin: "0 0 8px",
+                                }}
+                            >
+                                {confirmAction.isReset ? "Reset all clicks?" : "Run simulation?"}
+                            </p>
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13.5,
+                                    color: theme.textSecondary,
+                                    lineHeight: 1.5,
+                                    margin: "0 0 20px",
+                                }}
+                            >
+                                {confirmAction.isReset
+                                    ? "This will delete all existing click data. You can re-simulate afterwards."
+                                    : "This will reset all existing click data and replace it with simulated clicks."}
+                            </p>
+                            <div style={{ display: "flex", gap: 10 }}>
+                                <button
+                                    onClick={() => setConfirmAction(null)}
+                                    style={{
+                                        flex: 1,
+                                        padding: "12px 0",
+                                        borderRadius: 100,
+                                        border: `1px solid ${theme.border}`,
+                                        background: theme.card,
+                                        color: theme.text,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirm}
+                                    style={{
+                                        flex: 1,
+                                        padding: "12px 0",
+                                        borderRadius: 100,
+                                        border: "none",
+                                        background: confirmAction.isReset ? "#c53030" : theme.btnBg,
+                                        color: confirmAction.isReset ? "#fff" : theme.btnText,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    {confirmAction.isReset ? "Reset" : "Simulate"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* About modal */}
+                {showAbout && (
+                    <div
+                        onClick={() => setShowAbout(false)}
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "rgba(0,0,0,0.4)",
+                            zIndex: 200,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 24,
+                        }}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                background: theme.card,
+                                borderRadius: 20,
+                                padding: "32px 28px",
+                                maxWidth: 340,
+                                width: "100%",
+                                textAlign: "center",
+                            }}
+                        >
+                            <h2
+                                style={{
+                                    fontFamily: "'Playfair Display', serif",
+                                    fontSize: 28,
+                                    fontWeight: 700,
+                                    color: theme.text,
+                                    margin: "0 0 8px",
+                                    letterSpacing: "-0.02em",
+                                }}
+                            >
+                                maven
+                            </h2>
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13,
+                                    color: theme.textMuted,
+                                    margin: "0 0 16px",
+                                }}
+                            >
+                                v0.1.0
+                            </p>
+                            <p
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 14,
+                                    color: theme.textSecondary,
+                                    lineHeight: 1.6,
+                                    margin: "0 0 24px",
+                                }}
+                            >
+                                Discover local makers and craftspeople in Galway, Ireland. Supporting the people who
+                                make things by hand.
+                            </p>
+                            <button
+                                onClick={() => setShowAbout(false)}
+                                style={{
+                                    padding: "12px 32px",
                                     borderRadius: 100,
                                     border: "none",
                                     background: theme.btnBg,
@@ -536,548 +1079,15 @@ export default function ProfileScreen({
                                     fontFamily: "'DM Sans', sans-serif",
                                     fontSize: 14,
                                     fontWeight: 600,
-                                    cursor: submitting ? "default" : "pointer",
-                                    opacity: submitting ? 0.6 : 1,
+                                    cursor: "pointer",
                                 }}
                             >
-                                {submitting ? "..." : mode === "signup" ? "Create Account" : "Sign In"}
+                                Close
                             </button>
-                        </form>
-
-                        {mode === "signin" && (
-                            <p
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 13,
-                                    color: resetSent ? "#22543d" : theme.textMuted,
-                                    margin: "12px 0 0",
-                                    textAlign: "center",
-                                    cursor: resetSent ? "default" : "pointer",
-                                }}
-                                onClick={async () => {
-                                    if (resetSent) return
-                                    if (!email.trim()) {
-                                        setError("Enter your email first")
-                                        return
-                                    }
-                                    await resetPassword(email.trim())
-                                    setResetSent(true)
-                                    setError("")
-                                    setTimeout(() => setResetSent(false), 5000)
-                                }}
-                            >
-                                {resetSent ? "Reset link sent — check your email" : "Forgot password?"}
-                            </p>
-                        )}
-
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                color: theme.textMuted,
-                                margin: "16px 0 0",
-                                textAlign: "center",
-                            }}
-                        >
-                            {mode === "signin" ? "Don't have an account? " : "Already have an account? "}
-                            <span
-                                onClick={() => {
-                                    setMode(mode === "signin" ? "signup" : "signin")
-                                    setError("")
-                                    setResetSent(false)
-                                }}
-                                style={{ color: theme.text, fontWeight: 600, cursor: "pointer" }}
-                            >
-                                {mode === "signin" ? "Sign Up" : "Sign In"}
-                            </span>
-                        </p>
+                        </div>
                     </div>
                 )}
-
-                {/* Light mode toggle */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        padding: "16px 0",
-                        borderBottom: `1px solid ${theme.border}`,
-                    }}
-                >
-                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
-                        {"\u2600"}
-                    </span>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 14.5,
-                            color: theme.text,
-                            flex: 1,
-                        }}
-                    >
-                        Light Mode
-                    </span>
-                    <button
-                        onClick={toggleTheme}
-                        style={{
-                            width: 48,
-                            height: 28,
-                            borderRadius: 100,
-                            border: "none",
-                            background: !isDark ? theme.text : theme.border,
-                            cursor: "pointer",
-                            position: "relative",
-                            transition: "background 0.2s ease",
-                            padding: 0,
-                            flexShrink: 0,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 22,
-                                height: 22,
-                                borderRadius: "50%",
-                                background: !isDark ? theme.bg : "#fff",
-                                position: "absolute",
-                                top: 3,
-                                left: !isDark ? 23 : 3,
-                                transition: "left 0.2s ease",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                            }}
-                        />
-                    </button>
-                </div>
-
-                {/* Feed layout preference */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        padding: "16px 0",
-                        borderBottom: `1px solid ${theme.border}`,
-                    }}
-                >
-                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
-                        {"\u25A6"}
-                    </span>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 14.5,
-                            color: theme.text,
-                            flex: 1,
-                        }}
-                    >
-                        Default Feed
-                    </span>
-                    <div
-                        style={{
-                            display: "flex",
-                            background: theme.pill || theme.border,
-                            borderRadius: 8,
-                            padding: 2,
-                            gap: 2,
-                            flexShrink: 0,
-                        }}
-                    >
-                        {(["grid", "single"] as const).map((opt) => (
-                            <button
-                                key={opt}
-                                onClick={() => setFeedLayout(opt)}
-                                style={{
-                                    padding: "5px 12px",
-                                    borderRadius: 6,
-                                    border: "none",
-                                    background: feedLayout === opt ? theme.card : "transparent",
-                                    cursor: "pointer",
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 12.5,
-                                    fontWeight: feedLayout === opt ? 600 : 400,
-                                    color: feedLayout === opt ? theme.text : theme.textMuted,
-                                    transition: "all 0.2s ease",
-                                    boxShadow: feedLayout === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                                }}
-                            >
-                                {opt === "grid" ? "Grid" : "Single"}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Debug mode toggle */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 14,
-                        padding: "16px 0",
-                        borderBottom: `1px solid ${theme.border}`,
-                    }}
-                >
-                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
-                        {"\u2699"}
-                    </span>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 14.5,
-                            color: theme.text,
-                            flex: 1,
-                        }}
-                    >
-                        Debug Mode
-                    </span>
-                    <button
-                        onClick={toggleDebug}
-                        style={{
-                            width: 48,
-                            height: 28,
-                            borderRadius: 100,
-                            border: "none",
-                            background: isDebug ? theme.text : theme.border,
-                            cursor: "pointer",
-                            position: "relative",
-                            transition: "background 0.2s ease",
-                            padding: 0,
-                            flexShrink: 0,
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: 22,
-                                height: 22,
-                                borderRadius: "50%",
-                                background: isDebug ? theme.bg : "#fff",
-                                position: "absolute",
-                                top: 3,
-                                left: isDebug ? 23 : 3,
-                                transition: "left 0.2s ease",
-                                boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                            }}
-                        />
-                    </button>
-                </div>
-
-                {/* Click simulation — debug only */}
-                {isDebug && (
-                    <div
-                        style={{
-                            padding: "16px 0",
-                            borderBottom: `1px solid ${theme.border}`,
-                        }}
-                    >
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: theme.textMuted,
-                                margin: "0 0 10px",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                            }}
-                        >
-                            Click Simulation
-                        </p>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-                            {SCENARIO_BUTTONS.map(({ label, value }) => (
-                                <button
-                                    key={value}
-                                    onClick={() => setConfirmAction({ scenario: value })}
-                                    disabled={simRunning !== null}
-                                    style={{
-                                        padding: "8px 14px",
-                                        borderRadius: 100,
-                                        border: `1px solid ${theme.border}`,
-                                        background: theme.surface,
-                                        color: theme.text,
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 13,
-                                        fontWeight: 500,
-                                        cursor: simRunning ? "default" : "pointer",
-                                        opacity: simRunning && simRunning !== value ? 0.4 : 1,
-                                        minWidth: 70,
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    {simRunning === value ? "\u23F3" : label}
-                                </button>
-                            ))}
-                        </div>
-                        <button
-                            onClick={() => setConfirmAction({ isReset: true })}
-                            disabled={simRunning !== null}
-                            style={{
-                                padding: "8px 14px",
-                                borderRadius: 100,
-                                border: "1px solid #e53e3e40",
-                                background: "transparent",
-                                color: "#c53030",
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                fontWeight: 500,
-                                cursor: simRunning ? "default" : "pointer",
-                                opacity: simRunning && simRunning !== "reset" ? 0.4 : 1,
-                            }}
-                        >
-                            {simRunning === "reset" ? "\u23F3 Clearing..." : "Reset Clicks"}
-                        </button>
-                        {simStatus && (
-                            <p
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 12,
-                                    color: simStatus.startsWith("Error") ? "#c53030" : theme.textMuted,
-                                    margin: "8px 0 0",
-                                }}
-                            >
-                                {simStatus}
-                            </p>
-                        )}
-                    </div>
-                )}
-
-                {/* Settings items */}
-                {SETTINGS_ITEMS.map((item, i) => (
-                    <div
-                        key={i}
-                        onClick={item.action}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 14,
-                            padding: "16px 0",
-                            borderBottom: i < SETTINGS_ITEMS.length - 1 ? `1px solid ${theme.border}` : "none",
-                            cursor: "pointer",
-                        }}
-                    >
-                        <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
-                            {item.icon}
-                        </span>
-                        <div style={{ flex: 1 }}>
-                            <span
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 14.5,
-                                    color: theme.text,
-                                    display: "block",
-                                }}
-                            >
-                                {item.label}
-                            </span>
-                            {item.subtitle && (
-                                <span
-                                    style={{
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        fontSize: 12.5,
-                                        color: theme.textMuted,
-                                        display: "block",
-                                        marginTop: 2,
-                                    }}
-                                >
-                                    {item.subtitle}
-                                </span>
-                            )}
-                        </div>
-                        <span style={{ color: theme.textMuted, fontSize: 14 }}>{"\u203A"}</span>
-                    </div>
-                ))}
             </div>
-            <div style={{ marginTop: "auto", paddingTop: 32, paddingBottom: 24, textAlign: "center" }}>
-                <span
-                    style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: theme.textMuted,
-                    }}
-                >
-                    maven
-                </span>
-                <p
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 11,
-                        color: theme.textMuted,
-                        margin: "4px 0 0",
-                    }}
-                >
-                    v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
-                </p>
-            </div>
-
-            {/* Welcome toast — inline, below heading */}
-
-            {/* Confirm simulation modal */}
-            {confirmAction && (
-                <div
-                    onClick={() => setConfirmAction(null)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.4)",
-                        zIndex: 200,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 24,
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            background: theme.card,
-                            borderRadius: 20,
-                            padding: "28px 24px",
-                            maxWidth: 320,
-                            width: "100%",
-                            textAlign: "center",
-                        }}
-                    >
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 15,
-                                fontWeight: 600,
-                                color: theme.text,
-                                margin: "0 0 8px",
-                            }}
-                        >
-                            {confirmAction.isReset ? "Reset all clicks?" : "Run simulation?"}
-                        </p>
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13.5,
-                                color: theme.textSecondary,
-                                lineHeight: 1.5,
-                                margin: "0 0 20px",
-                            }}
-                        >
-                            {confirmAction.isReset
-                                ? "This will delete all existing click data. You can re-simulate afterwards."
-                                : "This will reset all existing click data and replace it with simulated clicks."}
-                        </p>
-                        <div style={{ display: "flex", gap: 10 }}>
-                            <button
-                                onClick={() => setConfirmAction(null)}
-                                style={{
-                                    flex: 1,
-                                    padding: "12px 0",
-                                    borderRadius: 100,
-                                    border: `1px solid ${theme.border}`,
-                                    background: theme.card,
-                                    color: theme.text,
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 14,
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleConfirm}
-                                style={{
-                                    flex: 1,
-                                    padding: "12px 0",
-                                    borderRadius: 100,
-                                    border: "none",
-                                    background: confirmAction.isReset ? "#c53030" : theme.btnBg,
-                                    color: confirmAction.isReset ? "#fff" : theme.btnText,
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 14,
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                }}
-                            >
-                                {confirmAction.isReset ? "Reset" : "Simulate"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* About modal */}
-            {showAbout && (
-                <div
-                    onClick={() => setShowAbout(false)}
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        background: "rgba(0,0,0,0.4)",
-                        zIndex: 200,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 24,
-                    }}
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                            background: theme.card,
-                            borderRadius: 20,
-                            padding: "32px 28px",
-                            maxWidth: 340,
-                            width: "100%",
-                            textAlign: "center",
-                        }}
-                    >
-                        <h2
-                            style={{
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: 28,
-                                fontWeight: 700,
-                                color: theme.text,
-                                margin: "0 0 8px",
-                                letterSpacing: "-0.02em",
-                            }}
-                        >
-                            maven
-                        </h2>
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                color: theme.textMuted,
-                                margin: "0 0 16px",
-                            }}
-                        >
-                            v0.1.0
-                        </p>
-                        <p
-                            style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                color: theme.textSecondary,
-                                lineHeight: 1.6,
-                                margin: "0 0 24px",
-                            }}
-                        >
-                            Discover local makers and craftspeople in Galway, Ireland. Supporting the people who make
-                            things by hand.
-                        </p>
-                        <button
-                            onClick={() => setShowAbout(false)}
-                            style={{
-                                padding: "12px 32px",
-                                borderRadius: 100,
-                                border: "none",
-                                background: theme.btnBg,
-                                color: theme.btnText,
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 14,
-                                fontWeight: 600,
-                                cursor: "pointer",
-                            }}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

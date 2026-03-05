@@ -21,9 +21,11 @@ import MakerProfile from "./screens/MakerProfile"
 import type { Maker } from "./types"
 import type { Theme } from "./types"
 
-const MapScreen = lazy(() => import("./screens/MapScreen"))
-const SavedScreen = lazy(() => import("./screens/SavedScreen"))
-const ProfileScreen = lazy(() => import("./screens/ProfileScreen"))
+import SavedScreen from "./screens/SavedScreen"
+import ProfileScreen from "./screens/ProfileScreen"
+
+const mapImport = () => import("./screens/MapScreen")
+const MapScreen = lazy(mapImport)
 const OnboardingScreen = lazy(() => import("./screens/OnboardingScreen"))
 
 function getStateFromURL() {
@@ -168,6 +170,12 @@ export default function App() {
         history.replaceState({ tab, maker: makerSlug || null }, "", buildURL(tab, makerSlug))
     }, [])
 
+    // Preload map chunk so first tab switch is instant
+    useEffect(() => {
+        const id = setTimeout(mapImport, 1000)
+        return () => clearTimeout(id)
+    }, [])
+
     // Listen to popstate (browser back/forward)
     useEffect(() => {
         const onPopState = (e: PopStateEvent) => {
@@ -240,33 +248,29 @@ export default function App() {
                 )
             case "saved":
                 return (
-                    <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                        <SavedScreen
-                            makers={makers}
-                            makersLoading={makersLoading}
-                            onMakerTap={handleMakerTap}
-                            savedIds={savedIds}
-                            onToggleSave={handleToggleSave}
-                            onTabChange={handleTabChange}
-                            onLogoTap={handleLogoTap}
-                            breakpoint={breakpoint}
-                        />
-                    </Suspense>
+                    <SavedScreen
+                        makers={makers}
+                        makersLoading={makersLoading}
+                        onMakerTap={handleMakerTap}
+                        savedIds={savedIds}
+                        onToggleSave={handleToggleSave}
+                        onTabChange={handleTabChange}
+                        onLogoTap={handleLogoTap}
+                        breakpoint={breakpoint}
+                    />
                 )
             case "profile":
                 return (
-                    <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                        <ProfileScreen
-                            isDebug={isDebug}
-                            toggleDebug={toggleDebug}
-                            makers={makers}
-                            refetch={refetch}
-                            feedLayout={feedLayout}
-                            setFeedLayout={setFeedLayout}
-                            onLogoTap={handleLogoTap}
-                            profileName={profileName}
-                        />
-                    </Suspense>
+                    <ProfileScreen
+                        isDebug={isDebug}
+                        toggleDebug={toggleDebug}
+                        makers={makers}
+                        refetch={refetch}
+                        feedLayout={feedLayout}
+                        setFeedLayout={setFeedLayout}
+                        onLogoTap={handleLogoTap}
+                        profileName={profileName}
+                    />
                 )
             default:
                 return null

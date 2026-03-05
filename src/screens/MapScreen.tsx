@@ -266,6 +266,7 @@ export default function MapScreen({
                     top: 0,
                     left: 0,
                     zIndex: 0,
+                    background: theme.bg,
                 }}
             />
 

@@ -35,7 +35,15 @@ export default function SavedScreen({
             <Helmet>
                 <title>Saved Makers — maven</title>
             </Helmet>
-            <div style={{ padding: "12px 16px 14px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    height: 50,
+                    boxSizing: "border-box",
+                    padding: "10px 16px 10px 20px",
+                }}
+            >
                 <h1
                     onClick={onLogoTap}
                     style={{
@@ -52,97 +60,106 @@ export default function SavedScreen({
                     maven
                 </h1>
             </div>
-            <div style={{ padding: "14px 16px 14px" }}>
-                <p
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 14,
-                        color: theme.textMuted,
-                        margin: 0,
-                    }}
-                >
-                    {savedMakers.length} maker{savedMakers.length !== 1 ? "s" : ""} saved
-                </p>
-            </div>
-
-            {makersLoading ? (
-                <div style={{ padding: "60px 40px", textAlign: "center" }}>
-                    <div
-                        style={{ fontSize: 40, marginBottom: 16, opacity: 0.3, animation: "pulse 1.5s ease infinite" }}
-                    >
-                        {"\u2661"}
-                    </div>
-                </div>
-            ) : !user ? (
-                <div style={{ padding: "60px 40px", textAlign: "center" }}>
-                    <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
+            <div style={{ animation: "fadeIn 0.15s ease" }}>
+                <div style={{ padding: "14px 16px 14px" }}>
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 15,
-                            color: theme.textMuted,
-                            lineHeight: 1.6,
-                        }}
-                    >
-                        Sign in to save your favourite makers.
-                    </p>
-                    <button
-                        onClick={() => onTabChange("profile")}
-                        style={{
-                            marginTop: 16,
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: 14,
-                            fontWeight: 600,
-                            color: theme.bg,
-                            background: theme.text,
-                            border: "none",
-                            borderRadius: 100,
-                            padding: "10px 24px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Sign in
-                    </button>
-                </div>
-            ) : savedMakers.length === 0 ? (
-                <div style={{ padding: "60px 40px", textAlign: "center" }}>
-                    <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
-                    <p
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 15,
                             color: theme.textMuted,
-                            lineHeight: 1.6,
+                            margin: 0,
                         }}
                     >
-                        No saved makers yet.
-                        <br />
-                        Tap the heart on any maker to save them here.
+                        {savedMakers.length} maker{savedMakers.length !== 1 ? "s" : ""} saved
                     </p>
                 </div>
-            ) : (
-                <div
-                    style={{
-                        padding: "0 4px",
-                        display: breakpoint !== "mobile" ? "grid" : "flex",
-                        ...(breakpoint !== "mobile"
-                            ? { gridTemplateColumns: "1fr 1fr", gap: 8 }
-                            : { flexDirection: "column" as const, gap: 4 }),
-                    }}
-                >
-                    {savedMakers.map((maker, i) => (
-                        <MakerListItem
-                            key={maker.id}
-                            maker={maker}
-                            index={i}
-                            isSaved={true}
-                            onTap={onMakerTap}
-                            onToggleSave={onToggleSave}
-                            showHours={false}
-                        />
-                    ))}
-                </div>
-            )}
+
+                {makersLoading ? (
+                    <div style={{ padding: "60px 40px", textAlign: "center" }}>
+                        <div
+                            style={{
+                                fontSize: 40,
+                                marginBottom: 16,
+                                opacity: 0.3,
+                                animation: "pulse 1.5s ease infinite",
+                            }}
+                        >
+                            {"\u2661"}
+                        </div>
+                    </div>
+                ) : !user ? (
+                    <div style={{ padding: "60px 40px", textAlign: "center" }}>
+                        <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 15,
+                                color: theme.textMuted,
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            Sign in to save your favourite makers.
+                        </p>
+                        <button
+                            onClick={() => onTabChange("profile")}
+                            style={{
+                                marginTop: 16,
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 14,
+                                fontWeight: 600,
+                                color: theme.bg,
+                                background: theme.text,
+                                border: "none",
+                                borderRadius: 100,
+                                padding: "10px 24px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            Sign in
+                        </button>
+                    </div>
+                ) : savedMakers.length === 0 ? (
+                    <div style={{ padding: "60px 40px", textAlign: "center" }}>
+                        <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 15,
+                                color: theme.textMuted,
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            No saved makers yet.
+                            <br />
+                            Tap the heart on any maker to save them here.
+                        </p>
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            padding: "0 4px",
+                            display: breakpoint !== "mobile" ? "grid" : "flex",
+                            ...(breakpoint !== "mobile"
+                                ? { gridTemplateColumns: "1fr 1fr", gap: 8 }
+                                : { flexDirection: "column" as const, gap: 4 }),
+                        }}
+                    >
+                        {savedMakers.map((maker, i) => (
+                            <MakerListItem
+                                key={maker.id}
+                                maker={maker}
+                                index={i}
+                                isSaved={true}
+                                onTap={onMakerTap}
+                                onToggleSave={onToggleSave}
+                                showHours={false}
+                                stagger={false}
+                                eager
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

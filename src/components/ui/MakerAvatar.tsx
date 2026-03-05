@@ -11,29 +11,12 @@ interface MakerAvatarProps {
 
 export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAvatarProps) {
     const [imgError, setImgError] = useState(false)
-
-    if (maker.avatar_url && !imgError) {
-        return (
-            <img
-                src={optimizeImageUrl(maker.avatar_url, size * 2, { quality: IMG_QUALITY.thumbnail }) ?? undefined}
-                alt={maker.name}
-                loading={eager ? "eager" : "lazy"}
-                decoding="async"
-                onError={() => setImgError(true)}
-                style={{
-                    width: size,
-                    height: size,
-                    borderRadius: size / 2,
-                    objectFit: "cover",
-                    flexShrink: 0,
-                }}
-            />
-        )
-    }
+    const showImg = maker.avatar_url && !imgError
 
     return (
         <div
             style={{
+                position: "relative",
                 width: size,
                 height: size,
                 borderRadius: size / 2,
@@ -47,9 +30,28 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
                 fontSize: size * 0.32,
                 letterSpacing: "0.02em",
                 flexShrink: 0,
+                overflow: "hidden",
             }}
         >
             {getInitials(maker.name)}
+            {showImg && (
+                <img
+                    src={optimizeImageUrl(maker.avatar_url!, size * 2, { quality: IMG_QUALITY.thumbnail }) ?? undefined}
+                    alt={maker.name}
+                    loading={eager ? "eager" : "lazy"}
+                    decoding="async"
+                    onError={() => setImgError(true)}
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        display: "block",
+                        width: size,
+                        height: size,
+                        borderRadius: size / 2,
+                        objectFit: "cover",
+                    }}
+                />
+            )}
         </div>
     )
 }
