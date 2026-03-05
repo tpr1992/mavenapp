@@ -8,7 +8,7 @@ import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
-import DiscoverHeaderV2 from "../components/discover/DiscoverHeaderV2"
+import DiscoverHeader from "../components/discover/DiscoverHeader"
 import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
@@ -375,7 +375,7 @@ export default function DiscoverScreen({
                 />
             </div>
 
-            <DiscoverHeaderV2
+            <DiscoverHeader
                 scrollContainerRef={scrollContainerRef}
                 searchQuery={searchQuery}
                 onSearchQueryChange={setSearchQuery}

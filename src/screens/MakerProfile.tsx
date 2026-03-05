@@ -6,12 +6,12 @@ import { isOpenNow, getTodayHours } from "../utils/time"
 
 import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
 import { useTheme } from "../contexts/ThemeContext"
-import { glassBarStyle } from "../utils/glass"
 import { safeOpen } from "../utils/safeOpen"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
 import ShareModal from "../components/modals/ShareModal"
 import ImageGalleryModal from "../components/modals/ImageGalleryModal"
 import MakerHero from "../components/makers/MakerHero"
+import MakerProfileHeader from "../components/makers/MakerProfileHeader"
 import type { Maker, Theme } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
 
@@ -20,7 +20,7 @@ interface TabItem {
     label: string
 }
 
-interface MakerProfileV2Props {
+interface MakerProfileProps {
     maker: Maker
     makers?: Maker[]
     onBack: () => void
@@ -733,7 +733,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
 }
 
 // ─── Main Component ───────────────────────────────────
-export default function MakerProfileV2({
+export default function MakerProfile({
     maker,
     makers = [],
     onBack,
@@ -743,10 +743,9 @@ export default function MakerProfileV2({
     scrollContainerRef,
     onLogoTap,
     breakpoint = "mobile",
-}: MakerProfileV2Props) {
+}: MakerProfileProps) {
     const [showShare, setShowShare] = useState(false)
     const [showCompact, setShowCompact] = useState(false)
-    const [compactMenuOpen, setCompactMenuOpen] = useState(false)
     const [activeTab, setActiveTab] = useState("work")
     const [viewerIndex, setViewerIndex] = useState<number | null>(null)
     const heroRef = useRef<HTMLDivElement>(null)
@@ -768,14 +767,15 @@ export default function MakerProfileV2({
     }, [makers, maker.id, maker.category])
 
     useEffect(() => {
-        const el = scrollContainerRef?.current
-        if (!el) return
-        const onScroll = () => {
-            const heroBottom = heroRef.current?.offsetHeight || 0
-            setShowCompact(el.scrollTop > heroBottom - 48)
-        }
-        el.addEventListener("scroll", onScroll, { passive: true })
-        return () => el.removeEventListener("scroll", onScroll)
+        const hero = heroRef.current
+        const root = scrollContainerRef?.current
+        if (!hero || !root) return
+        const io = new IntersectionObserver(([e]) => setShowCompact(!e.isIntersecting), {
+            root,
+            rootMargin: "-48px 0px 0px 0px",
+        })
+        io.observe(hero)
+        return () => io.disconnect()
     }, [scrollContainerRef])
 
     useEffect(() => {
@@ -814,267 +814,25 @@ export default function MakerProfileV2({
                 <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
             </Helmet>
 
-            {/* Compact sticky header */}
-            <div style={{ position: "sticky", top: 0, zIndex: 50, height: 0 }}>
-                <div
-                    style={{
-                        ...glassBarStyle(isDark),
-                        borderBottom: showCompact ? glassBarStyle(isDark).border : "1px solid transparent",
-                        transform: showCompact ? "translateY(0)" : "translateY(-100%)",
-                        transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.3s ease",
-                        pointerEvents: showCompact ? "auto" : "none",
-                        willChange: "transform",
-                    }}
-                >
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px 10px 12px" }}>
-                        <button
-                            onClick={onBack}
-                            style={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: "50%",
-                                border: "none",
-                                background: theme.pill,
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0,
-                                fontSize: 15,
-                                color: theme.textSecondary,
-                            }}
-                        >
-                            {"\u2190"}
-                        </button>
-
-                        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-                            <span
-                                onClick={onLogoTap}
-                                style={{
-                                    fontFamily: "'Playfair Display', serif",
-                                    fontSize: 16,
-                                    fontWeight: 700,
-                                    color: theme.text,
-                                    letterSpacing: "-0.02em",
-                                    cursor: "pointer",
-                                    flexShrink: 0,
-                                }}
-                            >
-                                maven
-                            </span>
-                            <div
-                                style={{
-                                    width: 3,
-                                    height: 3,
-                                    borderRadius: "50%",
-                                    background: theme.textMuted,
-                                    flexShrink: 0,
-                                }}
-                            />
-                            <span
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 13.5,
-                                    fontWeight: 600,
-                                    color: theme.textSecondary,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    minWidth: 0,
-                                }}
-                            >
-                                {maker.name}
-                            </span>
-                        </div>
-
-                        <div style={{ display: "flex", gap: 6, flexShrink: 0, position: "relative" }}>
-                            <button
-                                onClick={() => onToggleSave(maker.id)}
-                                style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: "50%",
-                                    border: "none",
-                                    background: theme.pill,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: 16,
-                                    color: isSaved ? "#c53030" : theme.textMuted,
-                                    transition: "color 0.2s ease",
-                                }}
-                            >
-                                {isSaved ? "\u2665" : "\u2661"}
-                            </button>
-                            <button
-                                onClick={() => setCompactMenuOpen((v) => !v)}
-                                aria-label="More options"
-                                style={{
-                                    width: 32,
-                                    height: 32,
-                                    borderRadius: "50%",
-                                    border: "none",
-                                    background: theme.pill,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
-                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                    <circle cx="3.5" cy="8" r="1.3" fill={theme.textSecondary} />
-                                    <circle cx="8" cy="8" r="1.3" fill={theme.textSecondary} />
-                                    <circle cx="12.5" cy="8" r="1.3" fill={theme.textSecondary} />
-                                </svg>
-                            </button>
-                            {compactMenuOpen && (
-                                <>
-                                    <div
-                                        onClick={() => setCompactMenuOpen(false)}
-                                        style={{ position: "fixed", inset: 0, zIndex: 90 }}
-                                    />
-                                    <div
-                                        style={{
-                                            position: "absolute",
-                                            top: "calc(100% + 8px)",
-                                            right: 0,
-                                            background: theme.card,
-                                            borderRadius: 14,
-                                            boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)",
-                                            minWidth: 180,
-                                            zIndex: 100,
-                                            overflow: "hidden",
-                                            animation: "fadeSlideIn 0.15s ease",
-                                        }}
-                                    >
-                                        {[
-                                            {
-                                                label: "Share",
-                                                icon: (
-                                                    <svg
-                                                        width="15"
-                                                        height="15"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke={theme.textSecondary}
-                                                        strokeWidth="1.8"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    >
-                                                        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
-                                                        <polyline points="16 6 12 2 8 6" />
-                                                        <line x1="12" y1="2" x2="12" y2="15" />
-                                                    </svg>
-                                                ),
-                                                action: () => {
-                                                    setCompactMenuOpen(false)
-                                                    setShowShare(true)
-                                                },
-                                            },
-                                            {
-                                                label: "Directions",
-                                                icon: (
-                                                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                                                        <path
-                                                            d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5zm0 6.25a1.75 1.75 0 110-3.5 1.75 1.75 0 010 3.5z"
-                                                            fill={theme.textSecondary}
-                                                        />
-                                                    </svg>
-                                                ),
-                                                action: () => {
-                                                    setCompactMenuOpen(false)
-                                                    window.open(
-                                                        /android/i.test(navigator.userAgent)
-                                                            ? `https://www.google.com/maps/dir/?api=1&destination=${maker.lat},${maker.lng}`
-                                                            : `https://maps.apple.com/?daddr=${maker.lat},${maker.lng}`,
-                                                        "_blank",
-                                                        "noopener,noreferrer",
-                                                    )
-                                                },
-                                            },
-                                            ...(maker.website_url
-                                                ? [
-                                                      {
-                                                          label: "Website",
-                                                          icon: (
-                                                              <svg
-                                                                  width="15"
-                                                                  height="15"
-                                                                  viewBox="0 0 24 24"
-                                                                  fill="none"
-                                                                  stroke={theme.textSecondary}
-                                                                  strokeWidth="1.8"
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                              >
-                                                                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                                                                  <polyline points="15 3 21 3 21 9" />
-                                                                  <line x1="10" y1="14" x2="21" y2="3" />
-                                                              </svg>
-                                                          ),
-                                                          action: () => {
-                                                              setCompactMenuOpen(false)
-                                                              safeOpen(maker.website_url)
-                                                          },
-                                                      },
-                                                  ]
-                                                : []),
-                                        ].map((item, i, arr) => (
-                                            <button
-                                                key={item.label}
-                                                onClick={item.action}
-                                                style={{
-                                                    width: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: 12,
-                                                    padding: "13px 16px",
-                                                    border: "none",
-                                                    background: "transparent",
-                                                    cursor: "pointer",
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 14,
-                                                    fontWeight: 500,
-                                                    color: theme.text,
-                                                    borderBottom:
-                                                        i < arr.length - 1 ? `1px solid ${theme.border}` : "none",
-                                                    textAlign: "left",
-                                                }}
-                                            >
-                                                <span
-                                                    style={{
-                                                        width: 20,
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent: "center",
-                                                        flexShrink: 0,
-                                                    }}
-                                                >
-                                                    {item.icon}
-                                                </span>
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* Unified sticky header — morphs between hero overlay and compact bar */}
+            <MakerProfileHeader
+                maker={maker}
+                isCompact={showCompact}
+                isSaved={isSaved}
+                isDark={isDark}
+                theme={theme}
+                onBack={onBack}
+                onLogoTap={onLogoTap}
+                onToggleSave={onToggleSave}
+                onShare={() => setShowShare(true)}
+                scrollContainerRef={scrollContainerRef}
+            />
 
             {/* Hero */}
             <MakerHero
                 maker={maker}
-                onBack={onBack}
-                onLogoTap={onLogoTap}
-                onShare={() => setShowShare(true)}
-                onToggleSave={onToggleSave}
-                isSaved={isSaved}
                 heroRef={heroRef}
                 isDark={isDark}
-                theme={theme}
                 minHeroHeight={breakpoint === "mobile" ? 190 : 280}
             />
 

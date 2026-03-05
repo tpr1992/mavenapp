@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
 import { glassBarStyle, glassBarOpaque } from "../../utils/glass"
 import CategoryIcon from "../ui/CategoryIcon"
@@ -6,7 +6,7 @@ import SearchBar from "../ui/SearchBar"
 import { formatLocation } from "../../utils/distance"
 import type { Maker } from "../../types"
 
-interface DiscoverHeaderV2Props {
+interface DiscoverHeaderProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
     searchQuery: string
     onSearchQueryChange: (query: string) => void
@@ -26,7 +26,7 @@ interface DiscoverHeaderV2Props {
 
 const EXPANDED_THRESHOLD = 5
 
-export default function DiscoverHeaderV2({
+export default function DiscoverHeader({
     scrollContainerRef,
     searchQuery,
     onSearchQueryChange,
@@ -42,7 +42,7 @@ export default function DiscoverHeaderV2({
     makerSuggestions,
     isHidden,
     refreshKey,
-}: DiscoverHeaderV2Props) {
+}: DiscoverHeaderProps) {
     const { theme, isDark } = useTheme()
     const gBar = glassBarStyle(isDark)
 
@@ -51,6 +51,7 @@ export default function DiscoverHeaderV2({
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchFocused, setSearchFocused] = useState(false)
     const [topRowHidden, setTopRowHidden] = useState(false)
+    const [spacerH, setSpacerH] = useState(56) // expanded header height — measured on mount
     // pillsFade uses direct DOM — no state, no re-renders during pills scroll
 
     // --- Refs ---
@@ -125,8 +126,6 @@ export default function DiscoverHeaderV2({
                 bar.style.transform = ""
                 bar.style.pointerEvents = ""
             }
-            const wrapper = wrapperRef.current
-            if (wrapper) wrapper.style.top = "0px"
         }
     }, [isHidden])
 
@@ -156,13 +155,23 @@ export default function DiscoverHeaderV2({
         }
     }, [isCompact, category])
 
-    // --- Measure expanded height + initial scroll position check (iOS scroll restoration) ---
+    // --- Measure expanded height for spacer (sync before paint to avoid layout shift) ---
+    useLayoutEffect(() => {
+        const bar = barRef.current
+        if (bar && !isCompactRef.current) {
+            const h = bar.offsetHeight
+            expandedHeight.current = h
+            setSpacerH(h)
+        }
+    }, [searchOpen, isCompact])
+
+    // --- Initial scroll position check (iOS scroll restoration) ---
     useEffect(() => {
         const bar = barRef.current
         if (bar) expandedHeight.current = bar.offsetHeight
-        const slideAway = expandedHeight.current || 56
+        const threshold = expandedHeight.current || 56
         const el = scrollContainerRef?.current
-        if (el && el.scrollTop > slideAway) {
+        if (el && el.scrollTop > threshold) {
             isCompactRef.current = true
             wasCompactRef.current = true
             setIsCompact(true)
@@ -174,12 +183,12 @@ export default function DiscoverHeaderV2({
     }, [])
 
     // --- Scroll handler ---
+    // Matches MakerProfileHeader pattern: height:0 sticky overlay, velocity show/hide, no slide-away
     useEffect(() => {
         const el = scrollContainerRef?.current
         if (!el) return
         let desktopSettle: ReturnType<typeof setTimeout> | null = null
         let topRowSettle: ReturnType<typeof setTimeout> | null = null
-        let slideAwaySettle: ReturnType<typeof setTimeout> | null = null
 
         const s = (bar: HTMLDivElement) => bar.style as CSSStyleDeclaration & Record<string, string>
         const g = glassBarStyle(isDark)
@@ -249,17 +258,6 @@ export default function DiscoverHeaderV2({
             isTouching.current = false
             resolveRubberBand()
 
-            // Snap slide-away zone — header must never be stuck partially scrolled
-            const st = el.scrollTop
-            const sa = expandedHeight.current || 56
-            if (st > 0 && st <= sa && !isCompactRef.current) {
-                if (velocity.current > 0.05 || st > sa * 0.5) {
-                    el.scrollTo({ top: sa + 1, behavior: "smooth" })
-                } else {
-                    el.scrollTo({ top: 0, behavior: "smooth" })
-                }
-            }
-
             if (topRowPending.current === "collapse") {
                 setTopRowHidden(true)
                 topRowPending.current = null
@@ -279,18 +277,13 @@ export default function DiscoverHeaderV2({
             velocity.current = velocity.current * 0.5 + v * 0.5
 
             const bar = barRef.current
-            const wrapper = wrapperRef.current
-            const slideAway = expandedHeight.current || 56
+            const threshold = expandedHeight.current || 56
             // Once compact, stay compact until fully back at top — like Safari's address bar
-            const shouldBeCompact = st > slideAway || (wasCompactRef.current && st >= EXPANDED_THRESHOLD)
+            const shouldBeCompact = st > threshold || (wasCompactRef.current && st >= EXPANDED_THRESHOLD)
 
             if (desktopSettle) {
                 clearTimeout(desktopSettle)
                 desktopSettle = null
-            }
-            if (slideAwaySettle) {
-                clearTimeout(slideAwaySettle)
-                slideAwaySettle = null
             }
 
             // Update isCompact state (guarded by ref to avoid redundant setState)
@@ -310,32 +303,19 @@ export default function DiscoverHeaderV2({
                         rbVelocity.current = 0
                         restoreFrost(bar)
                     }
-                    // Opacity crossfade when morphing compact → expanded
+                    // Morph compact → expanded via CSS transitions on content
                     if (wasCompactRef.current && barShown.current) {
-                        bar.style.opacity = "0"
-                        bar.style.transition = "none"
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                if (!bar) return
-                                bar.style.transition =
-                                    "opacity 0.18s ease, background 0.25s ease, backdrop-filter 0.25s ease, border-color 0.25s ease"
-                                bar.style.opacity = "1"
-                                setTimeout(() => {
-                                    if (!bar) return
-                                    bar.style.transition = ""
-                                    bar.style.opacity = ""
-                                }, 280)
-                            })
-                        })
+                        bar.style.transition = "background 0.4s ease, border-color 0.4s ease"
+                        bar.style.opacity = ""
+                        setTimeout(() => {
+                            if (bar) bar.style.transition = ""
+                        }, 350)
                     } else {
                         bar.style.transition = "none"
                     }
-                    bar.style.transform = "" // visible, expanded
+                    bar.style.transform = ""
                     bar.style.pointerEvents = ""
                 }
-                if (wrapper) wrapper.style.top = "0px"
-                // Re-measure expanded height (may have changed with search state)
-                if (bar) expandedHeight.current = bar.offsetHeight
                 // Close empty search when returning to top from compact
                 if (wasCompactRef.current) {
                     if (searchOpenRef.current && !searchQueryRef.current.trim()) {
@@ -351,37 +331,21 @@ export default function DiscoverHeaderV2({
                 wasCompactRef.current = false
                 setTopRowHidden(false)
                 velocity.current = 0
-            } else if (!wasCompactRef.current && st <= slideAway && !searchOpenRef.current) {
-                // ── SLIDING AWAY (expanded header scrolls up naturally, initial scroll-down only) ──
-                if (wrapper) wrapper.style.top = `-${st}px`
-                // Desktop: snap to resolved after scroll stops
-                if (!isTouching.current) {
-                    slideAwaySettle = setTimeout(() => {
-                        const cst = el.scrollTop
-                        if (cst > 0 && cst <= slideAway && !isCompactRef.current) {
-                            el.scrollTo({ top: cst > slideAway * 0.5 ? slideAway + 1 : 0, behavior: "smooth" })
-                        }
-                    }, 150)
-                }
             } else if (shouldBeCompact) {
                 // ── COMPACT ZONE ──
                 if (!wasCompactRef.current && bar) {
-                    // First time becoming compact — header has already slid off via top offset
+                    // First time becoming compact — hide bar, velocity will reveal it
                     wasCompactRef.current = true
-                    if (wrapper) wrapper.style.top = "0px"
                     if (searchOpenRef.current) {
-                        // Search active — show compact bar immediately
                         barShown.current = true
                         bar.style.transition = "none"
                         bar.style.transform = "translateY(0)"
                         bar.style.pointerEvents = "auto"
                     } else {
-                        // Slide-away already moved header off-screen — keep hidden
                         bar.style.transition = "none"
                         bar.style.transform = "translateY(-100%)"
                         bar.style.pointerEvents = "none"
                     }
-                    // Dismiss keyboard
                     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
                 }
 
@@ -422,7 +386,6 @@ export default function DiscoverHeaderV2({
                 } else if (barShown.current && delta > 2 && bar && !rbAnimating.current) {
                     const searchActive = searchOpenRef.current && searchQueryRef.current.trim()
                     if (searchActive) {
-                        // Active search — collapse top row on scroll down
                         if (!topRowHiddenRef.current && topRowPending.current !== "collapse") {
                             topRowPending.current = "collapse"
                             if (topRowSettle) clearTimeout(topRowSettle)
@@ -436,7 +399,6 @@ export default function DiscoverHeaderV2({
                             }
                         }
                     } else {
-                        // No active search — enter rubber band dismiss
                         rbOffset.current = 0.1
                         rbPrevScroll.current = st
                         rbPrevTime.current = now
@@ -446,13 +408,11 @@ export default function DiscoverHeaderV2({
                         setSearchFocused(false)
                     }
                 } else if (!barShown.current && velocity.current < -0.08 && !rbAnimating.current && bar) {
-                    // Scrolling up with intent — show compact bar with animation
                     barShown.current = true
                     bar.style.pointerEvents = "auto"
-                    bar.style.transition = "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)"
+                    bar.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
                     bar.style.transform = "translateY(0)"
                 } else if (barShown.current && delta < -1 && !rbAnimating.current) {
-                    // Scrolling up with bar visible — expand top row
                     if (topRowHiddenRef.current && topRowPending.current !== "expand") {
                         topRowPending.current = "expand"
                         if (topRowSettle) clearTimeout(topRowSettle)
@@ -465,7 +425,6 @@ export default function DiscoverHeaderV2({
                             }, 150)
                         }
                     } else if (topRowPending.current === "collapse") {
-                        // Cancel pending collapse — user reversed direction
                         topRowPending.current = null
                         if (topRowSettle) {
                             clearTimeout(topRowSettle)
@@ -490,7 +449,6 @@ export default function DiscoverHeaderV2({
             el.removeEventListener("touchcancel", onTouchEnd)
             if (desktopSettle) clearTimeout(desktopSettle)
             if (topRowSettle) clearTimeout(topRowSettle)
-            if (slideAwaySettle) clearTimeout(slideAwaySettle)
         }
     }, [scrollContainerRef, isDark])
 
@@ -510,8 +468,6 @@ export default function DiscoverHeaderV2({
             bar.style.transform = ""
             bar.style.pointerEvents = ""
         }
-        const wrapper = wrapperRef.current
-        if (wrapper) wrapper.style.top = "0px"
     }, [onScrollToTop, onSearchQueryChange, onCategoryChange])
 
     // --- Open search ---
@@ -552,24 +508,24 @@ export default function DiscoverHeaderV2({
     } as const
 
     return (
-        <div ref={wrapperRef} style={{ position: "sticky", top: 0, zIndex: 50 }}>
-            <div
-                ref={barRef}
-                style={{
-                    background: isCompact ? gBar.background : theme.bg,
-                    backdropFilter: isCompact ? gBar.backdropFilter : "none",
-                    WebkitBackdropFilter: isCompact ? gBar.WebkitBackdropFilter : "none",
-                    borderBottom: isCompact ? gBar.border : "1px solid transparent",
-                    willChange: isCompact ? "transform" : "auto",
-                }}
-            >
-                {isCompact ? (
-                    /* Compact top row: collapsible grid with logo + pills + search btn */
+        <>
+            <div ref={wrapperRef} style={{ position: "sticky", top: 0, zIndex: 50, height: 0 }}>
+                <div
+                    ref={barRef}
+                    style={{
+                        background: isCompact ? gBar.background : theme.bg,
+                        backdropFilter: isCompact ? gBar.backdropFilter : "none",
+                        WebkitBackdropFilter: isCompact ? gBar.WebkitBackdropFilter : "none",
+                        borderBottom: isCompact ? gBar.border : "1px solid transparent",
+                        willChange: isCompact ? "transform" : "auto",
+                    }}
+                >
+                    {/* Top row — morphs between expanded and compact like MakerProfileHeader */}
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateRows: topRowHidden ? "0fr" : "1fr",
-                            transition: "grid-template-rows 0.25s cubic-bezier(0.32, 0.72, 0, 1)",
+                            gridTemplateRows: isCompact && topRowHidden ? "0fr" : "1fr",
+                            transition: "grid-template-rows 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                         }}
                     >
                         <div style={{ overflow: "hidden" }}>
@@ -577,181 +533,198 @@ export default function DiscoverHeaderV2({
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: 12,
+                                    height: 50,
+                                    boxSizing: "border-box",
                                     padding: "10px 16px 10px 20px",
+                                    gap: 10,
                                 }}
                             >
-                                <h2
-                                    onClick={handleLogoTap}
-                                    style={{
-                                        fontFamily: "'Playfair Display', serif",
-                                        fontSize: 22,
-                                        fontWeight: 700,
-                                        color: theme.text,
-                                        margin: "-7px 0 -3px",
-                                        lineHeight: 1,
-                                        textRendering: "optimizeLegibility",
-                                        letterSpacing: "-0.02em",
-                                        cursor: "pointer",
-                                        flexShrink: 0,
-                                    }}
-                                >
-                                    maven
-                                </h2>
-                                <div ref={pillsContainerRef} style={{ flex: 1, overflow: "hidden" }}>
-                                    <div
-                                        ref={compactPillsRef}
-                                        style={{
-                                            display: "flex",
-                                            gap: 6,
-                                            overflowX: "auto",
-                                            scrollbarWidth: "none",
-                                            msOverflowStyle: "none",
-                                            padding: "0 4px",
-                                        }}
-                                    >
-                                        <button
-                                            aria-pressed={openNow}
-                                            onClick={() => onOpenNowChange(!openNow)}
-                                            style={{
-                                                padding: "4px 10px",
-                                                borderRadius: 100,
-                                                border: openNow ? "none" : `1.5px solid ${theme.border}`,
-                                                background: openNow ? "#22543d" : "transparent",
-                                                color: openNow ? "#fff" : theme.textSecondary,
-                                                fontFamily: "'DM Sans', sans-serif",
-                                                fontSize: 11,
-                                                fontWeight: 500,
-                                                cursor: "pointer",
-                                                whiteSpace: "nowrap",
-                                                transition:
-                                                    "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                                            }}
-                                        >
-                                            {"\u25CF"} Open
-                                        </button>
-                                        {["Clothing", "Objects", "Art"].map((cat) => (
-                                            <button
-                                                key={cat}
-                                                aria-pressed={category === cat}
-                                                onClick={() => onCategoryChange(category === cat ? "All" : cat)}
-                                                style={{
-                                                    padding: "4px 10px",
-                                                    borderRadius: 100,
-                                                    border: category === cat ? "none" : `1.5px solid ${theme.border}`,
-                                                    background: category === cat ? theme.btnBg : "transparent",
-                                                    color: category === cat ? theme.btnText : theme.textSecondary,
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 11,
-                                                    fontWeight: 500,
-                                                    cursor: "pointer",
-                                                    whiteSpace: "nowrap",
-                                                    transition:
-                                                        "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                                                }}
-                                            >
-                                                {cat}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                {!searchOpen && (
-                                    <button aria-label="Search" onClick={handleSearchOpen} style={searchBtnStyle}>
-                                        {searchIcon}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    /* Expanded row: big logo + location picker + search btn */
-                    <div style={{ padding: "12px 16px 14px" }}>
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                            }}
-                        >
-                            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                                <h1
-                                    onClick={handleLogoTap}
-                                    style={{
-                                        fontFamily: "'Playfair Display', serif",
-                                        fontSize: 30,
-                                        fontWeight: 700,
-                                        color: theme.text,
-                                        margin: 0,
-                                        letterSpacing: "-0.03em",
-                                        lineHeight: 0.75,
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    maven
-                                </h1>
+                                {/* Logo + middle area — baseline aligned in expanded */}
                                 <div
-                                    onClick={onLocationPickerOpen}
                                     style={{
                                         display: "flex",
-                                        alignItems: "center",
-                                        gap: 6,
-                                        cursor: "pointer",
+                                        alignItems: isCompact ? "center" : "baseline",
+                                        gap: 10,
+                                        flex: 1,
+                                        minWidth: 0,
                                     }}
                                 >
-                                    {locationSource === "gps" ? (
-                                        <div
-                                            style={{
-                                                width: 7,
-                                                height: 7,
-                                                borderRadius: "50%",
-                                                background: "#22543d",
-                                                flexShrink: 0,
-                                                animation: "locationPulse 2.5s ease-out infinite",
-                                            }}
-                                        />
-                                    ) : (
-                                        <svg
-                                            width="11"
-                                            height="11"
-                                            viewBox="0 0 16 16"
-                                            fill="none"
-                                            style={{ flexShrink: 0 }}
-                                        >
-                                            <path
-                                                d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5zm0 6.25a1.75 1.75 0 110-3.5 1.75 1.75 0 010 3.5z"
-                                                fill={locationLabel ? theme.textSecondary : theme.textMuted}
-                                            />
-                                        </svg>
-                                    )}
-                                    <span
+                                    <h1
+                                        onClick={handleLogoTap}
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
-                                            fontSize: 13.5,
-                                            fontWeight: 500,
-                                            color: theme.textSecondary,
-                                            letterSpacing: "0.01em",
+                                            fontFamily: "'Playfair Display', serif",
+                                            fontSize: isCompact ? 22 : 30,
+                                            fontWeight: 700,
+                                            color: theme.text,
+                                            position: isCompact ? "relative" : undefined,
+                                            top: isCompact ? -3 : undefined,
+                                            margin: 0,
+                                            lineHeight: isCompact ? 1 : 0.75,
+                                            letterSpacing: isCompact ? "-0.02em" : "-0.03em",
+                                            cursor: "pointer",
+                                            flexShrink: 0,
+                                            textRendering: "optimizeLegibility",
+                                            transition:
+                                                "font-size 0.4s ease, margin 0.4s ease, line-height 0.4s ease, letter-spacing 0.4s ease",
                                         }}
                                     >
-                                        {locationLabel || "Set location"}
-                                    </span>
-                                    <svg
-                                        width="10"
-                                        height="10"
-                                        viewBox="0 0 10 10"
-                                        fill="none"
-                                        style={{ flexShrink: 0 }}
-                                    >
-                                        <path
-                                            d="M2.5 3.75L5 6.25L7.5 3.75"
-                                            stroke={theme.textMuted}
-                                            strokeWidth="1.2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
+                                        maven
+                                    </h1>
+
+                                    {/* Middle area — location in flow, pills overlay */}
+                                    <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
+                                        {/* Location picker — always in flow (determines height), fades out */}
+                                        <div
+                                            onClick={!isCompact ? onLocationPickerOpen : undefined}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 6,
+                                                cursor: isCompact ? "default" : "pointer",
+                                                opacity: isCompact ? 0 : 1,
+                                                pointerEvents: isCompact ? "none" : "auto",
+                                                transition: "opacity 0.35s ease",
+                                                whiteSpace: "nowrap",
+                                            }}
+                                        >
+                                            {locationSource === "gps" ? (
+                                                <div
+                                                    style={{
+                                                        width: 7,
+                                                        height: 7,
+                                                        borderRadius: "50%",
+                                                        background: "#22543d",
+                                                        flexShrink: 0,
+                                                        animation: "locationPulse 2.5s ease-out infinite",
+                                                    }}
+                                                />
+                                            ) : (
+                                                <svg
+                                                    width="11"
+                                                    height="11"
+                                                    viewBox="0 0 16 16"
+                                                    fill="none"
+                                                    style={{ flexShrink: 0 }}
+                                                >
+                                                    <path
+                                                        d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8.5 4.5 8.5s4.5-5 4.5-8.5c0-2.5-2-4.5-4.5-4.5zm0 6.25a1.75 1.75 0 110-3.5 1.75 1.75 0 010 3.5z"
+                                                        fill={locationLabel ? theme.textSecondary : theme.textMuted}
+                                                    />
+                                                </svg>
+                                            )}
+                                            <span
+                                                style={{
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 13.5,
+                                                    fontWeight: 500,
+                                                    color: theme.textSecondary,
+                                                    letterSpacing: "0.01em",
+                                                }}
+                                            >
+                                                {locationLabel || "Set location"}
+                                            </span>
+                                            <svg
+                                                width="10"
+                                                height="10"
+                                                viewBox="0 0 10 10"
+                                                fill="none"
+                                                style={{ flexShrink: 0 }}
+                                            >
+                                                <path
+                                                    d="M2.5 3.75L5 6.25L7.5 3.75"
+                                                    stroke={theme.textMuted}
+                                                    strokeWidth="1.2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
+                                        </div>
+
+                                        {/* Filter pills — absolute overlay, fades in when compact */}
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                opacity: isCompact ? 1 : 0,
+                                                pointerEvents: isCompact ? "auto" : "none",
+                                                transition: "opacity 0.35s ease",
+                                            }}
+                                        >
+                                            <div ref={pillsContainerRef} style={{ flex: 1, overflow: "hidden" }}>
+                                                <div
+                                                    ref={compactPillsRef}
+                                                    style={{
+                                                        display: "flex",
+                                                        gap: 6,
+                                                        overflowX: "auto",
+                                                        scrollbarWidth: "none",
+                                                        msOverflowStyle: "none",
+                                                        padding: "0 4px",
+                                                    }}
+                                                >
+                                                    <button
+                                                        aria-pressed={openNow}
+                                                        onClick={() => onOpenNowChange(!openNow)}
+                                                        style={{
+                                                            padding: "4px 10px",
+                                                            borderRadius: 100,
+                                                            border: openNow ? "none" : `1.5px solid ${theme.border}`,
+                                                            background: openNow ? "#22543d" : "transparent",
+                                                            color: openNow ? "#fff" : theme.textSecondary,
+                                                            fontFamily: "'DM Sans', sans-serif",
+                                                            fontSize: 11,
+                                                            fontWeight: 500,
+                                                            cursor: "pointer",
+                                                            whiteSpace: "nowrap",
+                                                            transition:
+                                                                "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
+                                                        }}
+                                                    >
+                                                        {"\u25CF"} Open
+                                                    </button>
+                                                    {["Clothing", "Objects", "Art"].map((cat) => (
+                                                        <button
+                                                            key={cat}
+                                                            aria-pressed={category === cat}
+                                                            onClick={() =>
+                                                                onCategoryChange(category === cat ? "All" : cat)
+                                                            }
+                                                            style={{
+                                                                padding: "4px 10px",
+                                                                borderRadius: 100,
+                                                                border:
+                                                                    category === cat
+                                                                        ? "none"
+                                                                        : `1.5px solid ${theme.border}`,
+                                                                background:
+                                                                    category === cat ? theme.btnBg : "transparent",
+                                                                color:
+                                                                    category === cat
+                                                                        ? theme.btnText
+                                                                        : theme.textSecondary,
+                                                                fontFamily: "'DM Sans', sans-serif",
+                                                                fontSize: 11,
+                                                                fontWeight: 500,
+                                                                cursor: "pointer",
+                                                                whiteSpace: "nowrap",
+                                                                transition:
+                                                                    "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
+                                                            }}
+                                                        >
+                                                            {cat}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+
                                 {!searchOpen && (
                                     <button aria-label="Search" onClick={handleSearchOpen} style={searchBtnStyle}>
                                         {searchIcon}
@@ -760,97 +733,107 @@ export default function DiscoverHeaderV2({
                             </div>
                         </div>
                     </div>
-                )}
 
-                {/* Search grid — always in same DOM position, never unmounts */}
-                <div
-                    ref={searchGridRef}
-                    style={{
-                        display: "grid",
-                        gridTemplateRows: searchOpen || topRowHidden ? "1fr" : "0fr",
-                        transition: "grid-template-rows 0.15s ease-out",
-                    }}
-                >
-                    <div style={{ overflow: "hidden" }}>
-                        <div
-                            style={{
-                                padding: topRowHidden ? "10px 20px 10px" : "0 20px 10px",
-                                transition: "padding 0.25s ease",
-                            }}
-                        >
-                            <SearchBar
-                                ref={searchInputRef}
-                                value={searchQuery}
-                                onChange={onSearchQueryChange}
-                                onFocus={() => setSearchFocused(true)}
-                                onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                                placeholder="Search makers, categories, places..."
-                                containerStyle={{
-                                    background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                                    border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-                                }}
-                            />
-                        </div>
-                    </div>
-                    {searchOpen && searchFocused && searchQuery && makerSuggestions.length > 0 && (
-                        <div style={{ padding: "0 20px 10px", position: "relative", zIndex: 10 }}>
+                    {/* Search grid — always in same DOM position, never unmounts */}
+                    <div
+                        ref={searchGridRef}
+                        style={{
+                            display: "grid",
+                            gridTemplateRows: searchOpen || topRowHidden ? "1fr" : "0fr",
+                            transition: "grid-template-rows 0.15s ease-out",
+                        }}
+                    >
+                        <div style={{ overflow: "hidden" }}>
                             <div
                                 style={{
-                                    background: isDark ? "rgba(32,32,32,0.97)" : "rgba(255,255,255,0.97)",
-                                    borderRadius: 12,
-                                    boxShadow: isDark
-                                        ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
-                                        : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
-                                    border: isDark ? "1px solid rgba(255,255,255,0.10)" : "1px solid rgba(0,0,0,0.06)",
-                                    overflow: "hidden",
+                                    padding: topRowHidden ? "10px 20px 10px" : "0 20px 10px",
+                                    transition: "padding 0.25s ease",
                                 }}
                             >
-                                {makerSuggestions.map((maker, i) => (
-                                    <div
-                                        key={maker.id}
-                                        onClick={() => onMakerTap(maker)}
-                                        style={{
-                                            padding: "11px 14px",
-                                            cursor: "pointer",
-                                            borderBottom:
-                                                i < makerSuggestions.length - 1
-                                                    ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
-                                                    : "none",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 10,
-                                        }}
-                                    >
-                                        <CategoryIcon category={maker.category} size={14} style={{ flexShrink: 0 }} />
-                                        <div style={{ minWidth: 0, flex: 1 }}>
-                                            <span
-                                                style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 13,
-                                                    fontWeight: 600,
-                                                    color: theme.text,
-                                                }}
-                                            >
-                                                {maker.name}
-                                            </span>
-                                            <span
-                                                style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
-                                                    fontSize: 11,
-                                                    color: theme.textMuted,
-                                                    marginLeft: 6,
-                                                }}
-                                            >
-                                                {maker.category} · {formatLocation(maker)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
+                                <SearchBar
+                                    ref={searchInputRef}
+                                    value={searchQuery}
+                                    onChange={onSearchQueryChange}
+                                    onFocus={() => setSearchFocused(true)}
+                                    onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+                                    placeholder="Search makers, categories, places..."
+                                    containerStyle={{
+                                        height: 40,
+                                        boxSizing: "border-box",
+                                        background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+                                        border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
+                                    }}
+                                />
                             </div>
                         </div>
-                    )}
+                        {searchOpen && searchFocused && searchQuery && makerSuggestions.length > 0 && (
+                            <div style={{ padding: "0 20px 10px", position: "relative", zIndex: 10 }}>
+                                <div
+                                    style={{
+                                        background: isDark ? "rgba(32,32,32,0.97)" : "rgba(255,255,255,0.97)",
+                                        borderRadius: 12,
+                                        boxShadow: isDark
+                                            ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
+                                            : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
+                                        border: isDark
+                                            ? "1px solid rgba(255,255,255,0.10)"
+                                            : "1px solid rgba(0,0,0,0.06)",
+                                        overflow: "hidden",
+                                    }}
+                                >
+                                    {makerSuggestions.map((maker, i) => (
+                                        <div
+                                            key={maker.id}
+                                            onClick={() => onMakerTap(maker)}
+                                            style={{
+                                                padding: "11px 14px",
+                                                cursor: "pointer",
+                                                borderBottom:
+                                                    i < makerSuggestions.length - 1
+                                                        ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
+                                                        : "none",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 10,
+                                            }}
+                                        >
+                                            <CategoryIcon
+                                                category={maker.category}
+                                                size={14}
+                                                style={{ flexShrink: 0 }}
+                                            />
+                                            <div style={{ minWidth: 0, flex: 1 }}>
+                                                <span
+                                                    style={{
+                                                        fontFamily: "'DM Sans', sans-serif",
+                                                        fontSize: 13,
+                                                        fontWeight: 600,
+                                                        color: theme.text,
+                                                    }}
+                                                >
+                                                    {maker.name}
+                                                </span>
+                                                <span
+                                                    style={{
+                                                        fontFamily: "'DM Sans', sans-serif",
+                                                        fontSize: 11,
+                                                        color: theme.textMuted,
+                                                        marginLeft: 6,
+                                                    }}
+                                                >
+                                                    {maker.category} · {formatLocation(maker)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+            {/* Spacer — reserves space for the expanded header (like MakerHero does for MakerProfileHeader) */}
+            <div style={{ height: spacerH }} />
+        </>
     )
 }

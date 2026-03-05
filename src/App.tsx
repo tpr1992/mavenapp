@@ -17,7 +17,7 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
-import MakerProfileV2 from "./screens/MakerProfileV2"
+import MakerProfile from "./screens/MakerProfile"
 import type { Maker } from "./types"
 import type { Theme } from "./types"
 
@@ -95,7 +95,7 @@ export default function App() {
 
     const handleMakerTap = useCallback(
         (maker: Maker) => {
-            // Preload hero image so it's cached before MakerProfileV2 renders
+            // Preload hero image so it's cached before MakerProfile renders
             const heroUrl = maker.gallery_urls?.[0]
             if (heroUrl) {
                 const img = new window.Image()
@@ -208,7 +208,7 @@ export default function App() {
     const renderScreen = () => {
         if (selectedMaker) {
             return (
-                <MakerProfileV2
+                <MakerProfile
                     maker={selectedMaker}
                     makers={makers}
                     onBack={handleBack}
