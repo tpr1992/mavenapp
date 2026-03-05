@@ -16,6 +16,7 @@ interface MakerListItemProps {
     highlightQuery?: string
     isDebug?: boolean
     eager?: boolean
+    stagger?: boolean
 }
 
 export default memo(function MakerListItem({
@@ -28,6 +29,7 @@ export default memo(function MakerListItem({
     highlightQuery,
     isDebug,
     eager = false,
+    stagger = true,
 }: MakerListItemProps) {
     const { theme } = useTheme()
 
@@ -43,7 +45,7 @@ export default memo(function MakerListItem({
                 borderRadius: 6,
                 cursor: "pointer",
                 transition: "transform 0.15s ease",
-                animation: `fadeSlideIn 0.3s ease ${Math.min(index, 10) * 0.05}s both`,
+                animation: stagger ? `fadeSlideIn 0.3s ease ${Math.min(index, 10) * 0.05}s both` : undefined,
             }}
         >
             <div style={{ position: "relative", flexShrink: 0 }}>

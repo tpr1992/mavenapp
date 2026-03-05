@@ -1,9 +1,12 @@
+import { useTheme } from "../../contexts/ThemeContext"
+
 interface HighlightMatchProps {
     text: string
     query?: string
 }
 
 export default function HighlightMatch({ text, query }: HighlightMatchProps) {
+    const { theme, isDark } = useTheme()
     if (!query || !query.trim()) return text
 
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
@@ -11,7 +14,15 @@ export default function HighlightMatch({ text, query }: HighlightMatchProps) {
 
     return parts.map((part, i) =>
         part.toLowerCase() === query.toLowerCase() ? (
-            <mark key={i} style={{ background: "#fef3c7", color: "#1a1a1a", borderRadius: 2, padding: "0 1px" }}>
+            <mark
+                key={i}
+                style={{
+                    background: isDark ? "rgba(251,191,36,0.25)" : "#fef3c7",
+                    color: theme.text,
+                    borderRadius: 2,
+                    padding: "0 1px",
+                }}
+            >
                 {part}
             </mark>
         ) : (
