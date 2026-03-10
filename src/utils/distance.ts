@@ -49,3 +49,22 @@ export function getNearestTown(lat: number, lng: number, towns: Town[]): Town | 
     }
     return nearest
 }
+
+export interface CountyCenter {
+    county: string
+    lat: number
+    lng: number
+}
+
+export function getCountyCenter(query: string, towns: Town[]): CountyCenter | null {
+    if (query.length < 3) return null
+    const matching = towns.filter((t) => t.county.toLowerCase().startsWith(query))
+    if (matching.length === 0) return null
+    const county = matching[0].county
+    const all = towns.filter((t) => t.county === county)
+    return {
+        county,
+        lat: all.reduce((s, t) => s + t.lat, 0) / all.length,
+        lng: all.reduce((s, t) => s + t.lng, 0) / all.length,
+    }
+}

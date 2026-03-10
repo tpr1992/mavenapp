@@ -64,14 +64,14 @@ export default function App() {
         loading: makersLoading,
         error: makersError,
         refetch,
-        p95,
+        p95Engagement,
         isLowData,
         makersWithClicks,
         totalMakers,
     } = useMakers(userLocation)
     const debugMeta = useMemo(
-        () => ({ p95, isLowData, makersWithClicks, totalMakers }),
-        [p95, isLowData, makersWithClicks, totalMakers],
+        () => ({ p95Engagement, isLowData, makersWithClicks, totalMakers }),
+        [p95Engagement, isLowData, makersWithClicks, totalMakers],
     )
     const [isDebug, toggleDebug] = useDebugMode()
     const [feedLayout, setFeedLayout] = useFeedLayout()
@@ -82,13 +82,7 @@ export default function App() {
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
-    const [discoverCategory, setDiscoverCategory] = useState(() => {
-        try {
-            const prefs = JSON.parse(localStorage.getItem("maven_preferred_categories") || "[]")
-            if (prefs.length === 1) return prefs[0]
-        } catch {}
-        return "All"
-    })
+    const [discoverCategory, setDiscoverCategory] = useState("All")
     const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
     const [discoverKey, setDiscoverKey] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)

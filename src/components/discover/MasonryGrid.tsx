@@ -104,11 +104,16 @@ export default memo(function MasonryGrid({
     }, [])
 
     const columns = useMemo(() => {
+        const visibleMakerCount = allMakers.filter((m) => visibleIds.has(m.id)).length
+        const MIN_MAKERS_FOR_ADS = 3
+        const MAKERS_PER_AD = 8
+        const maxAds = visibleMakerCount >= MIN_MAKERS_FOR_ADS ? Math.floor(visibleMakerCount / MAKERS_PER_AD) : 0
+
         const items: Array<{ type: string; maker?: Maker; ad?: SponsoredPost }> = []
         let adIdx = 0
         allMakers.forEach((maker, i) => {
             items.push({ type: "maker", maker })
-            if (adIdx < sponsoredPosts.length && i + 1 === sponsoredPosts[adIdx].afterItem) {
+            if (adIdx < sponsoredPosts.length && adIdx < maxAds && i + 1 === sponsoredPosts[adIdx].afterItem) {
                 items.push({ type: "ad", ad: sponsoredPosts[adIdx] })
                 adIdx++
             }
@@ -116,12 +121,24 @@ export default memo(function MasonryGrid({
         if (singleColumn) {
             return [items.map((item, idx) => ({ ...item, col: 0, idx }))]
         }
+        // Separate visible and hidden items so column assignment flows left-to-right
+        const visible: typeof items = []
+        const hidden: typeof items = []
+        items.forEach((item) => {
+            if (item.type === "ad" || (item.maker && visibleIds.has(item.maker.id))) {
+                visible.push(item)
+            } else {
+                hidden.push(item)
+            }
+        })
+
         const cols: Array<Array<{ type: string; maker?: Maker; ad?: SponsoredPost; col: number; idx: number }>> = [
             [],
             [],
         ]
+        // Assign visible items with height-balancing (tie goes left, guaranteeing left-to-right flow)
         const colHeights: number[] = [0, 0]
-        items.forEach((item, idx) => {
+        visible.forEach((item, idx) => {
             const col = colHeights[0] <= colHeights[1] ? 0 : 1
             const itemHeight =
                 item.type === "ad"
@@ -130,8 +147,13 @@ export default memo(function MasonryGrid({
             cols[col].push({ ...item, col, idx })
             colHeights[col] += itemHeight + GAP
         })
+        // Hidden items go to alternating columns (display:none, position doesn't matter)
+        hidden.forEach((item, i) => {
+            const col = i % 2
+            cols[col].push({ ...item, col, idx: visible.length + i })
+        })
         return cols
-    }, [allMakers, sponsoredPosts, singleColumn, largeCards])
+    }, [allMakers, visibleIds, sponsoredPosts, singleColumn, largeCards])
 
     const tapProps = (fn: () => void) => ({
         onPointerDown,
@@ -190,7 +212,7 @@ export default memo(function MasonryGrid({
                                 pointerEvents: "none",
                             }}
                         >
-                            #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                            #{maker.rank} {"\u00B7"} {(maker.score || 0).toFixed(2)} {"\u00B7"}{" "}
                             {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
                         </span>
                     )}

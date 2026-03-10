@@ -93,20 +93,25 @@ const Carousel = memo(function Carousel({
             isAnimating.current = true
             el.style.scrollSnapType = "none"
             scrollMV.set(el.scrollLeft)
-            animCtrl.current = motionAnimate(scrollMV, loopIdx * el.offsetWidth, {
+            const targetLeft = loopIdx * el.offsetWidth
+            animCtrl.current = motionAnimate(scrollMV, targetLeft, {
                 ...transition,
                 onComplete: () => {
                     isAnimating.current = false
+                    // Snap to exact pixel to prevent sub-pixel misalignment
+                    el.scrollLeft = Math.round(targetLeft)
                     // If animation landed in a clone zone, teleport to real zone
                     const idx = Math.round(el.scrollLeft / el.offsetWidth)
                     if (idx < CLONES || idx >= CLONES + count) {
                         if (idx < CLONES) el.scrollLeft += count * el.offsetWidth
                         else el.scrollLeft -= count * el.offsetWidth
-                        scrollMV.set(el.scrollLeft)
                     }
-                    // Defer snap re-enable so browser settles on the new scrollLeft first
+                    scrollMV.set(el.scrollLeft)
+                    // Double-rAF: wait for browser to commit scrollLeft before re-enabling snap
                     requestAnimationFrame(() => {
-                        el.style.scrollSnapType = "x mandatory"
+                        requestAnimationFrame(() => {
+                            el.style.scrollSnapType = "x mandatory"
+                        })
                     })
                 },
             })
@@ -145,21 +150,18 @@ const Carousel = memo(function Carousel({
         const el = scrollRef.current
         if (!el || isJumping.current || isAnimating.current || isTouching.current) return
         const loopIdx = Math.round(el.scrollLeft / el.offsetWidth)
-        if (loopIdx < CLONES) {
+        if (loopIdx < CLONES || loopIdx >= CLONES + count) {
             isJumping.current = true
             el.style.scrollSnapType = "none"
-            el.scrollLeft += count * el.offsetWidth
+            if (loopIdx < CLONES) el.scrollLeft += count * el.offsetWidth
+            else el.scrollLeft -= count * el.offsetWidth
+            // Snap to exact slide boundary to prevent partial-slide alignment
+            el.scrollLeft = Math.round(el.scrollLeft / el.offsetWidth) * el.offsetWidth
             requestAnimationFrame(() => {
-                el.style.scrollSnapType = "x mandatory"
-                isJumping.current = false
-            })
-        } else if (loopIdx >= CLONES + count) {
-            isJumping.current = true
-            el.style.scrollSnapType = "none"
-            el.scrollLeft -= count * el.offsetWidth
-            requestAnimationFrame(() => {
-                el.style.scrollSnapType = "x mandatory"
-                isJumping.current = false
+                requestAnimationFrame(() => {
+                    el.style.scrollSnapType = "x mandatory"
+                    isJumping.current = false
+                })
             })
         }
     }, [count])

@@ -7,6 +7,7 @@ interface SearchBarProps {
     onChange: (value: string) => void
     onFocus?: () => void
     onBlur?: () => void
+    onSubmit?: () => void
     placeholder?: string
     elevated?: boolean
     containerStyle?: React.CSSProperties
@@ -14,7 +15,7 @@ interface SearchBarProps {
 }
 
 const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBar(
-    { value, onChange, onFocus, onBlur, placeholder = "Search...", elevated, containerStyle, children },
+    { value, onChange, onFocus, onBlur, onSubmit, placeholder = "Search...", elevated, containerStyle, children },
     ref,
 ) {
     const { theme, isDark } = useTheme()
@@ -44,6 +45,13 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                     onChange={(e) => onChange(e.target.value)}
                     onFocus={onFocus}
                     onBlur={onBlur}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            onSubmit?.()
+                            e.currentTarget.blur()
+                        }
+                    }}
+                    enterKeyHint="search"
                     placeholder={placeholder}
                     style={{
                         flex: 1,
