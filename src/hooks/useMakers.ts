@@ -3,10 +3,9 @@ import { supabase } from "../lib/supabase"
 import { getDistance } from "../utils/distance"
 import {
     compositeScore,
-    velocityScore,
     LOW_DATA_MAKER_THRESHOLD,
     LOW_DATA_CLICK_THRESHOLD,
-    MIN_POPULARITY_BASELINE,
+    MIN_ENGAGEMENT_BASELINE,
 } from "../utils/scoring"
 import { interleavedByCategory } from "../utils/interleave"
 import type { Maker, MakerClickStats } from "../types"
@@ -42,18 +41,22 @@ export default function useMakers(userLocation: UserLocation | null) {
             return
         }
 
-        // Build click stats lookup { maker_id: { current_week_clicks, previous_week_clicks } }
+        // Build click stats lookup
         const statsMap: Record<string, MakerClickStats> = {}
         if (statsResult.data) {
             for (const row of statsResult.data as Array<{
                 maker_id: string
                 current_week_clicks: string
                 previous_week_clicks: string
+                engagement_score: string
             }>) {
+                const engScore = Number(row.engagement_score)
                 statsMap[row.maker_id] = {
                     maker_id: row.maker_id,
                     current_week_clicks: Number(row.current_week_clicks),
                     previous_week_clicks: Number(row.previous_week_clicks),
+                    // Falls back to current_week_clicks if RPC hasn't been migrated yet
+                    engagement_score: isNaN(engScore) ? Number(row.current_week_clicks) : engScore,
                 }
             }
         }
@@ -76,15 +79,15 @@ export default function useMakers(userLocation: UserLocation | null) {
     }, [fetchMakers])
 
     // Compute composite scores, sort, and interleave categories
-    const { makers, p95, isLowData, makersWithClicks } = useMemo(() => {
-        if (!rawMakers.length) return { makers: rawMakers, p95: 0, isLowData: false, makersWithClicks: 0 }
+    const { makers, p95Engagement, isLowData, makersWithClicks } = useMemo(() => {
+        if (!rawMakers.length) return { makers: rawMakers, p95Engagement: 0, isLowData: false, makersWithClicks: 0 }
 
-        // Compute p95 clicks for popularity normalization
-        const clickValues = Object.values(clickStats)
-            .map((s) => s.current_week_clicks)
+        // Compute p95 engagement for normalization
+        const engagementValues = Object.values(clickStats)
+            .map((s) => s.engagement_score)
             .sort((a, b) => a - b)
-        const p95Idx = Math.floor((clickValues.length - 1) * 0.95)
-        const p95 = Math.max(MIN_POPULARITY_BASELINE, clickValues[p95Idx] || 1)
+        const p95Idx = Math.floor((engagementValues.length - 1) * 0.95)
+        const p95Engagement = Math.max(MIN_ENGAGEMENT_BASELINE, engagementValues[p95Idx] || 1)
 
         // Detect low-data mode: fewer than N makers with meaningful clicks
         const makersWithClicks = Object.values(clickStats).filter(
@@ -94,36 +97,34 @@ export default function useMakers(userLocation: UserLocation | null) {
 
         const scored = rawMakers.map((maker) => {
             const stats = clickStats[maker.id]
+            const engagement = stats?.engagement_score ?? 0
             const currentWeek = stats?.current_week_clicks ?? 0
             const previousWeek = stats?.previous_week_clicks ?? 0
             const dist = userLocation ? getDistance(userLocation.lat, userLocation.lng, maker.lat, maker.lng) : null
 
             const score = compositeScore({
                 distanceKm: dist,
-                currentWeekClicks: currentWeek,
-                previousWeekClicks: previousWeek,
+                engagementScore: engagement,
                 createdAt: maker.created_at,
-                p95Clicks: p95,
+                p95Engagement,
                 isLowData,
             })
-
-            const vel = velocityScore(currentWeek, previousWeek)
 
             return {
                 ...maker,
                 distance: dist,
                 score,
-                velocity: vel,
+                engagementScore: engagement,
                 currentWeekClicks: currentWeek,
                 previousWeekClicks: previousWeek,
             }
         })
 
-        // Debug: log scoring breakdown (dev only — console.table blocks main thread 50-200ms)
+        // Debug: log scoring breakdown (dev only)
         if (import.meta.env.DEV) {
-            console.log(`\n📊 p95 current-week clicks: ${p95}`)
+            console.log(`\n📊 p95 engagement: ${p95Engagement.toFixed(2)}`)
             console.log(
-                `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
+                `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (40% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
             )
             console.table(
                 scored
@@ -132,10 +133,9 @@ export default function useMakers(userLocation: UserLocation | null) {
                     .map((m) => ({
                         nm: m.name,
                         km: m.distance != null ? m.distance.toFixed(1) : "—",
+                        eng: m.engagementScore?.toFixed(2),
                         cur: m.currentWeekClicks,
                         prv: m.previousWeekClicks,
-                        vel: m.velocity?.toFixed(3),
-                        pop: Math.min(1, m.currentWeekClicks / p95).toFixed(3),
                         scr: m.score?.toFixed(4),
                     })),
             )
@@ -148,11 +148,19 @@ export default function useMakers(userLocation: UserLocation | null) {
         })
 
         // Post-sort: prevent 3+ consecutive same-category makers
-        // Add rank based on pre-interleave sort order (score rank)
         const ranked = scored.map((m, i) => ({ ...m, rank: i + 1 }))
 
-        return { makers: interleavedByCategory(ranked), p95, isLowData, makersWithClicks }
+        return { makers: interleavedByCategory(ranked), p95Engagement, isLowData, makersWithClicks }
     }, [rawMakers, userLocation, clickStats])
 
-    return { makers, loading, error, refetch, p95, isLowData, makersWithClicks, totalMakers: rawMakers.length }
+    return {
+        makers,
+        loading,
+        error,
+        refetch,
+        p95Engagement,
+        isLowData,
+        makersWithClicks,
+        totalMakers: rawMakers.length,
+    }
 }

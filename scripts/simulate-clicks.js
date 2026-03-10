@@ -269,7 +269,7 @@ function printSummary(clicks, MAKERS) {
 async function main() {
   if (doReset) {
     console.log("Resetting maker_clicks...")
-    const { error } = await supabase.from("maker_clicks").delete().neq("maker_id", "")
+    const { error } = await supabase.from("maker_clicks").delete().gte("clicked_at", "1970-01-01")
     if (error) {
       console.error("Reset failed:", error.message)
       process.exit(1)

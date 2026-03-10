@@ -1,10 +1,34 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
 import { glassBarStyle, glassBarOpaque } from "../../utils/glass"
-import CategoryIcon from "../ui/CategoryIcon"
 import SearchBar from "../ui/SearchBar"
+import MakerAvatar from "../ui/MakerAvatar"
+import HighlightMatch from "../ui/HighlightMatch"
 import { formatLocation } from "../../utils/distance"
 import type { Maker } from "../../types"
+
+const RECENT_KEY = "maven-recent-searches"
+const MAX_RECENT = 5
+
+function getRecentSearches(): string[] {
+    try {
+        return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]")
+    } catch {
+        return []
+    }
+}
+
+function saveRecentSearch(query: string) {
+    const trimmed = query.trim()
+    if (!trimmed) return
+    const recent = getRecentSearches().filter((s) => s !== trimmed)
+    recent.unshift(trimmed)
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)))
+}
+
+function clearRecentSearches() {
+    localStorage.removeItem(RECENT_KEY)
+}
 
 interface DiscoverHeaderProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
@@ -52,6 +76,7 @@ export default function DiscoverHeader({
     const [searchFocused, setSearchFocused] = useState(false)
     const [topRowHidden, setTopRowHidden] = useState(false)
     const [spacerH, setSpacerH] = useState(56) // expanded header height — measured on mount
+    const [recentSearches, setRecentSearches] = useState<string[]>(getRecentSearches)
     // pillsFade uses direct DOM — no state, no re-renders during pills scroll
 
     // --- Refs ---
@@ -90,10 +115,13 @@ export default function DiscoverHeader({
     const topRowHiddenRef = useRef(topRowHidden)
     topRowHiddenRef.current = topRowHidden
 
-    // --- Auto-close search on empty + blur ---
+    // --- Auto-close search on empty + blur (only on touch devices) ---
     useEffect(() => {
         if (!searchFocused && searchOpen && !searchQuery.trim()) {
-            const timer = setTimeout(() => setSearchOpen(false), 300)
+            // Only auto-close if user has interacted via touch — on desktop/devtools,
+            // focus can be lost immediately after opening, causing premature close
+            if (!("ontouchstart" in window)) return
+            const timer = setTimeout(() => setSearchOpen(false), 400)
             return () => clearTimeout(timer)
         }
     }, [searchFocused, searchOpen, searchQuery])
@@ -156,14 +184,30 @@ export default function DiscoverHeader({
     }, [isCompact, category])
 
     // --- Measure expanded height for spacer (sync before paint to avoid layout shift) ---
+    // baseSpacerH stores the header height WITHOUT the search bar (the "resting" height)
+    const baseSpacerH = useRef(56)
     useLayoutEffect(() => {
         const bar = barRef.current
         if (bar && !isCompactRef.current) {
-            const h = bar.offsetHeight
-            expandedHeight.current = h
-            setSpacerH(h)
+            if (searchOpen) {
+                // When search opens, measure the full height (header + search bar)
+                setSpacerH(bar.offsetHeight)
+            } else {
+                // When search closes, immediately restore the base height —
+                // don't re-measure because the CSS transition hasn't completed yet
+                setSpacerH(baseSpacerH.current)
+            }
         }
     }, [searchOpen, isCompact])
+    // Capture base height on mount and whenever compact state changes
+    useLayoutEffect(() => {
+        const bar = barRef.current
+        if (bar && !isCompactRef.current && !searchOpen) {
+            baseSpacerH.current = bar.offsetHeight
+            expandedHeight.current = bar.offsetHeight
+            setSpacerH(bar.offsetHeight)
+        }
+    }, [isCompact]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- Initial scroll position check (iOS scroll restoration) ---
     useEffect(() => {
@@ -725,7 +769,31 @@ export default function DiscoverHeader({
                                     </div>
                                 </div>
 
-                                {!searchOpen && (
+                                {searchOpen ? (
+                                    <button
+                                        aria-label="Cancel search"
+                                        onClick={() => {
+                                            onSearchQueryChange("")
+                                            setSearchOpen(false)
+                                            setSearchFocused(false)
+                                        }}
+                                        style={{
+                                            background: "none",
+                                            border: "none",
+                                            cursor: "pointer",
+                                            padding: 0,
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                            color: theme.textSecondary,
+                                            whiteSpace: "nowrap",
+                                            flexShrink: 0,
+                                            alignSelf: "flex-end",
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                ) : (
                                     <button aria-label="Search" onClick={handleSearchOpen} style={searchBtnStyle}>
                                         {searchIcon}
                                     </button>
@@ -739,7 +807,7 @@ export default function DiscoverHeader({
                         ref={searchGridRef}
                         style={{
                             display: "grid",
-                            gridTemplateRows: searchOpen || topRowHidden ? "1fr" : "0fr",
+                            gridTemplateRows: searchOpen ? "1fr" : "0fr",
                             transition: "grid-template-rows 0.15s ease-out",
                         }}
                     >
@@ -766,69 +834,196 @@ export default function DiscoverHeader({
                                 />
                             </div>
                         </div>
-                        {searchOpen && searchFocused && searchQuery && makerSuggestions.length > 0 && (
-                            <div style={{ padding: "0 20px 10px", position: "relative", zIndex: 10 }}>
-                                <div
-                                    style={{
-                                        background: isDark ? "rgba(32,32,32,0.97)" : "rgba(255,255,255,0.97)",
-                                        borderRadius: 12,
-                                        boxShadow: isDark
-                                            ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
-                                            : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
-                                        border: isDark
-                                            ? "1px solid rgba(255,255,255,0.10)"
-                                            : "1px solid rgba(0,0,0,0.06)",
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                    {makerSuggestions.map((maker, i) => (
-                                        <div
-                                            key={maker.id}
-                                            onClick={() => onMakerTap(maker)}
-                                            style={{
-                                                padding: "11px 14px",
-                                                cursor: "pointer",
-                                                borderBottom:
-                                                    i < makerSuggestions.length - 1
-                                                        ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
-                                                        : "none",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: 10,
-                                            }}
-                                        >
-                                            <CategoryIcon
-                                                category={maker.category}
-                                                size={14}
-                                                style={{ flexShrink: 0 }}
-                                            />
-                                            <div style={{ minWidth: 0, flex: 1 }}>
-                                                <span
+                        {searchOpen &&
+                            searchFocused &&
+                            (searchQuery.trim().length > 0 || recentSearches.length > 0) && (
+                                <div style={{ padding: "0 20px 10px", position: "relative", zIndex: 10 }}>
+                                    <div
+                                        style={{
+                                            background: isDark ? "rgba(32,32,32,0.97)" : "rgba(255,255,255,0.97)",
+                                            borderRadius: 12,
+                                            boxShadow: isDark
+                                                ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
+                                                : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
+                                            border: isDark
+                                                ? "1px solid rgba(255,255,255,0.10)"
+                                                : "1px solid rgba(0,0,0,0.06)",
+                                            overflow: "hidden",
+                                            maxHeight: 340,
+                                            overflowY: "auto",
+                                        }}
+                                    >
+                                        {/* Recent searches — empty query */}
+                                        {!searchQuery.trim() &&
+                                            recentSearches.length > 0 &&
+                                            (() => {
+                                                const items = recentSearches
+                                                return (
+                                                    <>
+                                                        <div
+                                                            style={{
+                                                                padding: "10px 14px 6px",
+                                                                display: "flex",
+                                                                justifyContent: "space-between",
+                                                                alignItems: "center",
+                                                            }}
+                                                        >
+                                                            <span
+                                                                style={{
+                                                                    fontFamily: "'DM Sans', sans-serif",
+                                                                    fontSize: 10,
+                                                                    fontWeight: 600,
+                                                                    letterSpacing: "0.08em",
+                                                                    textTransform: "uppercase",
+                                                                    color: theme.textMuted,
+                                                                }}
+                                                            >
+                                                                Recent
+                                                            </span>
+                                                            <button
+                                                                onClick={() => {
+                                                                    clearRecentSearches()
+                                                                    setRecentSearches([])
+                                                                }}
+                                                                style={{
+                                                                    fontFamily: "'DM Sans', sans-serif",
+                                                                    fontSize: 11,
+                                                                    color: theme.textMuted,
+                                                                    background: "none",
+                                                                    border: "none",
+                                                                    cursor: "pointer",
+                                                                    padding: 0,
+                                                                }}
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                        {items.map((term, i) => (
+                                                            <div
+                                                                key={term}
+                                                                onClick={() => onSearchQueryChange(term)}
+                                                                style={{
+                                                                    padding: "10px 14px",
+                                                                    cursor: "pointer",
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                    gap: 10,
+                                                                    borderBottom:
+                                                                        i < items.length - 1
+                                                                            ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
+                                                                            : "none",
+                                                                }}
+                                                            >
+                                                                <svg
+                                                                    width="14"
+                                                                    height="14"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke={theme.textMuted}
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    style={{ flexShrink: 0 }}
+                                                                >
+                                                                    <circle cx="12" cy="12" r="10" />
+                                                                    <polyline points="12 6 12 12 16 14" />
+                                                                </svg>
+                                                                <span
+                                                                    style={{
+                                                                        fontFamily: "'DM Sans', sans-serif",
+                                                                        fontSize: 13,
+                                                                        fontWeight: 500,
+                                                                        color: theme.text,
+                                                                    }}
+                                                                >
+                                                                    {term}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </>
+                                                )
+                                            })()}
+
+                                        {/* Maker suggestions */}
+                                        {searchQuery.trim() &&
+                                            makerSuggestions.length > 0 &&
+                                            makerSuggestions.map((maker, i) => (
+                                                <div
+                                                    key={maker.id}
+                                                    onClick={() => {
+                                                        saveRecentSearch(searchQuery)
+                                                        setRecentSearches(getRecentSearches())
+                                                        onMakerTap(maker)
+                                                    }}
+                                                    style={{
+                                                        padding: "9px 14px",
+                                                        cursor: "pointer",
+                                                        borderBottom:
+                                                            i < makerSuggestions.length - 1
+                                                                ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
+                                                                : "none",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 10,
+                                                    }}
+                                                >
+                                                    <MakerAvatar maker={maker} size={28} />
+                                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                                        <div
+                                                            style={{
+                                                                fontFamily: "'DM Sans', sans-serif",
+                                                                fontSize: 13,
+                                                                fontWeight: 600,
+                                                                color: theme.text,
+                                                            }}
+                                                        >
+                                                            <HighlightMatch
+                                                                text={maker.name}
+                                                                query={searchQuery.trim()}
+                                                            />
+                                                        </div>
+                                                        <div
+                                                            style={{
+                                                                fontFamily: "'DM Sans', sans-serif",
+                                                                fontSize: 11,
+                                                                color: theme.textMuted,
+                                                                marginTop: 1,
+                                                            }}
+                                                        >
+                                                            {maker.category} · {formatLocation(maker)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                        {/* No results */}
+                                        {searchQuery.trim() && makerSuggestions.length === 0 && (
+                                            <div style={{ padding: "24px 14px", textAlign: "center" }}>
+                                                <div
                                                     style={{
                                                         fontFamily: "'DM Sans', sans-serif",
                                                         fontSize: 13,
-                                                        fontWeight: 600,
-                                                        color: theme.text,
+                                                        fontWeight: 500,
+                                                        color: theme.textSecondary,
+                                                        marginBottom: 4,
                                                     }}
                                                 >
-                                                    {maker.name}
-                                                </span>
-                                                <span
+                                                    No makers found
+                                                </div>
+                                                <div
                                                     style={{
                                                         fontFamily: "'DM Sans', sans-serif",
-                                                        fontSize: 11,
+                                                        fontSize: 12,
                                                         color: theme.textMuted,
-                                                        marginLeft: 6,
                                                     }}
                                                 >
-                                                    {maker.category} · {formatLocation(maker)}
-                                                </span>
+                                                    Try a name, category, or county
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                     </div>
                 </div>
             </div>

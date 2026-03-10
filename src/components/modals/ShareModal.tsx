@@ -9,6 +9,19 @@ interface ShareModalProps {
     onClose: () => void
 }
 
+const isIOS =
+    /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+
+function getDirectionsUrl(maker: Maker): string {
+    const label = encodeURIComponent(maker.name)
+    if (isIOS) {
+        // Universal Link — Chrome/Safari on iOS both handle this correctly:
+        // iOS intercepts the link and opens Apple Maps without any browser navigation
+        return `https://maps.apple.com/?daddr=${maker.lat},${maker.lng}&q=${label}`
+    }
+    return `https://www.google.com/maps/dir/?api=1&destination=${maker.lat},${maker.lng}&query=${label}`
+}
+
 export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: ShareModalProps) {
     const breakpoint = useBreakpoint()
     const [copied, setCopied] = useState(false)
@@ -20,6 +33,8 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
+
+    const directionsUrl = getDirectionsUrl(maker)
 
     return (
         <div
@@ -51,6 +66,88 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                 <div
                     style={{ width: 36, height: 4, borderRadius: 100, background: theme.border, margin: "0 auto 20px" }}
                 />
+
+                {/* Directions — native <a> with Universal Link for iOS, Google Maps for others */}
+                <a
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={onClose}
+                    style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: "14px 16px",
+                        borderRadius: 14,
+                        border: `1px solid ${theme.border}`,
+                        background: theme.surface,
+                        cursor: "pointer",
+                        marginBottom: 20,
+                        textDecoration: "none",
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 10,
+                            background: theme.card,
+                            border: `1px solid ${theme.border}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                        }}
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke={theme.textSecondary}
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                        </svg>
+                    </div>
+                    <div style={{ flex: 1, textAlign: "left" }}>
+                        <div
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 14,
+                                fontWeight: 600,
+                                color: theme.text,
+                            }}
+                        >
+                            Get Directions
+                        </div>
+                        <div
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 11,
+                                color: theme.textMuted,
+                                marginTop: 1,
+                            }}
+                        >
+                            Open in {isIOS ? "Apple" : "Google"} Maps
+                        </div>
+                    </div>
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={theme.textMuted}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                </a>
 
                 <h3
                     style={{

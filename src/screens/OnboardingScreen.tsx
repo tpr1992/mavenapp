@@ -9,19 +9,12 @@ interface UserLocation {
 }
 
 interface OnboardingScreenProps {
-    onComplete: (categories: string[]) => void
+    onComplete: () => void
     setLocation: (loc: UserLocation | null, label?: string | null, source?: string) => void
 }
 
-const CATEGORIES = [
-    { name: "Clothing", emoji: "\u{1F457}" },
-    { name: "Objects", emoji: "\u2726" },
-    { name: "Art", emoji: "\u{1F3A8}" },
-]
-
 export default function OnboardingScreen({ onComplete, setLocation }: OnboardingScreenProps) {
     const [step, setStep] = useState(0)
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [transitioning, setTransitioning] = useState(false)
     const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next")
     const touchStartX = useRef<number | null>(null)
@@ -42,7 +35,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
     )
 
     const goNext = useCallback(() => {
-        if (step < 2) goTo(step + 1, "next")
+        if (step < 1) goTo(step + 1, "next")
     }, [step, goTo])
 
     const goPrev = useCallback(() => {
@@ -62,10 +55,9 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             touchStartX.current = null
             touchStartY.current = null
 
-            // Only swipe if horizontal movement is dominant
             if (Math.abs(deltaX) < 50 || Math.abs(deltaY) > Math.abs(deltaX)) return
 
-            if (deltaX < -50 && step < 2) {
+            if (deltaX < -50 && step < 1) {
                 goNext()
             } else if (deltaX > 50 && step > 0) {
                 goPrev()
@@ -73,10 +65,6 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
         },
         [step, goNext, goPrev],
     )
-
-    const toggleCategory = useCallback((name: string) => {
-        setSelectedCategories((prev) => (prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]))
-    }, [])
 
     const handleLocationAllow = useCallback(() => {
         if (navigator.geolocation) {
@@ -86,21 +74,20 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     const nearest = getNearestTown(loc.lat, loc.lng, TOWNS)
                     const label = nearest ? nearest.name : "Current location"
                     setLocation(loc, label, "gps")
-                    onComplete(selectedCategories)
+                    onComplete()
                 },
-                () => onComplete(selectedCategories),
+                () => onComplete(),
                 { timeout: 10000 },
             )
         } else {
-            onComplete(selectedCategories)
+            onComplete()
         }
-    }, [onComplete, selectedCategories, setLocation])
+    }, [onComplete, setLocation])
 
     const handleLocationSkip = useCallback(() => {
-        onComplete(selectedCategories)
-    }, [onComplete, selectedCategories])
+        onComplete()
+    }, [onComplete])
 
-    // Transition styles
     const getContentStyle = () => {
         if (!transitioning) {
             return {
@@ -186,158 +173,6 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                 }}
             >
                 Get Started
-            </button>
-        </div>
-    )
-
-    const renderCategories = () => (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                flex: 1,
-                padding: "0 28px",
-                justifyContent: "center",
-            }}
-        >
-            <h2
-                style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 24,
-                    fontWeight: 700,
-                    color: theme.text,
-                    margin: "0 0 8px",
-                    letterSpacing: "-0.02em",
-                    textAlign: "center",
-                }}
-            >
-                What interests you?
-            </h2>
-            <p
-                style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 14,
-                    color: theme.textMuted,
-                    margin: "0 0 28px",
-                    textAlign: "center",
-                }}
-            >
-                Pick as many as you like
-            </p>
-            <div
-                style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 12,
-                    justifyContent: "center",
-                    maxWidth: 340,
-                    marginBottom: 32,
-                }}
-            >
-                {CATEGORIES.map(({ name, emoji }) => {
-                    const isSelected = selectedCategories.includes(name)
-                    return (
-                        <button
-                            key={name}
-                            onClick={() => toggleCategory(name)}
-                            style={{
-                                width: 100,
-                                padding: "20px 12px",
-                                borderRadius: 16,
-                                border: `1.5px solid ${isSelected ? theme.text : theme.border}`,
-                                background: isSelected ? theme.surface : theme.card,
-                                cursor: "pointer",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                gap: 8,
-                                transition: "all 0.2s ease",
-                                transform: isSelected ? "scale(1.03)" : "scale(1)",
-                            }}
-                        >
-                            <span style={{ fontSize: 32, lineHeight: 1 }}>{emoji}</span>
-                            <span
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? 600 : 500,
-                                    color: isSelected ? theme.text : theme.textSecondary,
-                                    letterSpacing: "0.01em",
-                                }}
-                            >
-                                {name}
-                            </span>
-                        </button>
-                    )
-                })}
-                {(() => {
-                    const allSelected = selectedCategories.length === CATEGORIES.length
-                    return (
-                        <button
-                            onClick={() => setSelectedCategories(allSelected ? [] : CATEGORIES.map((c) => c.name))}
-                            style={{
-                                width: 100,
-                                padding: "20px 12px",
-                                borderRadius: 16,
-                                border: `1.5px solid ${allSelected ? theme.text : theme.border}`,
-                                background: allSelected ? theme.surface : theme.card,
-                                cursor: "pointer",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                gap: 8,
-                                transition: "all 0.2s ease",
-                                transform: allSelected ? "scale(1.03)" : "scale(1)",
-                            }}
-                        >
-                            <span style={{ fontSize: 32, lineHeight: 1 }}>{"\u2728"}</span>
-                            <span
-                                style={{
-                                    fontFamily: "'DM Sans', sans-serif",
-                                    fontSize: 13,
-                                    fontWeight: allSelected ? 600 : 500,
-                                    color: allSelected ? theme.text : theme.textSecondary,
-                                    letterSpacing: "0.01em",
-                                }}
-                            >
-                                All
-                            </span>
-                        </button>
-                    )
-                })()}
-            </div>
-            <button
-                onClick={goNext}
-                style={{
-                    width: "100%",
-                    maxWidth: 320,
-                    padding: "16px 24px",
-                    borderRadius: 100,
-                    border: "none",
-                    background: theme.btnBg,
-                    color: theme.btnText,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    letterSpacing: "0.01em",
-                    transition: "transform 0.15s ease, opacity 0.15s ease",
-                }}
-                onMouseDown={(e) => {
-                    e.currentTarget.style.transform = "scale(0.97)"
-                    e.currentTarget.style.opacity = "0.9"
-                }}
-                onMouseUp={(e) => {
-                    e.currentTarget.style.transform = "scale(1)"
-                    e.currentTarget.style.opacity = "1"
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "scale(1)"
-                    e.currentTarget.style.opacity = "1"
-                }}
-            >
-                Continue
             </button>
         </div>
     )
@@ -446,7 +281,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
         </div>
     )
 
-    const screens = [renderWelcome, renderCategories, renderLocation]
+    const screens = [renderWelcome, renderLocation]
 
     return (
         <div
@@ -469,7 +304,6 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                 WebkitUserSelect: "none",
             }}
         >
-            {/* Main content area */}
             <div
                 style={{
                     flex: 1,
@@ -481,7 +315,6 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                 {screens[step]()}
             </div>
 
-            {/* Step dots */}
             <div
                 style={{
                     display: "flex",
@@ -492,7 +325,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     paddingTop: 24,
                 }}
             >
-                {[0, 1, 2].map((i) => (
+                {[0, 1].map((i) => (
                     <div
                         key={i}
                         style={{

@@ -2,19 +2,21 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { useTheme } from "../contexts/ThemeContext"
 import { isOpenNow } from "../utils/time"
+import { getDistance, getCountyCenter } from "../utils/distance"
+import { TOWNS } from "../data/towns"
 import useDebounce from "../hooks/useDebounce"
+import useSearch from "../hooks/useSearch"
 import CategoryPills from "../components/ui/CategoryPills"
 import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
 import DiscoverHeader from "../components/discover/DiscoverHeader"
-import { TRENDING_MIN_CURRENT, TRENDING_MIN_COMBINED } from "../utils/scoring"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
 
 interface DebugMeta {
-    p95: number
+    p95Engagement: number
     isLowData: boolean
     makersWithClicks: number
     totalMakers: number
@@ -88,6 +90,7 @@ export default function DiscoverScreen({
     const pullDistance = useRef(0)
     const pullIndicatorRef = useRef<HTMLDivElement>(null)
     const debouncedQuery = useDebounce(searchQuery)
+    const { hits: searchHits } = useSearch(debouncedQuery)
 
     const { theme } = useTheme()
 
@@ -116,37 +119,87 @@ export default function DiscoverScreen({
         [scrollContainerRef],
     )
 
-    const trendingMakers = useMemo(
-        () =>
-            makers
-                .filter((m) => {
-                    const vel = m.velocity ?? 0
-                    if (vel <= 0) return false
-                    const cur = m.currentWeekClicks ?? 0
-                    const prev = m.previousWeekClicks ?? 0
-                    return cur >= TRENDING_MIN_CURRENT || cur + prev >= TRENDING_MIN_COMBINED
-                })
-                .sort((a, b) => (b.velocity ?? 0) - (a.velocity ?? 0))
-                .slice(0, 5),
-        [makers],
-    )
+    const trendingMakers = useMemo(() => {
+        // Trending = makers with growing engagement (current > previous week).
+        // This differs from the feed (which blends proximity + engagement + freshness),
+        // so trending surfaces makers that are gaining momentum regardless of location.
+        const withGrowth = makers
+            .filter((m) => {
+                const cur = m.currentWeekClicks ?? 0
+                const prev = m.previousWeekClicks ?? 0
+                return cur > prev && cur >= 3
+            })
+            .sort((a, b) => {
+                // Sort by growth ratio, weighted by volume
+                const aGrowth =
+                    ((a.currentWeekClicks ?? 0) - (a.previousWeekClicks ?? 0)) *
+                    Math.log2(2 + (a.currentWeekClicks ?? 0))
+                const bGrowth =
+                    ((b.currentWeekClicks ?? 0) - (b.previousWeekClicks ?? 0)) *
+                    Math.log2(2 + (b.currentWeekClicks ?? 0))
+                return bGrowth - aGrowth
+            })
+            .slice(0, 5)
+        if (withGrowth.length > 0) return withGrowth
+        // Fallback: most engaged makers by decayed score (survives week rollovers)
+        const byEngagement = makers
+            .filter((m) => (m.engagementScore ?? 0) > 0)
+            .sort((a, b) => (b.engagementScore ?? 0) - (a.engagementScore ?? 0))
+            .slice(0, 5)
+        if (byEngagement.length > 0) return byEngagement
+        // Last resort: top scored makers from the feed
+        return makers.slice(0, 5)
+    }, [makers])
 
+    const NEARBY_RADIUS_KM = 50
     const q = debouncedQuery.toLowerCase().trim()
 
-    const allFiltered = useMemo(
-        () =>
-            makers
-                .filter((m) => category === "All" || m.category === category.toLowerCase())
-                .filter((m) => !openNow || isOpenNow(m.opening_hours))
-                .filter(
-                    (m) =>
-                        !q ||
-                        m.name.toLowerCase().includes(q) ||
-                        m.category.toLowerCase().includes(q) ||
-                        m.city.toLowerCase().includes(q),
-                ),
-        [makers, category, openNow, q],
-    )
+    const countyMatch = useMemo(() => getCountyCenter(q, TOWNS), [q])
+
+    const allFiltered = useMemo(() => {
+        const base = makers
+            .filter((m) => category === "All" || m.category === category.toLowerCase())
+            .filter((m) => !openNow || isOpenNow(m.opening_hours))
+
+        if (!q) return base
+
+        // Use RPC search results when available (full-text + fuzzy + synonyms)
+        if (searchHits.length > 0) {
+            const hitMap = new Map(searchHits.map((h) => [h.id, h.search_rank]))
+            return base
+                .filter((m) => hitMap.has(m.id))
+                .sort((a, b) => (hitMap.get(b.id) ?? 0) - (hitMap.get(a.id) ?? 0))
+        }
+
+        // Client-side fallback while RPC is loading or returned nothing
+        if (countyMatch) {
+            const results = base.filter((m) => {
+                if (m.name.toLowerCase().includes(q)) return true
+                if (m.category.toLowerCase().includes(q)) return true
+                if (m.city.toLowerCase().includes(q)) return true
+                if (m.county.toLowerCase() === countyMatch.county.toLowerCase()) return true
+                const dist = getDistance(countyMatch.lat, countyMatch.lng, m.lat, m.lng)
+                return dist <= NEARBY_RADIUS_KM
+            })
+            return results.sort((a, b) => {
+                const aIn = a.county.toLowerCase() === countyMatch.county.toLowerCase()
+                const bIn = b.county.toLowerCase() === countyMatch.county.toLowerCase()
+                if (aIn !== bIn) return aIn ? -1 : 1
+                return (
+                    getDistance(countyMatch.lat, countyMatch.lng, a.lat, a.lng) -
+                    getDistance(countyMatch.lat, countyMatch.lng, b.lat, b.lng)
+                )
+            })
+        }
+
+        return base.filter(
+            (m) =>
+                m.name.toLowerCase().includes(q) ||
+                m.category.toLowerCase().includes(q) ||
+                m.city.toLowerCase().includes(q) ||
+                m.county.toLowerCase().includes(q),
+        )
+    }, [makers, category, openNow, q, countyMatch, searchHits])
 
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
     const visibleMakerIds = useMemo(() => new Set(visibleMakers.map((m) => m.id)), [visibleMakers])
@@ -155,19 +208,45 @@ export default function DiscoverScreen({
     const makerSuggestions = useMemo(() => {
         const raw = searchQuery.trim().toLowerCase()
         if (raw.length < 1) return []
-        return makers
-            .filter((m) => m.name.toLowerCase().startsWith(raw))
-            .concat(
-                makers.filter(
-                    (m) =>
-                        !m.name.toLowerCase().startsWith(raw) &&
-                        (m.name.toLowerCase().includes(raw) ||
-                            m.category.toLowerCase().includes(raw) ||
-                            m.city.toLowerCase().includes(raw)),
-                ),
-            )
-            .slice(0, 5)
-    }, [searchQuery, makers])
+
+        const sugCounty = getCountyCenter(raw, TOWNS)
+
+        const nameStarts = makers.filter((m) => m.name.toLowerCase().startsWith(raw))
+        const textMatches = makers.filter(
+            (m) =>
+                !m.name.toLowerCase().startsWith(raw) &&
+                (m.name.toLowerCase().includes(raw) ||
+                    m.category.toLowerCase().includes(raw) ||
+                    m.city.toLowerCase().includes(raw) ||
+                    m.county.toLowerCase().includes(raw)),
+        )
+
+        let results = [...nameStarts, ...textMatches]
+
+        if (sugCounty) {
+            const ids = new Set(results.map((m) => m.id))
+            const nearby = makers
+                .filter((m) => !ids.has(m.id))
+                .filter((m) => {
+                    const dist = getDistance(sugCounty.lat, sugCounty.lng, m.lat, m.lng)
+                    return dist <= NEARBY_RADIUS_KM
+                })
+                .sort(
+                    (a, b) =>
+                        getDistance(sugCounty.lat, sugCounty.lng, a.lat, a.lng) -
+                        getDistance(sugCounty.lat, sugCounty.lng, b.lat, b.lng),
+                )
+            results = [...results, ...nearby]
+        }
+
+        // If client-side found nothing, use RPC search hits (handles typos + synonyms)
+        if (results.length === 0 && searchHits.length > 0) {
+            const hitIds = new Set(searchHits.map((h) => h.id))
+            results = makers.filter((m) => hitIds.has(m.id))
+        }
+
+        return results.slice(0, 5)
+    }, [searchQuery, makers, searchHits])
 
     const pullStartX = useRef<number | null>(null)
     const pullLocked = useRef(false) // true once we've committed to pull-to-refresh
@@ -407,13 +486,14 @@ export default function DiscoverScreen({
                         lineHeight: 1.5,
                     }}
                 >
-                    {debugMeta.isLowData ? "LOW-DATA (55% prox)" : "NORMAL (35% prox)"} {"\u00B7"} p95: {debugMeta.p95}{" "}
-                    {"\u00B7"} {debugMeta.makersWithClicks}/{debugMeta.totalMakers} makers w/ ≥10 clicks
+                    {debugMeta.isLowData ? "LOW-DATA (55% prox)" : "NORMAL (40% prox)"} {"\u00B7"} p95eng:{" "}
+                    {debugMeta.p95Engagement.toFixed(1)} {"\u00B7"} {debugMeta.makersWithClicks}/{debugMeta.totalMakers}{" "}
+                    makers w/ ≥10 clicks
                 </div>
             )}
 
-            {/* Trending Makers Carousel */}
-            {trendingMakers.length > 0 && (
+            {/* Trending Makers Carousel — hidden during search */}
+            {trendingMakers.length > 0 && !q && (
                 <TrendingCarousel
                     key={refreshKey}
                     makers={trendingMakers}
