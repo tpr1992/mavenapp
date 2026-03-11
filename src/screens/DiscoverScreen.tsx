@@ -101,7 +101,7 @@ export default function DiscoverScreen({
         if (refreshKey === initialRefreshKey.current) return
         const el = feedRef.current
         if (!el) return
-        el.querySelectorAll<HTMLDivElement>("[data-carousel-scroll]").forEach((scroll) => {
+        el.querySelectorAll<HTMLDivElement>("[data-carousel-scroll='simple']").forEach((scroll) => {
             scroll.scrollTo({ left: 0, behavior: "smooth" })
         })
     }, [refreshKey])
@@ -517,6 +517,7 @@ export default function DiscoverScreen({
             {/* Trending Makers Carousel — hidden during search */}
             {trendingMakers.length > 0 && !q && (
                 <TrendingCarousel
+                    key={refreshKey}
                     makers={trendingMakers}
                     onTap={onMakerTap}
                     showOpenStatus={openNow}
