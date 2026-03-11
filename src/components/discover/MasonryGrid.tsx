@@ -107,7 +107,7 @@ export default memo(function MasonryGrid({
         const el = gridRef.current
         if (!el) return
         el.querySelectorAll<HTMLDivElement>("[data-carousel-scroll]").forEach((scroll) => {
-            scroll.scrollLeft = 0
+            scroll.scrollTo({ left: 0, behavior: "smooth" })
         })
     }, [resetKey])
 
