@@ -81,7 +81,6 @@ interface MasonryGridProps {
     singleColumn?: boolean
     largeCards?: boolean
     imageWidth?: number
-    resetKey?: number
 }
 
 export default memo(function MasonryGrid({
@@ -96,21 +95,7 @@ export default memo(function MasonryGrid({
     singleColumn,
     largeCards,
     imageWidth = 400,
-    resetKey,
 }: MasonryGridProps) {
-    const gridRef = useRef<HTMLDivElement>(null)
-
-    // Reset all carousel scroll positions when resetKey changes (logo tap / discover tab tap)
-    const initialResetKey = useRef(resetKey)
-    useEffect(() => {
-        if (resetKey === initialResetKey.current) return
-        const el = gridRef.current
-        if (!el) return
-        el.querySelectorAll<HTMLDivElement>("[data-carousel-scroll]").forEach((scroll) => {
-            scroll.scrollTo({ left: 0, behavior: "smooth" })
-        })
-    }, [resetKey])
-
     const hasAnimated = useRef(false)
     useEffect(() => {
         const t = setTimeout(() => {
@@ -432,7 +417,7 @@ export default memo(function MasonryGrid({
     )
 
     return (
-        <div ref={gridRef} style={{ padding: singleColumn ? "0 8px" : "0 6px" }}>
+        <div style={{ padding: singleColumn ? "0 8px" : "0 6px" }}>
             <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
                 {columns.map((colItems, col) => (
                     <div
