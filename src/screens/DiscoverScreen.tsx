@@ -571,6 +571,7 @@ export default function DiscoverScreen({
                         singleColumn={feedLayout === "single"}
                         largeCards={breakpoint !== "mobile"}
                         imageWidth={feedLayout === "single" ? 600 : breakpoint === "mobile" ? 400 : 600}
+                        resetKey={refreshKey}
                     />
                 )}
                 {hasMore && (
