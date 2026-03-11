@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react"
+import { useRef, useCallback, useEffect } from "react"
 
 interface SpringSwipeConfig {
     /** Number of slides */
@@ -31,13 +31,8 @@ interface SpringSwipeConfig {
  * during gestures. Carries finger velocity into the spring for iOS-like
  * momentum.
  *
- * Usage:
- *   const swipe = useSpringSwipe({ count, index, onIndexChange, onTransform })
- *
- *   // In your touch handlers:
- *   onTouchStart → swipe.start(clientX)
- *   onTouchMove  → swipe.move(clientX, clientY, startY, preventDefault)
- *   onTouchEnd   → swipe.end(endClientX)
+ * Uses an internal ref to track the "effective index" so rapid swipes
+ * that interrupt in-flight animations calculate from the correct position.
  */
 export default function useSpringSwipe({
     count,
@@ -52,6 +47,13 @@ export default function useSpringSwipe({
     onTransform,
 }: SpringSwipeConfig) {
     const vw = viewportWidth ?? window.innerWidth
+
+    // Internal index ref — updated immediately on swipe decision,
+    // synced from React state when it catches up (keyboard nav, external changes)
+    const idx = useRef(index)
+    useEffect(() => {
+        idx.current = index
+    }, [index])
 
     // Gesture state
     const swipeX = useRef(0)
@@ -83,7 +85,7 @@ export default function useSpringSwipe({
             cancel()
             animating.current = true
 
-            let position = -index * vw + swipeX.current
+            let position = -idx.current * vw + swipeX.current
             let velocity = initialVelocity
             let lastTime = performance.now()
 
@@ -109,7 +111,7 @@ export default function useSpringSwipe({
             }
             rafId.current = requestAnimationFrame(step)
         },
-        [index, vw, stiffness, damping, cancel, onTransform],
+        [vw, stiffness, damping, cancel, onTransform],
     )
 
     const start = useCallback(
@@ -132,7 +134,6 @@ export default function useSpringSwipe({
             const dx = clientX - startX.current
             const dy = clientY - startY
 
-            // Lock axis after 8px of movement
             if (gestureAxis.current === "none" && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
                 gestureAxis.current = Math.abs(dx) > Math.abs(dy) ? "x" : "y"
             }
@@ -142,7 +143,6 @@ export default function useSpringSwipe({
             preventDefault()
             hasMoved.current = true
 
-            // Track velocity — seed with start position on first move
             const now = performance.now()
             if (touchHistory.current.length === 0) {
                 touchHistory.current.push({ x: startX.current, t: now - 16 })
@@ -152,14 +152,14 @@ export default function useSpringSwipe({
                 touchHistory.current.shift()
             }
 
-            // Rubber-band at edges
-            const atStart = index === 0 && dx > 0
-            const atEnd = index === count - 1 && dx < 0
+            const i = idx.current
+            const atStart = i === 0 && dx > 0
+            const atEnd = i === count - 1 && dx < 0
             swipeX.current = atStart || atEnd ? dx * rubberBand : dx
-            onTransform(-index * vw + swipeX.current)
+            onTransform(-i * vw + swipeX.current)
             return true
         },
-        [index, count, vw, rubberBand, onTransform],
+        [count, vw, rubberBand, onTransform],
     )
 
     const end = useCallback(
@@ -167,7 +167,6 @@ export default function useSpringSwipe({
             if (!active.current) return false
             active.current = false
 
-            // Calculate finger velocity from touch history
             const history = touchHistory.current
             let fingerVelocity = 0
 
@@ -177,7 +176,6 @@ export default function useSpringSwipe({
                 const dt = (last.t - first.t) / 1000
                 if (dt > 0) fingerVelocity = (last.x - first.x) / dt
             } else if (endClientX !== undefined) {
-                // No touchmove events fired (ultra-fast flick) — compute from start→end
                 const dx = endClientX - startX.current
                 const dt = (performance.now() - startTime.current) / 1000
                 if (dt > 0 && Math.abs(dx) > 5) {
@@ -187,32 +185,49 @@ export default function useSpringSwipe({
             }
             touchHistory.current = []
 
-            // Nothing moved and no velocity — not a swipe
             if (!hasMoved.current && Math.abs(fingerVelocity) < velocityThreshold) {
                 return false
             }
 
+            const i = idx.current
             const minDrag = vw * threshold
             const fastSwipe = Math.abs(fingerVelocity) > velocityThreshold
 
-            let targetIndex = index
-            if ((swipeX.current > minDrag || (fastSwipe && fingerVelocity > 0)) && index > 0) {
-                targetIndex = index - 1
-            } else if ((swipeX.current < -minDrag || (fastSwipe && fingerVelocity < 0)) && index < count - 1) {
-                targetIndex = index + 1
+            let targetIndex = i
+            if ((swipeX.current > minDrag || (fastSwipe && fingerVelocity > 0)) && i > 0) {
+                targetIndex = i - 1
+            } else if ((swipeX.current < -minDrag || (fastSwipe && fingerVelocity < 0)) && i < count - 1) {
+                targetIndex = i + 1
             }
 
             const targetOffset = -targetIndex * vw
 
+            // springTo reads idx.current for starting position — must call BEFORE updating
             springTo(targetOffset, fingerVelocity, () => {
                 swipeX.current = 0
-                if (targetIndex !== index) {
-                    onIndexChange(targetIndex)
-                }
+                onIndexChange(targetIndex)
             })
+
+            // Update ref AFTER springTo captured starting position,
+            // so next interrupted swipe uses correct index
+            idx.current = targetIndex
             return true
         },
-        [index, count, vw, threshold, velocityThreshold, springTo, onIndexChange],
+        [count, vw, threshold, velocityThreshold, springTo, onIndexChange],
+    )
+
+    const goTo = useCallback(
+        (targetIndex: number) => {
+            if (targetIndex < 0 || targetIndex >= count || targetIndex === idx.current) return
+            swipeX.current = 0
+            const targetOffset = -targetIndex * vw
+            springTo(targetOffset, 0, () => {
+                swipeX.current = 0
+                onIndexChange(targetIndex)
+            })
+            idx.current = targetIndex
+        },
+        [count, vw, springTo, onIndexChange],
     )
 
     return {
@@ -222,6 +237,8 @@ export default function useSpringSwipe({
         move,
         /** Call on touchend with optional endClientX for flick detection. Returns true if a swipe was handled. */
         end,
+        /** Programmatically animate to a slide (for arrow buttons, keyboard nav) */
+        goTo,
         /** Cancel any running spring animation */
         cancel,
         /** Whether the user has moved enough to count as a drag */
