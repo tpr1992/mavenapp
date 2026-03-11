@@ -193,6 +193,7 @@ interface TrendingCarouselProps {
     showOpenStatus: boolean
     isDebug?: boolean
     imageWidth?: number
+    resetKey?: number
 }
 
 export default memo(function TrendingCarousel({
@@ -201,6 +202,7 @@ export default memo(function TrendingCarousel({
     showOpenStatus,
     isDebug,
     imageWidth = 400,
+    resetKey,
 }: TrendingCarouselProps) {
     const { isDark } = useTheme()
     if (!makers.length) return null
@@ -221,6 +223,7 @@ export default memo(function TrendingCarousel({
             autoPlay={7000}
             transition={TRANSITION_IOS}
             dots="pill"
+            resetKey={resetKey}
         />
     )
 })

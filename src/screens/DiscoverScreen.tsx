@@ -517,12 +517,12 @@ export default function DiscoverScreen({
             {/* Trending Makers Carousel — hidden during search */}
             {trendingMakers.length > 0 && !q && (
                 <TrendingCarousel
-                    key={refreshKey}
                     makers={trendingMakers}
                     onTap={onMakerTap}
                     showOpenStatus={openNow}
                     isDebug={isDebug}
                     imageWidth={breakpoint === "mobile" ? 600 : 800}
+                    resetKey={refreshKey}
                 />
             )}
 
