@@ -19,23 +19,33 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
         <Carousel
             items={urls}
             renderItem={(url, i) => (
-                <img
-                    src={optimizeImageUrl(url, imageWidth) ?? undefined}
-                    srcSet={imageSrcSet(url, imageWidth)}
-                    alt=""
-                    loading={eager && i === 0 ? "eager" : "lazy"}
-                    fetchPriority={eager && i === 0 ? "high" : undefined}
-                    decoding="async"
-                    draggable={false}
+                <div
                     style={{
-                        width: "100%",
+                        paddingLeft: i === 0 ? 0 : 3,
+                        paddingRight: i === urls.length - 1 ? 0 : 3,
                         height: "100%",
-                        objectFit: "cover",
-                        backfaceVisibility: "hidden",
+                        boxSizing: "border-box",
                     }}
-                />
+                >
+                    <div style={{ width: "100%", height: "100%", borderRadius: 10, overflow: "hidden" }}>
+                        <img
+                            src={optimizeImageUrl(url, imageWidth) ?? undefined}
+                            srcSet={imageSrcSet(url, imageWidth)}
+                            alt=""
+                            loading={eager ? "eager" : "lazy"}
+                            fetchPriority={eager && i === 0 ? "high" : undefined}
+                            decoding="async"
+                            draggable={false}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                backfaceVisibility: "hidden",
+                            }}
+                        />
+                    </div>
+                </div>
             )}
-            loop
             dots="mini"
             dotPosition="overlay"
             style={{ height: height ?? "100%" }}
@@ -181,8 +191,6 @@ export default memo(function MasonryGrid({
                 }
                 style={{
                     background: "transparent",
-                    borderRadius: 12,
-                    overflow: "hidden",
                     cursor: hidden ? "default" : "pointer",
                     display: hidden ? "none" : undefined,
                     contain: "layout style paint",
@@ -193,7 +201,6 @@ export default memo(function MasonryGrid({
                         ...(singleColumn ? { aspectRatio: "4 / 5", width: "100%" } : { height: cardHeight }),
                         position: "relative",
                         overflow: "hidden",
-                        borderRadius: 12,
                     }}
                 >
                     {isDebug && (
@@ -344,13 +351,11 @@ export default memo(function MasonryGrid({
             onClick={() => safeOpen(ad.link_url)}
             style={{
                 background: "transparent",
-                borderRadius: 12,
-                overflow: "hidden",
                 cursor: "pointer",
                 animation: hasAnimated.current ? "none" : `fadeSlideIn 0.35s ease ${col * 0.08 + idx * 0.03}s both`,
             }}
         >
-            <div style={{ height: ad.tile_height || 200, position: "relative", overflow: "hidden", borderRadius: 12 }}>
+            <div style={{ height: ad.tile_height || 200, position: "relative", overflow: "hidden" }}>
                 <img
                     src={optimizeImageUrl(ad.image_url, 300) ?? undefined}
                     alt={ad.brand}
@@ -412,7 +417,7 @@ export default memo(function MasonryGrid({
     )
 
     return (
-        <div style={{ padding: singleColumn ? "0 6px" : "0 4px" }}>
+        <div style={{ padding: singleColumn ? "0 8px" : "0 6px" }}>
             <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
                 {columns.map((colItems, col) => (
                     <div

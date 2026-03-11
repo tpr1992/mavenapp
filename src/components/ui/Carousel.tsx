@@ -239,8 +239,8 @@ const Carousel = memo(function Carousel({
     const handleTouchEnd = useCallback(() => {
         isTouching.current = false
         if (autoPlay) startTimer()
-        settleTimer.current = setTimeout(snapFromClone, 150)
-    }, [autoPlay, startTimer, snapFromClone])
+        if (loopable) settleTimer.current = setTimeout(snapFromClone, 150)
+    }, [autoPlay, loopable, startTimer, snapFromClone])
 
     // ── Pill dot click ──
     const handleDotClick = useCallback(
