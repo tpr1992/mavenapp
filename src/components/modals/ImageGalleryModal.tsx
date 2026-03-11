@@ -248,9 +248,6 @@ export default memo(function ImageGalleryModal({
             } else {
                 lastTapTime.current = now
                 lastTapPos.current = { x: tapX, y: tapY }
-                if (scale.current <= 1) {
-                    tapTimer.current = setTimeout(() => onClose(), 250)
-                }
             }
         },
         [onClose, clampTranslate, applySlideTransform, swipe.hasMoved],
