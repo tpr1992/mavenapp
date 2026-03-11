@@ -93,6 +93,18 @@ export default function DiscoverScreen({
     const { hits: searchHits } = useSearch(debouncedQuery)
 
     const { theme } = useTheme()
+    const feedRef = useRef<HTMLDivElement>(null)
+
+    // Reset all carousels (trending + card galleries) on logo/discover tap
+    const initialRefreshKey = useRef(refreshKey)
+    useEffect(() => {
+        if (refreshKey === initialRefreshKey.current) return
+        const el = feedRef.current
+        if (!el) return
+        el.querySelectorAll<HTMLDivElement>("[data-carousel-scroll]").forEach((scroll) => {
+            scroll.scrollTo({ left: 0, behavior: "smooth" })
+        })
+    }, [refreshKey])
 
     // Reset visible count when filters change
     useEffect(() => {
@@ -416,6 +428,7 @@ export default function DiscoverScreen({
 
     return (
         <div
+            ref={feedRef}
             style={{ paddingBottom: 0 }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -504,7 +517,6 @@ export default function DiscoverScreen({
             {/* Trending Makers Carousel — hidden during search */}
             {trendingMakers.length > 0 && !q && (
                 <TrendingCarousel
-                    key={refreshKey}
                     makers={trendingMakers}
                     onTap={onMakerTap}
                     showOpenStatus={openNow}
@@ -571,7 +583,6 @@ export default function DiscoverScreen({
                         singleColumn={feedLayout === "single"}
                         largeCards={breakpoint !== "mobile"}
                         imageWidth={feedLayout === "single" ? 600 : breakpoint === "mobile" ? 400 : 600}
-                        resetKey={refreshKey}
                     />
                 )}
                 {hasMore && (
