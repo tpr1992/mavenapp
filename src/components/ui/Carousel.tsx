@@ -17,6 +17,7 @@ interface CarouselProps {
     gap?: number
     padding?: string
     onSlideChange?: (index: number) => void
+    resetKey?: number
     style?: React.CSSProperties
 }
 
@@ -36,6 +37,7 @@ const Carousel = memo(function Carousel({
     gap = 0,
     padding = "0",
     onSlideChange,
+    resetKey,
     style = {},
 }: CarouselProps) {
     const { theme } = useTheme()
@@ -228,6 +230,22 @@ const Carousel = memo(function Carousel({
             }
         }
     }, [autoPlay, startTimer])
+
+    // ── Reset to first slide when resetKey changes ──
+    const initialResetKey = useRef(resetKey)
+    useEffect(() => {
+        if (resetKey === initialResetKey.current) return
+        const el = scrollRef.current
+        if (!el) return
+        const targetLeft = loopable ? CLONES * el.offsetWidth : 0
+        el.scrollTo({ left: targetLeft, behavior: "smooth" })
+        updateIndex(0)
+        if (autoPlay) {
+            if (intervalRef.current) clearInterval(intervalRef.current)
+            const t = setTimeout(() => startTimer(), 600)
+            return () => clearTimeout(t)
+        }
+    }, [resetKey, loopable, autoPlay, slideToLoopIndex, updateIndex, startTimer])
 
     // ── Touch tracking ──
     const handleTouchStart = useCallback(() => {
