@@ -265,6 +265,7 @@ const Carousel = memo(function Carousel({
         <div style={{ position: "relative", overflow: "hidden", ...style }}>
             <div
                 ref={scrollRef}
+                data-carousel-scroll=""
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 style={{
