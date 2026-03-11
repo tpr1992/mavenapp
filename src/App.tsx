@@ -58,6 +58,7 @@ export default function App() {
     const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null)
     const deepLinkResolved = useRef(false)
     const [authToast, setAuthToast] = useState(false)
+    const authToastTimer = useRef<ReturnType<typeof setTimeout>>(null)
     const { userLocation, locationLabel, locationSource, setLocation } = useUserLocation()
     const {
         makers,
@@ -143,7 +144,8 @@ export default function App() {
         (makerId: string) => {
             if (!user) {
                 setAuthToast(true)
-                setTimeout(() => setAuthToast(false), 2500)
+                if (authToastTimer.current) clearTimeout(authToastTimer.current)
+                authToastTimer.current = setTimeout(() => setAuthToast(false), 2500)
                 return
             }
             toggleSave(makerId)
