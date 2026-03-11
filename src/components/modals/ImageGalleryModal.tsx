@@ -1,38 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
+import useSpringSwipe from "../../hooks/useSpringSwipe"
 
 interface ImageGalleryModalProps {
     images: string[]
     initialIndex: number
     onClose: () => void
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
-}
-
-function FullResImage({ url, index, total }: { url: string; index: number; total: number }) {
-    const [loaded, setLoaded] = useState(false)
-    return (
-        <img
-            src={optimizeImageUrl(url, 1200, { quality: IMG_QUALITY.lightbox }) ?? undefined}
-            srcSet={imageSrcSet(url, 600, { quality: IMG_QUALITY.lightbox })}
-            alt={`Image ${index + 1} of ${total}`}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            onLoad={() => setLoaded(true)}
-            style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                userSelect: "none",
-                WebkitUserSelect: "none",
-                pointerEvents: "none",
-                opacity: loaded ? 1 : 0,
-                transition: "opacity 0.3s ease",
-            }}
-        />
-    )
 }
 
 export default memo(function ImageGalleryModal({
@@ -42,141 +16,281 @@ export default memo(function ImageGalleryModal({
     scrollContainerRef,
 }: ImageGalleryModalProps) {
     const [index, setIndex] = useState(initialIndex)
-    const [scale, setScale] = useState(1)
-    const [translate, setTranslate] = useState({ x: 0, y: 0 })
-    const [swipeX, setSwipeX] = useState(0)
-    type TouchState =
-        | Record<string, never>
-        | { type: "pinch"; initDist: number; initScale: number }
-        | {
-              type: "pan" | "swipe"
-              startX: number
-              startY: number
-              initTranslate: { x: number; y: number }
-              moved: boolean
-          }
-    const touchRef = useRef<TouchState>({})
-    const imgRef = useRef<HTMLDivElement>(null)
-
     const total = images.length
 
-    // Lock scroll on mount, preserve position on unmount
+    // Cache viewport dimensions to avoid layout thrashing during gestures
+    const vw = useRef(window.innerWidth)
+    const vh = useRef(window.innerHeight)
+
+    // --- Refs for gesture state (no re-renders during touch) ---
+    const containerRef = useRef<HTMLDivElement>(null)
+    const slideRef = useRef<HTMLDivElement>(null)
+
+    // Transform state for zoom/pan — applied via ref for 60fps
+    const scale = useRef(1)
+    const tx = useRef(0)
+    const ty = useRef(0)
+
+    // Touch tracking for pinch/pan (swipe is handled by useSpringSwipe)
+    const gesture = useRef<"none" | "swipe" | "pan" | "pinch">("none")
+    const startTouch = useRef({ x: 0, y: 0 })
+    const startTranslate = useRef({ x: 0, y: 0 })
+    const pinchStartDist = useRef(0)
+    const pinchStartScale = useRef(1)
+    const pinchMidpoint = useRef({ x: 0, y: 0 })
+    const hasMoved = useRef(false)
+    const preloadCache = useRef<HTMLImageElement[]>([])
+
+    // Double-tap
+    const lastTapTime = useRef(0)
+    const lastTapPos = useRef({ x: 0, y: 0 })
+    const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // --- Spring swipe hook ---
+    const swipe = useSpringSwipe({
+        count: total,
+        index,
+        viewportWidth: vw.current,
+        onIndexChange: setIndex,
+        onTransform: useCallback((offset: number) => {
+            const el = containerRef.current
+            if (el) {
+                el.style.transition = "none"
+                el.style.transform = `translateX(${offset}px)`
+            }
+        }, []),
+    })
+
+    // Lock scroll on mount
     useEffect(() => {
         const el = scrollContainerRef?.current
         if (!el) return
-        const savedOverflowY = el.style.overflowY
-        const savedOverflowX = el.style.overflowX
+        const saved = el.style.overflowY
         el.style.overflowY = "hidden"
         return () => {
-            el.style.overflowY = savedOverflowY
-            el.style.overflowX = savedOverflowX
+            el.style.overflowY = saved
         }
     }, [scrollContainerRef])
 
-    const goTo = useCallback(
-        (next: number) => {
-            if (next < 0 || next >= total) return
-            setIndex(next)
-            setScale(1)
-            setTranslate({ x: 0, y: 0 })
-            setSwipeX(0)
+    // --- Apply zoom/pan transforms directly to DOM ---
+    const applySlideTransform = useCallback((animate = false) => {
+        const el = slideRef.current
+        if (!el) return
+        if (animate) {
+            el.style.transition = "transform 0.2s cubic-bezier(0.22, 1, 0.36, 1)"
+        } else {
+            el.style.transition = "none"
+        }
+        el.style.transform = `translate(${tx.current}px, ${ty.current}px) scale(${scale.current})`
+    }, [])
+
+    // Reset transforms when index changes
+    useEffect(() => {
+        scale.current = 1
+        tx.current = 0
+        ty.current = 0
+        applySlideTransform(false)
+        // Position the strip — spring already placed us correctly, just sync
+        const el = containerRef.current
+        if (el) {
+            el.style.transition = "none"
+            el.style.transform = `translateX(${-index * vw.current}px)`
+        }
+    }, [index, applySlideTransform])
+
+    // --- Pan bounds clamping ---
+    const clampTranslate = useCallback(() => {
+        if (scale.current <= 1) {
+            tx.current = 0
+            ty.current = 0
+            return
+        }
+        const maxX = (vw.current * (scale.current - 1)) / 2
+        const maxY = (vh.current * (scale.current - 1)) / 2
+        tx.current = Math.max(-maxX, Math.min(maxX, tx.current))
+        ty.current = Math.max(-maxY, Math.min(maxY, ty.current))
+    }, [])
+
+    // --- Touch handlers ---
+    const onTouchStart = useCallback(
+        (e: React.TouchEvent) => {
+            swipe.cancel()
+            const t = e.touches
+
+            if (t.length === 2) {
+                gesture.current = "pinch"
+                pinchStartDist.current = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+                pinchStartScale.current = scale.current
+                pinchMidpoint.current = {
+                    x: (t[0].clientX + t[1].clientX) / 2,
+                    y: (t[0].clientY + t[1].clientY) / 2,
+                }
+                startTranslate.current = { x: tx.current, y: ty.current }
+            } else if (t.length === 1) {
+                gesture.current = scale.current > 1 ? "pan" : "swipe"
+                startTouch.current = { x: t[0].clientX, y: t[0].clientY }
+                startTranslate.current = { x: tx.current, y: ty.current }
+                hasMoved.current = false
+                if (gesture.current === "swipe") {
+                    swipe.start(t[0].clientX)
+                }
+            }
         },
-        [total],
+        [swipe],
+    )
+
+    const onTouchMove = useCallback(
+        (e: React.TouchEvent) => {
+            const t = e.touches
+
+            if (gesture.current === "pinch" && t.length === 2) {
+                e.preventDefault()
+                const dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+                const newScale = Math.min(4, Math.max(1, pinchStartScale.current * (dist / pinchStartDist.current)))
+
+                const mid = {
+                    x: (t[0].clientX + t[1].clientX) / 2,
+                    y: (t[0].clientY + t[1].clientY) / 2,
+                }
+                const cx = vw.current / 2
+                const cy = vh.current / 2
+
+                if (pinchStartScale.current <= 1) {
+                    const ratio = newScale / pinchStartScale.current
+                    tx.current = (cx - pinchMidpoint.current.x) * (ratio - 1)
+                    ty.current = (cy - pinchMidpoint.current.y) * (ratio - 1)
+                } else {
+                    const ratio = newScale / pinchStartScale.current
+                    tx.current = startTranslate.current.x * ratio + (mid.x - pinchMidpoint.current.x)
+                    ty.current = startTranslate.current.y * ratio + (mid.y - pinchMidpoint.current.y)
+                }
+
+                scale.current = newScale
+                clampTranslate()
+                applySlideTransform()
+                return
+            }
+
+            if (gesture.current === "pan" && t.length === 1) {
+                e.preventDefault()
+                const dx = t[0].clientX - startTouch.current.x
+                const dy = t[0].clientY - startTouch.current.y
+                hasMoved.current = Math.abs(dx) > 5 || Math.abs(dy) > 5
+
+                tx.current = startTranslate.current.x + dx
+                ty.current = startTranslate.current.y + dy
+                clampTranslate()
+                applySlideTransform()
+                return
+            }
+
+            if (gesture.current === "swipe" && t.length === 1) {
+                const handled = swipe.move(t[0].clientX, t[0].clientY, startTouch.current.y, () => e.preventDefault())
+                if (handled) hasMoved.current = true
+            }
+        },
+        [swipe, clampTranslate, applySlideTransform],
+    )
+
+    const onTouchEnd = useCallback(
+        (e: React.TouchEvent) => {
+            if (gesture.current === "pinch") {
+                if (scale.current < 1.1) {
+                    scale.current = 1
+                    tx.current = 0
+                    ty.current = 0
+                    applySlideTransform(true)
+                } else {
+                    clampTranslate()
+                    applySlideTransform(true)
+                }
+            } else if (gesture.current === "swipe") {
+                // Pass final finger position for flick detection when no touchmove fired
+                const endX = e.changedTouches?.[0]?.clientX
+                swipe.end(endX)
+            } else if (gesture.current === "pan") {
+                clampTranslate()
+                applySlideTransform(true)
+            }
+
+            gesture.current = "none"
+        },
+        [swipe, clampTranslate, applySlideTransform],
+    )
+
+    // --- Double-tap to zoom / single-tap to close ---
+    const onTap = useCallback(
+        (e: React.MouseEvent) => {
+            if (hasMoved.current || swipe.hasMoved.current) return
+
+            const now = Date.now()
+            const tapX = e.clientX
+            const tapY = e.clientY
+            const timeDiff = now - lastTapTime.current
+            const posDiff = Math.hypot(tapX - lastTapPos.current.x, tapY - lastTapPos.current.y)
+
+            if (timeDiff < 300 && posDiff < 30) {
+                // Double-tap
+                if (tapTimer.current) clearTimeout(tapTimer.current)
+                lastTapTime.current = 0
+
+                if (scale.current > 1) {
+                    scale.current = 1
+                    tx.current = 0
+                    ty.current = 0
+                } else {
+                    const targetScale = 2.5
+                    tx.current = (vw.current / 2 - tapX) * (targetScale - 1)
+                    ty.current = (vh.current / 2 - tapY) * (targetScale - 1)
+                    scale.current = targetScale
+                    clampTranslate()
+                }
+                applySlideTransform(true)
+            } else {
+                lastTapTime.current = now
+                lastTapPos.current = { x: tapX, y: tapY }
+                if (scale.current <= 1) {
+                    tapTimer.current = setTimeout(() => onClose(), 250)
+                }
+            }
+        },
+        [onClose, clampTranslate, applySlideTransform, swipe.hasMoved],
     )
 
     // Keyboard navigation
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose()
-            if (e.key === "ArrowLeft") goTo(index - 1)
-            if (e.key === "ArrowRight") goTo(index + 1)
+            if (e.key === "ArrowLeft" && index > 0) setIndex((i) => i - 1)
+            if (e.key === "ArrowRight" && index < total - 1) setIndex((i) => i + 1)
         }
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
-    }, [index, goTo, onClose])
+    }, [index, total, onClose])
 
-    const onTouchStart = (e: React.TouchEvent) => {
-        const t = e.touches
-        if (t.length === 2) {
-            const dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
-            touchRef.current = { type: "pinch", initDist: dist, initScale: scale }
-        } else if (t.length === 1) {
-            touchRef.current = {
-                type: scale > 1 ? "pan" : "swipe",
-                startX: t[0].clientX,
-                startY: t[0].clientY,
-                initTranslate: { ...translate },
-                moved: false,
+    // Preload adjacent images so they're ready before swiping
+    useEffect(() => {
+        const cache: HTMLImageElement[] = []
+        for (let d = -2; d <= 2; d++) {
+            const i = index + d
+            if (i < 0 || i >= total || i === index) continue
+            const url = optimizeImageUrl(images[i], 1200, { quality: IMG_QUALITY.lightbox })
+            if (url) {
+                const img = new Image()
+                img.src = url
+                cache.push(img)
             }
         }
-    }
+        preloadCache.current = cache
+    }, [index, images, total])
 
-    const onTouchMove = (e: React.TouchEvent) => {
-        const t = e.touches
-        const ref = touchRef.current
-
-        if (ref.type === "pinch" && t.length === 2) {
-            e.preventDefault()
-            const dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
-            const newScale = Math.min(4, Math.max(1, ref.initScale * (dist / ref.initDist)))
-            setScale(newScale)
-            if (newScale <= 1.05) setTranslate({ x: 0, y: 0 })
-        } else if (ref.type === "pan" && t.length === 1) {
-            e.preventDefault()
-            const dx = t[0].clientX - ref.startX
-            const dy = t[0].clientY - ref.startY
-            setTranslate({ x: ref.initTranslate.x + dx, y: ref.initTranslate.y + dy })
-        } else if (ref.type === "swipe" && t.length === 1) {
-            const dx = t[0].clientX - ref.startX
-            ref.moved = true
-            setSwipeX(dx)
+    // Clean up on unmount
+    useEffect(() => {
+        return () => {
+            if (tapTimer.current) clearTimeout(tapTimer.current)
+            swipe.cancel()
         }
-    }
-
-    const onTouchEnd: () => void = () => {
-        const ref = touchRef.current
-
-        if (ref.type === "pinch") {
-            if (scale < 1.1) {
-                setScale(1)
-                setTranslate({ x: 0, y: 0 })
-            }
-        } else if (ref.type === "swipe" && ref.moved) {
-            if (swipeX > 60 && index > 0) goTo(index - 1)
-            else if (swipeX < -60 && index < total - 1) goTo(index + 1)
-            else setSwipeX(0)
-        }
-
-        touchRef.current = {}
-    }
-
-    // Double-tap to zoom, single-tap to close (when not zoomed)
-    const lastTapRef = useRef(0)
-    const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-    const onTap = (_e: React.MouseEvent) => {
-        // Ignore if it was a swipe/pinch
-        if ("moved" in touchRef.current && touchRef.current.moved) return
-        const now = Date.now()
-        if (now - lastTapRef.current < 300) {
-            // Double-tap toggle zoom
-            if (tapTimerRef.current) clearTimeout(tapTimerRef.current)
-            if (scale > 1) {
-                setScale(1)
-                setTranslate({ x: 0, y: 0 })
-            } else {
-                setScale(2.5)
-            }
-            lastTapRef.current = 0
-        } else {
-            lastTapRef.current = now
-            // Single tap — close if not zoomed (after brief delay to rule out double-tap)
-            if (scale <= 1) {
-                tapTimerRef.current = setTimeout(() => onClose(), 250)
-            }
-        }
-    }
-
-    const isInteracting = !!touchRef.current.type
+    }, [swipe])
 
     return (
         <div
@@ -186,17 +300,12 @@ export default memo(function ImageGalleryModal({
                 position: "fixed",
                 inset: 0,
                 zIndex: 200,
-                background: "rgba(0,0,0,0.92)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                background: "rgba(0,0,0,0.95)",
                 animation: "fadeIn 0.2s ease",
                 touchAction: "none",
+                overflow: "hidden",
             }}
         >
-            {/* Backdrop click to close (only when not zoomed) */}
-            <div onClick={() => scale <= 1 && onClose()} style={{ position: "absolute", inset: 0, zIndex: 0 }} />
-
             {/* Counter */}
             <div
                 style={{
@@ -254,7 +363,7 @@ export default memo(function ImageGalleryModal({
             {/* Nav arrows (desktop) */}
             {index > 0 && (
                 <button
-                    onClick={() => goTo(index - 1)}
+                    onClick={() => setIndex((i) => i - 1)}
                     aria-label="Previous"
                     style={{
                         position: "absolute",
@@ -290,7 +399,7 @@ export default memo(function ImageGalleryModal({
             )}
             {index < total - 1 && (
                 <button
-                    onClick={() => goTo(index + 1)}
+                    onClick={() => setIndex((i) => i + 1)}
                     aria-label="Next"
                     style={{
                         position: "absolute",
@@ -325,54 +434,59 @@ export default memo(function ImageGalleryModal({
                 </button>
             )}
 
-            {/* Image strip */}
+            {/* Image strip — positioned via ref, not React state */}
             <div
-                ref={imgRef}
+                ref={containerRef}
                 onTouchStart={onTouchStart}
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
                 onClick={onTap}
                 style={{
-                    position: "relative",
+                    position: "absolute",
+                    inset: 0,
                     zIndex: 1,
-                    width: "100%",
-                    height: "100%",
-                    overflow: "hidden",
+                    display: "flex",
+                    transform: `translateX(${-index * vw.current}px)`,
+                    willChange: "transform",
                 }}
             >
-                <div
-                    style={{
-                        display: "flex",
-                        width: `${total * 100}%`,
-                        height: "100%",
-                        transform:
-                            scale > 1
-                                ? `translateX(${-index * (100 / total)}%) scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`
-                                : `translateX(calc(${-index * (100 / total)}% + ${swipeX}px))`,
-                        transition: isInteracting ? "none" : "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                        willChange: "transform",
-                    }}
-                >
-                    {images.map((url, i) => {
-                        const nearby = Math.abs(i - index) <= 1
-                        return (
+                {images.map((url, i) => {
+                    const nearby = Math.abs(i - index) <= 2
+                    return (
+                        <div
+                            key={i}
+                            style={{
+                                width: vw.current,
+                                height: "100%",
+                                flexShrink: 0,
+                                overflow: "hidden",
+                            }}
+                        >
                             <div
-                                key={i}
+                                ref={i === index ? slideRef : undefined}
                                 style={{
-                                    width: `${100 / total}%`,
+                                    width: "100%",
                                     height: "100%",
-                                    flexShrink: 0,
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
-                                    position: "relative",
+                                    transformOrigin: "center center",
+                                    willChange: "transform",
+                                    backfaceVisibility: "hidden",
                                 }}
                             >
-                                {/* Preview — 600px, already cached from profile grid */}
                                 <img
-                                    src={optimizeImageUrl(url, 600) ?? undefined}
+                                    src={
+                                        nearby
+                                            ? (optimizeImageUrl(url, 1200, { quality: IMG_QUALITY.lightbox }) ??
+                                              undefined)
+                                            : undefined
+                                    }
+                                    srcSet={
+                                        nearby ? imageSrcSet(url, 600, { quality: IMG_QUALITY.lightbox }) : undefined
+                                    }
                                     alt={`Image ${i + 1} of ${total}`}
-                                    loading={i === index ? "eager" : "lazy"}
+                                    loading={nearby ? "eager" : "lazy"}
                                     draggable={false}
                                     style={{
                                         maxWidth: "100%",
@@ -383,12 +497,10 @@ export default memo(function ImageGalleryModal({
                                         pointerEvents: "none",
                                     }}
                                 />
-                                {/* Full-res — 1200px, fades in on load (only rendered for nearby slides) */}
-                                {nearby && <FullResImage url={url} index={i} total={total} />}
                             </div>
-                        )
-                    })}
-                </div>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )

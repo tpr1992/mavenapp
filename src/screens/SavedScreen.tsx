@@ -78,18 +78,42 @@ export default function SavedScreen({
                     <div style={{ padding: "60px 40px", textAlign: "center" }}>
                         <div
                             style={{
-                                fontSize: 40,
                                 marginBottom: 16,
                                 opacity: 0.3,
                                 animation: "pulse 1.5s ease infinite",
+                                color: theme.textMuted,
                             }}
                         >
-                            {"\u2661"}
+                            <svg
+                                width={40}
+                                height={40}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                            </svg>
                         </div>
                     </div>
                 ) : !user ? (
                     <div style={{ padding: "60px 40px", textAlign: "center" }}>
-                        <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
+                        <div style={{ marginBottom: 16, color: theme.textMuted }}>
+                            <svg
+                                width={40}
+                                height={40}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                            </svg>
+                        </div>
                         <p
                             style={{
                                 fontFamily: "'DM Sans', sans-serif",
@@ -120,7 +144,20 @@ export default function SavedScreen({
                     </div>
                 ) : savedMakers.length === 0 ? (
                     <div style={{ padding: "60px 40px", textAlign: "center" }}>
-                        <div style={{ fontSize: 40, marginBottom: 16 }}>{"\u2661"}</div>
+                        <div style={{ marginBottom: 16, color: theme.textMuted }}>
+                            <svg
+                                width={40}
+                                height={40}
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                            </svg>
+                        </div>
                         <p
                             style={{
                                 fontFamily: "'DM Sans', sans-serif",
