@@ -39,7 +39,6 @@ export default memo(function ImageGalleryModal({
     const pinchStartScale = useRef(1)
     const pinchMidpoint = useRef({ x: 0, y: 0 })
     const hasMoved = useRef(false)
-    const preloadCache = useRef<HTMLImageElement[]>([])
 
     // Double-tap
     const lastTapTime = useRef(0)
@@ -261,28 +260,12 @@ export default memo(function ImageGalleryModal({
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") onClose()
-            if (e.key === "ArrowLeft" && index > 0) setIndex((i) => i - 1)
-            if (e.key === "ArrowRight" && index < total - 1) setIndex((i) => i + 1)
+            if (e.key === "ArrowLeft") swipe.goTo(index - 1)
+            if (e.key === "ArrowRight") swipe.goTo(index + 1)
         }
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
     }, [index, total, onClose])
-
-    // Preload adjacent images so they're ready before swiping
-    useEffect(() => {
-        const cache: HTMLImageElement[] = []
-        for (let d = -2; d <= 2; d++) {
-            const i = index + d
-            if (i < 0 || i >= total || i === index) continue
-            const url = optimizeImageUrl(images[i], 1200, { quality: IMG_QUALITY.lightbox })
-            if (url) {
-                const img = new Image()
-                img.src = url
-                cache.push(img)
-            }
-        }
-        preloadCache.current = cache
-    }, [index, images, total])
 
     // Clean up on unmount
     useEffect(() => {
@@ -363,7 +346,7 @@ export default memo(function ImageGalleryModal({
             {/* Nav arrows (desktop) */}
             {index > 0 && (
                 <button
-                    onClick={() => setIndex((i) => i - 1)}
+                    onClick={() => swipe.goTo(index - 1)}
                     aria-label="Previous"
                     style={{
                         position: "absolute",
@@ -399,7 +382,7 @@ export default memo(function ImageGalleryModal({
             )}
             {index < total - 1 && (
                 <button
-                    onClick={() => setIndex((i) => i + 1)}
+                    onClick={() => swipe.goTo(index + 1)}
                     aria-label="Next"
                     style={{
                         position: "absolute",
@@ -451,7 +434,6 @@ export default memo(function ImageGalleryModal({
                 }}
             >
                 {images.map((url, i) => {
-                    const nearby = Math.abs(i - index) <= 2
                     return (
                         <div
                             key={i}
@@ -476,17 +458,10 @@ export default memo(function ImageGalleryModal({
                                 }}
                             >
                                 <img
-                                    src={
-                                        nearby
-                                            ? (optimizeImageUrl(url, 1200, { quality: IMG_QUALITY.lightbox }) ??
-                                              undefined)
-                                            : undefined
-                                    }
-                                    srcSet={
-                                        nearby ? imageSrcSet(url, 600, { quality: IMG_QUALITY.lightbox }) : undefined
-                                    }
+                                    src={optimizeImageUrl(url, 1200, { quality: IMG_QUALITY.lightbox }) ?? undefined}
+                                    srcSet={imageSrcSet(url, 600, { quality: IMG_QUALITY.lightbox })}
                                     alt={`Image ${i + 1} of ${total}`}
-                                    loading={nearby ? "eager" : "lazy"}
+                                    loading={Math.abs(i - index) <= 1 ? "eager" : "lazy"}
                                     draggable={false}
                                     style={{
                                         maxWidth: "100%",

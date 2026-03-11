@@ -41,3 +41,15 @@ Defined in `src/styles/index.css`:
 | `locationPulse` | Expanding box-shadow ring, 2.5s loop | GPS location dot |
 | `shimmer` | Background position sweep | Skeleton loaders |
 | `spin` | 360deg rotation, 0.6s linear | Loading spinners |
+
+## Spring Physics (rAF)
+
+For gestures that carry finger velocity — like the image gallery swipe — CSS transitions don't work because the remaining distance after a drag is too small and the animation feels instant. Instead, use `requestAnimationFrame` spring physics via `useSpringSwipe` (`src/hooks/useSpringSwipe.ts`).
+
+| Constant | Value | Effect |
+|----------|-------|--------|
+| Stiffness | `300` | How quickly the spring pulls toward target |
+| Damping | `30` | How quickly oscillation decays |
+| Settle threshold | `< 0.5px` displacement, `< 50px/s` velocity | When to snap to final position |
+
+The spring carries the finger's release velocity into the animation, decelerating naturally. This matches iOS Photos app behavior. See [image-gallery.md](../components/image-gallery.md) for full details.
