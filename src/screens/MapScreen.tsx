@@ -30,9 +30,10 @@ interface MapScreenProps {
     isDebug?: boolean
 }
 
-// Fix Leaflet default icon path issue with bundlers
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-delete (L.Icon.Default.prototype as any)._getIconUrl
+// Fix Leaflet default icon path issue with bundlers —
+// we use custom icons via createPinIcon so defaults are unused
+const defaultProto = L.Icon.Default.prototype as L.Icon.Default & { _getIconUrl?: unknown }
+if (defaultProto._getIconUrl) defaultProto._getIconUrl = undefined
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: undefined,
     iconUrl: undefined,
@@ -61,6 +62,7 @@ export default function MapScreen({
     const markerMapRef = useRef<Map<string, MarkerEntry>>(new Map())
     const prevSelectedRef = useRef<Maker | null>(null)
     const tileLayerRef = useRef<L.TileLayer | null>(null)
+    const preloadCache = useRef<HTMLImageElement[]>([])
 
     const townSuggestions = useMemo(() => {
         const q = searchQuery.trim().toLowerCase()
@@ -177,13 +179,20 @@ export default function MapScreen({
             const marker = L.marker([maker.lat, maker.lng] as L.LatLngTuple, { icon: pinIcon })
             marker.on("click", () => {
                 // Preload hero + gallery images so card expand is instant
+                // Store refs in preloadCache to prevent GC before fetch completes
+                preloadCache.current = []
                 const heroUrl = maker.gallery_urls?.[0]
                 if (heroUrl) {
-                    new window.Image().src = optimizeImageUrl(heroUrl, 600) ?? ""
-                    new window.Image().src = optimizeImageUrl(heroUrl, 120) ?? ""
+                    const heroFull = new window.Image()
+                    heroFull.src = optimizeImageUrl(heroUrl, 600) ?? ""
+                    const heroThumb = new window.Image()
+                    heroThumb.src = optimizeImageUrl(heroUrl, 120) ?? ""
+                    preloadCache.current.push(heroFull, heroThumb)
                 }
                 maker.gallery_urls?.slice(1, 6).forEach((url) => {
-                    new window.Image().src = optimizeImageUrl(url, 200) ?? ""
+                    const img = new window.Image()
+                    img.src = optimizeImageUrl(url, 200) ?? ""
+                    preloadCache.current.push(img)
                 })
                 setSelectedMaker(maker)
                 map.flyTo([maker.lat, maker.lng] as L.LatLngTuple, Math.max(map.getZoom(), 15))

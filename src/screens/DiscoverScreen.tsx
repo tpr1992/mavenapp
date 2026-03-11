@@ -286,11 +286,14 @@ export default function DiscoverScreen({
         }
     }
 
+    const refreshTimer = useRef<ReturnType<typeof setTimeout>>(null)
+
     const handleTouchEnd = () => {
         if (pullStartY.current !== null && pullDistance.current > 60 && !refreshing && onRefresh) {
             setRefreshing(true)
             onRefresh()
-            setTimeout(() => setRefreshing(false), 1500)
+            if (refreshTimer.current) clearTimeout(refreshTimer.current)
+            refreshTimer.current = setTimeout(() => setRefreshing(false), 1500)
         }
         pullStartY.current = null
         pullDistance.current = 0
@@ -299,6 +302,12 @@ export default function DiscoverScreen({
             pullIndicatorRef.current.style.opacity = "0"
         }
     }
+
+    useEffect(() => {
+        return () => {
+            if (refreshTimer.current) clearTimeout(refreshTimer.current)
+        }
+    }, [])
 
     // Loading skeletons
     if (makersLoading && makers.length === 0) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { Helmet } from "react-helmet-async"
 import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
@@ -103,6 +103,8 @@ export default function ProfileScreen({
     const [showAbout, setShowAbout] = useState(false)
     const [resetSent, setResetSent] = useState(false)
     const [welcomeToast, setWelcomeToast] = useState("")
+    const toastTimer = useRef<ReturnType<typeof setTimeout>>(null)
+    const resetTimer = useRef<ReturnType<typeof setTimeout>>(null)
     const [failCount, setFailCount] = useState(0)
     const [lockedUntil, setLockedUntil] = useState(0)
     const [simRunning, setSimRunning] = useState<Scenario | "reset" | null>(null)
@@ -153,6 +155,13 @@ export default function ProfileScreen({
         const t = setTimeout(() => setSimStatus(""), 3000)
         return () => clearTimeout(t)
     }, [simStatus])
+
+    useEffect(() => {
+        return () => {
+            if (toastTimer.current) clearTimeout(toastTimer.current)
+            if (resetTimer.current) clearTimeout(resetTimer.current)
+        }
+    }, [])
 
     const SETTINGS_ITEMS = [
         { icon: "\u25D4", label: "Notifications", subtitle: "Coming soon", action: () => {} },
@@ -241,7 +250,8 @@ export default function ProfileScreen({
             name = name.charAt(0).toUpperCase() + name.slice(1)
             const msg = mode === "signup" ? `Welcome to maven, ${name}!` : getGreeting(name)
             setWelcomeToast(msg)
-            setTimeout(() => setWelcomeToast(""), 3000)
+            if (toastTimer.current) clearTimeout(toastTimer.current)
+            toastTimer.current = setTimeout(() => setWelcomeToast(""), 3000)
             setEmail("")
             setPassword("")
             setFirstName("")
@@ -251,7 +261,8 @@ export default function ProfileScreen({
     const handleSignOut = async () => {
         await signOut()
         setWelcomeToast("Signed out")
-        setTimeout(() => setWelcomeToast(""), 3000)
+        if (toastTimer.current) clearTimeout(toastTimer.current)
+        toastTimer.current = setTimeout(() => setWelcomeToast(""), 3000)
     }
 
     const initial = profileName ? profileName[0].toUpperCase() : user?.email?.[0]?.toUpperCase() || ""
@@ -572,7 +583,8 @@ export default function ProfileScreen({
                                         await resetPassword(email.trim())
                                         setResetSent(true)
                                         setError("")
-                                        setTimeout(() => setResetSent(false), 5000)
+                                        if (resetTimer.current) clearTimeout(resetTimer.current)
+                                        resetTimer.current = setTimeout(() => setResetSent(false), 5000)
                                     }}
                                 >
                                     {resetSent ? "Reset link sent — check your email" : "Forgot password?"}
