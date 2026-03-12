@@ -9,7 +9,7 @@ const cspContent = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://xsibqwoulhymoptduuca.supabase.co wss://xsibqwoulhymoptduuca.supabase.co https://basemaps.cartocdn.com https://tiles.basemaps.cartocdn.com",
+  "connect-src 'self' https://xsibqwoulhymoptduuca.supabase.co wss://xsibqwoulhymoptduuca.supabase.co https://basemaps.cartocdn.com https://tiles.basemaps.cartocdn.com https://tiles-a.basemaps.cartocdn.com https://tiles-b.basemaps.cartocdn.com https://tiles-c.basemaps.cartocdn.com https://tiles-d.basemaps.cartocdn.com",
   "frame-ancestors 'none'",
 ].join("; ")
 
