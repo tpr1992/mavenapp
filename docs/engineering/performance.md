@@ -28,6 +28,15 @@
 - **`transform: "translateZ(0)"`** for GPU layer promotion on animated elements
 - **Text truncation**: Single-line uses `whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"`. Multi-line uses `-webkit-line-clamp` with `-webkit-box-orient: "vertical"`.
 
+## Compositor-Thread Animations
+
+Prefer native browser animations over JS-driven alternatives for higher frame rates:
+
+- **`scrollTo({ behavior: "smooth" })`** runs on compositor thread at native refresh rate (120Hz ProMotion). Used for carousel autoplay, dot navigation, and reset animations. Replaces framer-motion's `motionAnimate` which runs on main thread (~60fps).
+- **`transform: translateX()`** for position animations instead of `left` (which triggers reflow). Used for toggle switches in ProfileScreen.
+- **Scope `transition` to specific properties** — never use `transition: "all ..."`. It catches layout properties (width, height, margin) and prevents compositor optimization. Always list properties explicitly: `"background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"`.
+- **`height` animation** (e.g., SwipeableMapCard) is inherently main-thread and cannot be moved to compositor.
+
 ## Scroll Handler Performance
 
 - **Direct DOM in scroll handlers**: React state updates on every scroll event cause frame drops. Use `element.style.*` directly during animations (transforms, opacity), then sync React state after via `transitionend` or timeout.

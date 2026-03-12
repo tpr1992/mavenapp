@@ -29,6 +29,7 @@ All images go through `optimizeImageUrl(url, width, { quality })` from `src/util
 ## Loading Strategy
 
 - **Hero images**: `loading="eager"`, `fetchPriority="high"`, prefetched on maker tap in App.tsx
+- **Above-fold card galleries**: `loading="eager"`, first slide gets `fetchPriority="high"`. Reduces black flash when swiping between slides on slow connections.
 - **Everything else**: `loading="lazy"`, `decoding="async"`
 - **Always** use `objectFit: "cover"` for aspect-ratio preservation
 
