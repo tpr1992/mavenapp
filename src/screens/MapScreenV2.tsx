@@ -105,8 +105,11 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
 // ── Cluster element factory ──
 
 function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
-    const bg = isDark ? "#e8e6e3" : "#1a1a1a"
-    const color = isDark ? "#1a1a1a" : "#fff"
+    const bg = isDark ? "#e8e6e3" : "rgba(255,255,255,0.65)"
+    const color = isDark ? "#1a1a1a" : "#1a1a1a"
+    const border = isDark ? "none" : "1px solid rgba(0,0,0,0.08)"
+    const backdrop = isDark ? "none" : "blur(16px) saturate(1.4)"
+    const shadow = isDark ? "0 2px 10px rgba(0,0,0,0.5)" : "0 2px 10px rgba(0,0,0,0.15)"
     const sz = count >= 10 ? 40 : 34
 
     const el = document.createElement("div")
@@ -118,10 +121,11 @@ function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
     })
     el.innerHTML = `<div style="
     width:${sz}px;height:${sz}px;border-radius:50%;
-    background:${bg};color:${color};
+    background:${bg};color:${color};border:${border};
+    -webkit-backdrop-filter:${backdrop};backdrop-filter:${backdrop};
     display:flex;align-items:center;justify-content:center;
     font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
-    box-shadow:0 2px 10px rgba(0,0,0,${isDark ? "0.5" : "0.2"});
+    box-shadow:${shadow};
   ">${count}</div>`
     return el
 }
