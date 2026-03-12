@@ -55,11 +55,6 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
     el.setAttribute("role", "button")
     el.setAttribute("aria-label", `View ${maker.name}`)
     el.style.cursor = "pointer"
-    el.style.opacity = "0"
-    el.style.transition = "opacity 0.2s ease"
-    requestAnimationFrame(() => {
-        el.style.opacity = "1"
-    })
     el.innerHTML = `
     <div style="
       display: flex;
@@ -254,31 +249,36 @@ export default function MapScreenV2({
                 const key = `cluster-${props.cluster_id}`
                 activeKeys.add(key)
 
-                // Always recreate clusters so click handlers have fresh cluster_id
                 const existing = markersRef.current.get(key)
-                if (existing) existing.remove()
-
-                const el = createClusterElement(props.point_count, dark)
-                const clkId = props.cluster_id as number
-                const clkCoords = coords.slice() as [number, number]
-                const clkCount = props.point_count as number
-                el.addEventListener("click", (e) => {
-                    e.stopPropagation()
-                    const ci = clusterRef.current
-                    if (!ci || !map) return
-                    const expZoom = ci.getClusterExpansionZoom(clkId)
-                    // Cap zoom for small clusters — no need to dive to street level
-                    const cap = clkCount <= 3 ? 18 : clkCount <= 8 ? 17 : 18
-                    const targetZoom = Math.min(Math.max(expZoom, map.getZoom() + 2), cap)
-                    map.easeTo({
-                        center: clkCoords,
-                        zoom: targetZoom,
-                        duration: 500,
+                if (existing) {
+                    // Reuse marker — just update position and count if changed
+                    existing.setLngLat(coords)
+                    const countEl = existing.getElement().querySelector("div")
+                    if (countEl && countEl.textContent !== String(props.point_count)) {
+                        countEl.textContent = String(props.point_count)
+                    }
+                } else {
+                    const el = createClusterElement(props.point_count, dark)
+                    const clkId = props.cluster_id as number
+                    const clkCoords = coords.slice() as [number, number]
+                    const clkCount = props.point_count as number
+                    el.addEventListener("click", (e) => {
+                        e.stopPropagation()
+                        const ci = clusterRef.current
+                        if (!ci || !map) return
+                        const expZoom = ci.getClusterExpansionZoom(clkId)
+                        const cap = clkCount <= 3 ? 18 : clkCount <= 8 ? 17 : 18
+                        const targetZoom = Math.min(Math.max(expZoom, map.getZoom() + 2), cap)
+                        map.easeTo({
+                            center: clkCoords,
+                            zoom: targetZoom,
+                            duration: 500,
+                        })
                     })
-                })
-                const marker = new maplibregl.Marker({ element: el, anchor: "center" }).setLngLat(coords).addTo(map)
-                marker.getElement().style.zIndex = "500"
-                markersRef.current.set(key, marker)
+                    const marker = new maplibregl.Marker({ element: el, anchor: "center" }).setLngLat(coords).addTo(map)
+                    marker.getElement().style.zIndex = "500"
+                    markersRef.current.set(key, marker)
+                }
             } else {
                 // ── Individual pin marker ──
                 const id = props.id as string
@@ -293,6 +293,12 @@ export default function MapScreenV2({
                 } else {
                     const isSelected = selectedIdRef.current === id
                     const el = createPinElement(maker, isSelected, dark)
+                    // Fade in new pins only
+                    el.style.opacity = "0"
+                    el.style.transition = "opacity 0.2s ease"
+                    requestAnimationFrame(() => {
+                        el.style.opacity = "1"
+                    })
                     el.addEventListener("click", (e) => {
                         e.stopPropagation()
                         handleMarkerClick(maker)
@@ -331,8 +337,11 @@ export default function MapScreenV2({
 
         map.on("moveend", syncMarkers)
 
-        // Initial sync once style loads
-        map.on("load", () => syncMarkers())
+        // Initial sync once style loads — resize ensures tiles load if container wasn't fully laid out
+        map.on("load", () => {
+            map.resize()
+            syncMarkers()
+        })
 
         return () => {
             markersRef.current.forEach((m) => m.remove())

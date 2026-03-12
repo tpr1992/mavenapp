@@ -22,6 +22,17 @@
   </head>
   <body>
     <div id="root"><div style="width:100%;max-width:430px;margin:0 auto;height:100vh;background:#121212;display:flex;align-items:center;justify-content:center"><span style="font-family:Playfair Display,serif;font-size:40px;font-weight:700;color:#e8e6e3;letter-spacing:-0.03em">maven</span></div></div>
+    <script>
+      // Early-fetch: start Supabase requests before React boots (~1-2s head start)
+      (function(){
+        var base="https://xsibqwoulhymoptduuca.supabase.co";
+        var key="sb_publishable_MQ2jyGBR_TlX_qwWvV3Z7w_AjK3hqm2";
+        var h={"apikey":key,"Authorization":"Bearer "+key};
+        var cols="id,slug,name,bio,category,city,county,address,country,lat,lng,hero_color,avatar_url,gallery_urls,website_url,instagram_handle,opening_hours,is_featured,is_spotlight,spotlight_quote,is_verified,made_in_ireland,years_active,events,created_at";
+        window.__prefetchMakers=fetch(base+"/rest/v1/makers?select="+encodeURIComponent(cols),{headers:h}).then(function(r){return r.json()}).catch(function(){return null});
+        window.__prefetchStats=fetch(base+"/rest/v1/rpc/get_maker_click_stats",{method:"POST",headers:Object.assign({"Content-Type":"application/json"},h),body:"{}"}).then(function(r){return r.json()}).catch(function(){return null});
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

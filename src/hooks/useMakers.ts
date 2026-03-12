@@ -27,42 +27,74 @@ export default function useMakers(userLocation: UserLocation | null) {
         setLoading(true)
         setError(null)
 
-        const [makersResult, statsResult] = await Promise.all([
-            supabase
-                .from("makers")
-                .select(
-                    "id, slug, name, bio, category, city, county, address, country, lat, lng, hero_color, avatar_url, gallery_urls, website_url, instagram_handle, opening_hours, is_featured, is_spotlight, spotlight_quote, is_verified, made_in_ireland, years_active, events, created_at",
-                ),
-            supabase.rpc("get_maker_click_stats"),
-        ])
+        // Use early-fetched data from index.html if available (first load only)
+        const prefetchedMakers = (window as unknown as Record<string, unknown>).__prefetchMakers as
+            | Promise<Maker[]>
+            | undefined
+        const prefetchedStats = (window as unknown as Record<string, unknown>).__prefetchStats as
+            | Promise<
+                  Array<{
+                      maker_id: string
+                      current_week_clicks: string
+                      previous_week_clicks: string
+                      engagement_score: string
+                  }>
+              >
+            | undefined
 
-        if (makersResult.error) {
-            setError(makersResult.error.message)
-            setLoading(false)
-            return
+        let makersData: Maker[] | null = null
+        let statsData: Array<{
+            maker_id: string
+            current_week_clicks: string
+            previous_week_clicks: string
+            engagement_score: string
+        }> | null = null
+
+        if (prefetchedMakers && prefetchedStats) {
+            // Consume prefetch — only used once
+            delete (window as unknown as Record<string, unknown>).__prefetchMakers
+            delete (window as unknown as Record<string, unknown>).__prefetchStats
+            const [m, s] = await Promise.all([prefetchedMakers, prefetchedStats])
+            if (Array.isArray(m)) makersData = m
+            if (Array.isArray(s)) statsData = s
+        }
+
+        if (!makersData) {
+            // Fallback to normal Supabase fetch
+            const [makersResult, statsResult] = await Promise.all([
+                supabase
+                    .from("makers")
+                    .select(
+                        "id, slug, name, bio, category, city, county, address, country, lat, lng, hero_color, avatar_url, gallery_urls, website_url, instagram_handle, opening_hours, is_featured, is_spotlight, spotlight_quote, is_verified, made_in_ireland, years_active, events, created_at",
+                    ),
+                supabase.rpc("get_maker_click_stats"),
+            ])
+
+            if (makersResult.error) {
+                setError(makersResult.error.message)
+                setLoading(false)
+                return
+            }
+
+            makersData = makersResult.data as Maker[]
+            statsData = statsResult.data as typeof statsData
         }
 
         // Build click stats lookup
         const statsMap: Record<string, MakerClickStats> = {}
-        if (statsResult.data) {
-            for (const row of statsResult.data as Array<{
-                maker_id: string
-                current_week_clicks: string
-                previous_week_clicks: string
-                engagement_score: string
-            }>) {
+        if (statsData) {
+            for (const row of statsData) {
                 const engScore = Number(row.engagement_score)
                 statsMap[row.maker_id] = {
                     maker_id: row.maker_id,
                     current_week_clicks: Number(row.current_week_clicks),
                     previous_week_clicks: Number(row.previous_week_clicks),
-                    // Falls back to current_week_clicks if RPC hasn't been migrated yet
                     engagement_score: isNaN(engScore) ? Number(row.current_week_clicks) : engScore,
                 }
             }
         }
 
-        setRawMakers(makersResult.data as Maker[])
+        setRawMakers(makersData)
         setClickStats(statsMap)
         setLoading(false)
     }, [])
