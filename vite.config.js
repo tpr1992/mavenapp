@@ -4,7 +4,7 @@ import basicSsl from "@vitejs/plugin-basic-ssl"
 
 const cspContent = [
   "default-src 'self'",
-  "script-src 'self' blob:",
+  "script-src 'self' 'unsafe-inline' blob:",
   "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
