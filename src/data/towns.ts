@@ -222,7 +222,7 @@ export const TOWNS: Town[] = [
     { name: "Killybegs", county: "Donegal", lat: 54.6342, lng: -8.4494 },
     { name: "Raphoe", county: "Donegal", lat: 54.8756, lng: -7.5986 },
     { name: "Stranorlar", county: "Donegal", lat: 54.7961, lng: -7.7278 },
-    { name: "Killygordon", county: "Donegal", lat: 54.7808, lng: -7.6439 },
+    { name: "Killygordon", county: "Donegal", lat: 54.7989, lng: -7.6841 },
     { name: "Ballybofey", county: "Donegal", lat: 54.7983, lng: -7.7903 },
     { name: "Lifford", county: "Donegal", lat: 54.8319, lng: -7.4828 },
     { name: "Ramelton", county: "Donegal", lat: 55.0433, lng: -7.65 },
