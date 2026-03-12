@@ -32,6 +32,7 @@ interface DiscoverScreenProps {
     savedIds: Set<string>
     onToggleSave: (id: string) => void
     onScrollToTop: () => void
+    onReset: () => void
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
     locationLabel: string | null
     locationSource: string | null
@@ -61,6 +62,7 @@ export default function DiscoverScreen({
     savedIds,
     onToggleSave,
     onScrollToTop,
+    onReset,
     scrollContainerRef,
     locationLabel,
     locationSource,
@@ -488,6 +490,7 @@ export default function DiscoverScreen({
                 locationSource={locationSource}
                 onLocationPickerOpen={() => setShowLocationPicker(true)}
                 onScrollToTop={onScrollToTop}
+                onReset={onReset}
                 onMakerTap={onMakerTap}
                 makerSuggestions={makerSuggestions}
                 isHidden={isHidden}
