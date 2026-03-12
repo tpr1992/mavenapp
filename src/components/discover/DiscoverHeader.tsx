@@ -42,6 +42,7 @@ interface DiscoverHeaderProps {
     locationSource: string | null
     onLocationPickerOpen: () => void
     onScrollToTop: () => void
+    onReset: () => void
     onMakerTap: (maker: Maker) => void
     makerSuggestions: Maker[]
     isHidden: boolean
@@ -62,6 +63,7 @@ export default function DiscoverHeader({
     locationSource,
     onLocationPickerOpen,
     onScrollToTop,
+    onReset,
     onMakerTap,
     makerSuggestions,
     isHidden,
@@ -498,10 +500,9 @@ export default function DiscoverHeader({
 
     // --- Logo tap (shared between expanded and compact) ---
     const handleLogoTap = useCallback(() => {
-        onScrollToTop()
+        onReset()
         onSearchQueryChange("")
         setSearchOpen(false)
-        onCategoryChange("All")
         barShown.current = false
         wasCompactRef.current = false
         isCompactRef.current = false
@@ -512,7 +513,7 @@ export default function DiscoverHeader({
             bar.style.transform = ""
             bar.style.pointerEvents = ""
         }
-    }, [onScrollToTop, onSearchQueryChange, onCategoryChange])
+    }, [onReset, onSearchQueryChange])
 
     // --- Open search ---
     const handleSearchOpen = useCallback(() => {
@@ -713,7 +714,10 @@ export default function DiscoverHeader({
                                                 >
                                                     <button
                                                         aria-pressed={openNow}
-                                                        onClick={() => onOpenNowChange(!openNow)}
+                                                        onClick={() => {
+                                                            onOpenNowChange(!openNow)
+                                                            onScrollToTop()
+                                                        }}
                                                         style={{
                                                             padding: "4px 10px",
                                                             borderRadius: 100,
@@ -735,9 +739,10 @@ export default function DiscoverHeader({
                                                         <button
                                                             key={cat}
                                                             aria-pressed={category === cat}
-                                                            onClick={() =>
+                                                            onClick={() => {
                                                                 onCategoryChange(category === cat ? "All" : cat)
-                                                            }
+                                                                onScrollToTop()
+                                                            }}
                                                             style={{
                                                                 padding: "4px 10px",
                                                                 borderRadius: 100,

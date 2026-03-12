@@ -1,8 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from "react"
-import { useMotionValue, useMotionValueEvent, animate as motionAnimate } from "framer-motion"
 import { useTheme } from "../../contexts/ThemeContext"
-
-export const TRANSITION_IOS = { type: "tween", duration: 0.55, ease: [0.32, 0.72, 0, 1] }
 
 interface CarouselProps {
     items: unknown[]
@@ -10,7 +7,6 @@ interface CarouselProps {
     renderItem: (item: any, index: number) => React.ReactNode
     loop?: boolean
     autoPlay?: number | false
-    transition?: Record<string, unknown>
     dots?: boolean | "pill" | "mini"
     dotPosition?: "below" | "overlay"
     slideWidth?: string
@@ -30,7 +26,6 @@ const Carousel = memo(function Carousel({
     renderItem,
     loop = false,
     autoPlay = false,
-    transition = TRANSITION_IOS,
     dots = false,
     dotPosition = "below",
     slideWidth = "100%",
@@ -53,9 +48,6 @@ const Carousel = memo(function Carousel({
 
     const [activeIndex, setActiveIndex] = useState(0)
 
-    const scrollMV = useMotionValue(0)
-    const isAnimating = useRef(false)
-    const animCtrl = useRef<{ stop: () => void } | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     // ── Looped array: [...lastN clones, ...items, ...firstN clones] ──
@@ -78,47 +70,6 @@ const Carousel = memo(function Carousel({
             return (((loopIdx - CLONES) % count) + count) % count
         },
         [count],
-    )
-
-    // ── Framer-motion programmatic scroll ──
-    useMotionValueEvent(scrollMV, "change", (v) => {
-        if (isAnimating.current && scrollRef.current) {
-            scrollRef.current.scrollLeft = v
-        }
-    })
-
-    const slideToLoopIndex = useCallback(
-        (loopIdx: number) => {
-            const el = scrollRef.current
-            if (!el) return
-            if (animCtrl.current) animCtrl.current.stop()
-            isAnimating.current = true
-            el.style.scrollSnapType = "none"
-            scrollMV.set(el.scrollLeft)
-            const targetLeft = loopIdx * el.offsetWidth
-            animCtrl.current = motionAnimate(scrollMV, targetLeft, {
-                ...transition,
-                onComplete: () => {
-                    isAnimating.current = false
-                    // Snap to exact pixel to prevent sub-pixel misalignment
-                    el.scrollLeft = Math.round(targetLeft)
-                    // If animation landed in a clone zone, teleport to real zone
-                    const idx = Math.round(el.scrollLeft / el.offsetWidth)
-                    if (idx < CLONES || idx >= CLONES + count) {
-                        if (idx < CLONES) el.scrollLeft += count * el.offsetWidth
-                        else el.scrollLeft -= count * el.offsetWidth
-                    }
-                    scrollMV.set(el.scrollLeft)
-                    // Double-rAF: wait for browser to commit scrollLeft before re-enabling snap
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            el.style.scrollSnapType = "x mandatory"
-                        })
-                    })
-                },
-            })
-        },
-        [scrollMV, count, transition],
     )
 
     // Start at first real slide (index CLONES)
@@ -150,7 +101,7 @@ const Carousel = memo(function Carousel({
     // Shifts by exactly `count` slides — content + neighbours are identical.
     const snapFromClone = useCallback(() => {
         const el = scrollRef.current
-        if (!el || isJumping.current || isAnimating.current || isTouching.current) return
+        if (!el || isJumping.current || isTouching.current) return
         const loopIdx = Math.round(el.scrollLeft / el.offsetWidth)
         if (loopIdx < CLONES || loopIdx >= CLONES + count) {
             isJumping.current = true
@@ -174,7 +125,7 @@ const Carousel = memo(function Carousel({
         if (!el || count <= 1) return
         let rafId = 0
         const onScroll = () => {
-            if (isJumping.current || isAnimating.current) return
+            if (isJumping.current) return
             if (rafId) return
             rafId = requestAnimationFrame(() => {
                 rafId = 0
@@ -214,13 +165,32 @@ const Carousel = memo(function Carousel({
         if (!autoPlay || count <= 1) return
         intervalRef.current = setInterval(() => {
             const el = scrollRef.current
-            if (!el) return
-            const loopIdx = Math.round(el.scrollLeft / el.offsetWidth)
-            const nextLoop = loopIdx + 1
+            if (!el || isJumping.current) return
+            const sw = el.offsetWidth
+            const loopIdx = Math.round(el.scrollLeft / sw)
+            let nextLoop = loopIdx + 1
+
+            // About to scroll into after-clone zone? Pre-teleport backward
+            // so the smooth scroll stays within the real slide range.
+            if (loopable && nextLoop >= CLONES + count) {
+                isJumping.current = true
+                el.style.scrollSnapType = "none"
+                el.scrollLeft -= count * sw
+                el.scrollLeft = Math.round(el.scrollLeft / sw) * sw
+                nextLoop -= count
+                requestAnimationFrame(() => {
+                    el.style.scrollSnapType = "x mandatory"
+                    isJumping.current = false
+                    updateIndex(loopIdxToReal(nextLoop))
+                    el.scrollTo({ left: nextLoop * sw, behavior: "smooth" })
+                })
+                return
+            }
+
             updateIndex(loopIdxToReal(nextLoop))
-            slideToLoopIndex(nextLoop)
+            el.scrollTo({ left: nextLoop * sw, behavior: "smooth" })
         }, autoPlay)
-    }, [autoPlay, count, slideToLoopIndex, updateIndex, loopIdxToReal])
+    }, [autoPlay, count, loopable, updateIndex, loopIdxToReal])
 
     useEffect(() => {
         if (autoPlay) {
@@ -245,7 +215,7 @@ const Carousel = memo(function Carousel({
             const t = setTimeout(() => startTimer(), 600)
             return () => clearTimeout(t)
         }
-    }, [resetKey, loopable, autoPlay, slideToLoopIndex, updateIndex, startTimer])
+    }, [resetKey, loopable, autoPlay, updateIndex, startTimer])
 
     // ── Touch tracking ──
     const handleTouchStart = useCallback(() => {
@@ -263,16 +233,14 @@ const Carousel = memo(function Carousel({
     // ── Pill dot click ──
     const handleDotClick = useCallback(
         (i: number) => {
-            if (loopable) {
-                slideToLoopIndex(CLONES + i)
-            } else {
-                const el = scrollRef.current
-                if (el) el.scrollTo({ left: i * el.offsetWidth, behavior: "smooth" })
-            }
+            const el = scrollRef.current
+            if (!el) return
+            const targetLeft = loopable ? (CLONES + i) * el.offsetWidth : i * el.offsetWidth
+            el.scrollTo({ left: targetLeft, behavior: "smooth" })
             updateIndex(i)
             if (autoPlay) startTimer()
         },
-        [loopable, slideToLoopIndex, updateIndex, autoPlay, startTimer],
+        [loopable, updateIndex, autoPlay, startTimer],
     )
 
     if (!items.length) return null

@@ -48,7 +48,7 @@ export default function CategoryPills({
         fontWeight: 500,
         cursor: "pointer",
         whiteSpace: "nowrap" as const,
-        transition: "all 0.2s ease",
+        transition: "background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
         letterSpacing: "0.01em",
         boxShadow: useGlass && !active ? g.boxShadow : elevated && !active ? "0 1px 4px rgba(0,0,0,0.1)" : undefined,
         backdropFilter: useGlass && !active ? g.backdropFilter : undefined,
@@ -122,7 +122,8 @@ export default function CategoryPills({
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                transition: "all 0.2s ease",
+                                transition:
+                                    "background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
                                 boxShadow: feedLayout === "grid" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                             }}
                         >
@@ -157,7 +158,8 @@ export default function CategoryPills({
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                transition: "all 0.2s ease",
+                                transition:
+                                    "background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
                                 boxShadow: feedLayout === "single" ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                             }}
                         >

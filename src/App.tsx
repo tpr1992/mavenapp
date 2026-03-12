@@ -112,6 +112,19 @@ export default function App() {
         history.back()
     }, [])
 
+    const handleScrollToTop = useCallback(() => {
+        if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
+    }, [])
+
+    const resetDiscover = useCallback(() => {
+        refetch()
+        setDiscoverKey((k) => k + 1)
+        setDiscoverCategory("All")
+        setDiscoverOpenNow(false)
+        tabScrollRef.current["discover"] = 0
+        handleScrollToTop()
+    }, [refetch, handleScrollToTop])
+
     const handleTabChange = useCallback(
         (tab: string) => {
             if (containerRef.current) tabScrollRef.current[activeTab] = containerRef.current.scrollTop
@@ -119,26 +132,15 @@ export default function App() {
             setSelectedMaker(null)
             setActiveTab(tab)
             if (tab === "discover") {
-                refetch()
-                setDiscoverKey((k) => k + 1)
-                setDiscoverCategory("All")
-                setDiscoverOpenNow(false)
-                tabScrollRef.current["discover"] = 0
-                requestAnimationFrame(() => {
-                    if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
-                })
+                resetDiscover()
             } else {
                 requestAnimationFrame(() => {
                     if (containerRef.current) containerRef.current.scrollTop = tabScrollRef.current[tab] || 0
                 })
             }
         },
-        [activeTab, refetch],
+        [activeTab, resetDiscover],
     )
-
-    const handleScrollToTop = useCallback(() => {
-        if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "smooth" })
-    }, [])
 
     const handleToggleSave = useCallback(
         (makerId: string) => {
@@ -155,10 +157,7 @@ export default function App() {
 
     const handleLogoTap = useCallback(() => {
         handleTabChange("discover")
-        handleScrollToTop()
-        setDiscoverCategory("All")
-        setDiscoverOpenNow(false)
-    }, [handleTabChange, handleScrollToTop])
+    }, [handleTabChange])
 
     // Replace initial history entry with proper state
     useEffect(() => {
@@ -317,6 +316,7 @@ export default function App() {
                             savedIds={savedIds}
                             onToggleSave={handleToggleSave}
                             onScrollToTop={handleScrollToTop}
+                            onReset={resetDiscover}
                             scrollContainerRef={containerRef}
                             locationLabel={locationLabel}
                             locationSource={locationSource}
@@ -349,7 +349,7 @@ export default function App() {
                     transform: `translateX(-50%) translateY(${authToast ? "0" : "20px"})`,
                     opacity: authToast ? 1 : 0,
                     pointerEvents: authToast ? "auto" : "none",
-                    transition: "all 0.3s ease",
+                    transition: "opacity 0.3s ease, transform 0.3s ease",
                     zIndex: 100,
                 }}
             >

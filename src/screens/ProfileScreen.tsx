@@ -661,8 +661,9 @@ export default function ProfileScreen({
                                     background: !isDark ? theme.bg : "#fff",
                                     position: "absolute",
                                     top: 3,
-                                    left: !isDark ? 23 : 3,
-                                    transition: "left 0.2s ease",
+                                    left: 3,
+                                    transform: !isDark ? "translateX(20px)" : "none",
+                                    transition: "transform 0.2s ease",
                                     boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
                                 }}
                             />
@@ -716,7 +717,7 @@ export default function ProfileScreen({
                                         fontSize: 12.5,
                                         fontWeight: feedLayout === opt ? 600 : 400,
                                         color: feedLayout === opt ? theme.text : theme.textMuted,
-                                        transition: "all 0.2s ease",
+                                        transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease",
                                         boxShadow: feedLayout === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                                     }}
                                 >
@@ -772,8 +773,9 @@ export default function ProfileScreen({
                                     background: isDebug ? theme.bg : "#fff",
                                     position: "absolute",
                                     top: 3,
-                                    left: isDebug ? 23 : 3,
-                                    transition: "left 0.2s ease",
+                                    left: 3,
+                                    transform: isDebug ? "translateX(20px)" : "none",
+                                    transition: "transform 0.2s ease",
                                     boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
                                 }}
                             />

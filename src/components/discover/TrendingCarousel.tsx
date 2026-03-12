@@ -3,7 +3,7 @@ import { useTheme } from "../../contexts/ThemeContext"
 import { isOpenNow } from "../../utils/time"
 import { formatLocationName } from "../../utils/distance"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
-import Carousel, { TRANSITION_IOS } from "../ui/Carousel"
+import Carousel from "../ui/Carousel"
 import type { Maker } from "../../types"
 
 interface TrendingCardProps {
@@ -221,7 +221,6 @@ export default memo(function TrendingCarousel({
             )}
             loop
             autoPlay={7000}
-            transition={TRANSITION_IOS}
             dots="pill"
             resetKey={resetKey}
         />

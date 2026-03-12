@@ -113,7 +113,8 @@ export default memo(function MakerProfileHeader({
 
     // ── Morph styles ──
     const glass = glassBarStyle(isDark)
-    const t = "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)"
+    const t =
+        "background 0.3s cubic-bezier(0.32, 0.72, 0, 1), border-color 0.3s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1), width 0.3s cubic-bezier(0.32, 0.72, 0, 1), height 0.3s cubic-bezier(0.32, 0.72, 0, 1)"
     const btnSize = isCompact ? 32 : 36
 
     const btnStyle: React.CSSProperties = {

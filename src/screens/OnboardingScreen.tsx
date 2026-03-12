@@ -333,7 +333,8 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                             height: 8,
                             borderRadius: 100,
                             background: step === i ? theme.text : theme.border,
-                            transition: "all 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+                            transition:
+                                "width 0.3s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
                         }}
                     />
                 ))}
