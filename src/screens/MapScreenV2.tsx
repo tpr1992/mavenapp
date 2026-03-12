@@ -105,7 +105,7 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
 // ── Cluster element factory ──
 
 function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
-    const bg = isDark ? "#e8e6e3" : "rgba(255,255,255,0.65)"
+    const bg = isDark ? "#e8e6e3" : "rgba(255,255,255,0.5)"
     const color = isDark ? "#1a1a1a" : "#1a1a1a"
     const border = isDark ? "none" : "1px solid rgba(0,0,0,0.08)"
     const backdrop = isDark ? "none" : "blur(16px) saturate(1.4)"
