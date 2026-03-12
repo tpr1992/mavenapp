@@ -37,7 +37,7 @@ Morphs between hero-overlay mode (transparent bg, glass buttons over hero image)
 
 - `isCompact` is driven externally by `MakerProfile` via IntersectionObserver on the hero element
 - Includes a 3-dot menu with iOS-style scale animation, auto-closes on scroll or tap-outside
-- Transition curve: `all 0.3s cubic-bezier(0.32, 0.72, 0, 1)` (iOS ease — overshoot is safe here because `height: 0` means nothing below bounces)
+- Transition curve: `background 0.3s ..., border-color 0.3s ..., box-shadow 0.3s ..., width 0.3s ..., height 0.3s ... cubic-bezier(0.32, 0.72, 0, 1)` (iOS ease — scoped to specific properties for compositor optimization, overshoot is safe here because `height: 0` means nothing below bounces)
 
 ---
 

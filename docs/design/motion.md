@@ -5,7 +5,8 @@ Motion is a core part of Maven's feel. These conventions apply app-wide.
 ## When to Animate vs Snap
 
 - **Animate** user-triggered state changes (compact/expanded, show/hide, filter selection). The user should see the consequence of their action.
-- **Snap** (no transition) for initial render, programmatic resets (logo tap -> scroll to top), and any property change that would cause layout thrash if animated (e.g., `position`, `display`, `overflow`).
+- **Snap** (no transition) for initial render, clone-zone teleports (carousel loop), and any property change that would cause layout thrash if animated (e.g., `position`, `display`, `overflow`).
+- **Smooth reset** for user-triggered resets (logo tap, discover tab tap) — carousels animate to slide 0 via `scrollTo({ behavior: "smooth" })`, not instant snap.
 - **Never animate on mount.** Elements should appear in their final state. Exception: `fadeSlideIn` for screen-level entrance.
 
 ## Durations
@@ -53,3 +54,26 @@ For gestures that carry finger velocity — like the image gallery swipe — CSS
 | Settle threshold | `< 0.5px` displacement, `< 50px/s` velocity | When to snap to final position |
 
 The spring carries the finger's release velocity into the animation, decelerating naturally. This matches iOS Photos app behavior. See [image-gallery.md](../components/image-gallery.md) for full details.
+
+## Transition Scoping Rule
+
+**Never use `transition: "all ..."`**. Always list specific properties:
+
+```tsx
+// Bad — catches layout properties, prevents compositor optimization
+transition: "all 0.2s ease"
+
+// Good — only animates visual properties on compositor thread
+transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"
+```
+
+`all` transitions are banned because they animate `width`, `height`, `margin`, and other layout properties even when only color/opacity changes are intended, forcing main-thread reflow on every frame.
+
+## Compositor-Thread Animations
+
+Prefer native browser mechanisms over JS-driven alternatives:
+
+- **`scrollTo({ behavior: "smooth" })`** — compositor thread, native refresh rate. Used for all Carousel navigation (autoplay, dot clicks, resets).
+- **`transform: translateX()`** — compositor-friendly position changes. Use instead of `left` property for slide/toggle animations.
+- **CSS `transition`** on `transform`, `opacity` — these run on compositor thread when properly scoped.
+- **`height` animations** are inherently main-thread — acceptable for infrequent transitions (SwipeableMapCard expand/collapse) but avoid in scroll-driven animations.

@@ -38,6 +38,7 @@ Hooks run in App.tsx so data is ready before screens mount (prevents flash on ta
 - **Fire-and-forget writes**: Click recording is non-blocking.
 - **Silent degradation**: Failed queries return empty arrays, no error UI.
 - **Height:0 sticky overlay**: Both headers use `position: sticky; height: 0` so content scrolls behind naturally. See [sticky-headers.md](../components/sticky-headers.md).
+- **Unified discover reset**: `resetDiscover()` in App.tsx consolidates all discover feed reset logic — refetches data, increments `discoverKey` (resets carousels), clears category/openNow filters, and scrolls to top. Called by both logo tap and discover tab tap via `handleTabChange("discover")`. DiscoverHeader's logo tap calls `onReset` which routes to the same function.
 
 ## Component Skeletons
 
