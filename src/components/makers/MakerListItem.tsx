@@ -133,7 +133,7 @@ export default memo(function MakerListItem({
                         border: "none",
                         cursor: "pointer",
                         padding: 10,
-                        color: isSaved ? "#c53030" : theme.textMuted,
+                        color: isSaved ? "#fc8181" : theme.textMuted,
                         transition: "transform 0.2s ease",
                         display: "flex",
                         alignItems: "center",

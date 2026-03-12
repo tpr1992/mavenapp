@@ -121,7 +121,7 @@ export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTa
                             padding: "6px 16px",
                             position: "relative",
                             transition: "opacity 0.2s ease",
-                            opacity: isActive ? 1 : 0.45,
+                            opacity: isActive ? 1 : isDark ? 0.45 : 0.55,
                         }}
                     >
                         <span style={{ lineHeight: 0, color: theme.text }}>
