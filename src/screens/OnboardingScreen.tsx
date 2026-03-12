@@ -104,6 +104,12 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
         }
     }
 
+    const fadeIn = (delay: number): React.CSSProperties => ({
+        opacity: 0,
+        transform: "translateY(10px)",
+        animation: `fadeSlideIn 1.2s ease ${delay}s forwards`,
+    })
+
     const renderWelcome = () => (
         <div
             style={{
@@ -124,6 +130,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     color: theme.text,
                     margin: 0,
                     letterSpacing: "-0.03em",
+                    ...fadeIn(0.1),
                 }}
             >
                 maven
@@ -137,6 +144,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     textAlign: "center",
                     lineHeight: 1.5,
                     maxWidth: 280,
+                    ...fadeIn(0.3),
                 }}
             >
                 Discover local makers &amp; craftspeople in Galway
@@ -158,6 +166,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     cursor: "pointer",
                     letterSpacing: "0.01em",
                     transition: "transform 0.15s ease, opacity 0.15s ease",
+                    ...fadeIn(0.5),
                 }}
                 onMouseDown={(e) => {
                     e.currentTarget.style.transform = "scale(0.97)"

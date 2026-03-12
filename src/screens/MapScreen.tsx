@@ -106,6 +106,9 @@ export default function MapScreen({
             zoom: 13,
             zoomControl: false,
             attributionControl: false,
+            zoomSnap: 0.25,
+            zoomDelta: 0.5,
+            wheelDebounceTime: 80,
         })
 
         const tileUrl = isDark
@@ -117,6 +120,9 @@ export default function MapScreen({
                 '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
             subdomains: "abcd",
             maxZoom: 19,
+            keepBuffer: 6,
+            updateWhenZooming: false,
+            updateWhenIdle: true,
         }).addTo(map)
 
         L.control.attribution({ position: "topleft", prefix: false }).addTo(map)
