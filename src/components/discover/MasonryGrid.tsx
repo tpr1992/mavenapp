@@ -301,6 +301,7 @@ export default memo(function MasonryGrid({
                                 e.stopPropagation()
                                 onToggleSave(maker.id)
                             }}
+                            aria-label={savedIds.has(maker.id) ? `Unsave ${maker.name}` : `Save ${maker.name}`}
                             style={{
                                 background: "none",
                                 border: "none",
@@ -308,7 +309,7 @@ export default memo(function MasonryGrid({
                                 padding: 0,
                                 lineHeight: 1,
                                 flexShrink: 0,
-                                color: savedIds.has(maker.id) ? "#c53030" : theme.textMuted,
+                                color: savedIds.has(maker.id) ? "#fc8181" : theme.textMuted,
                                 display: "flex",
                                 alignItems: "center",
                             }}
@@ -358,6 +359,7 @@ export default memo(function MasonryGrid({
             <div style={{ height: ad.tile_height || 200, position: "relative", overflow: "hidden" }}>
                 <img
                     src={optimizeImageUrl(ad.image_url, 300) ?? undefined}
+                    srcSet={imageSrcSet(ad.image_url, 300)}
                     alt={ad.brand}
                     loading="lazy"
                     decoding="async"
@@ -369,7 +371,7 @@ export default memo(function MasonryGrid({
                     }}
                 />
             </div>
-            <div style={{ padding: "8px 10px 9px", minWidth: 0, overflow: "hidden" }}>
+            <div style={{ padding: singleColumn ? "10px 12px 11px" : "8px 10px 9px", minWidth: 0, overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <span
                         style={{

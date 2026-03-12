@@ -45,6 +45,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                     onChange={(e) => onChange(e.target.value)}
                     onFocus={onFocus}
                     onBlur={onBlur}
+                    aria-label={placeholder}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {
                             onSubmit?.()
@@ -66,6 +67,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                 {value && (
                     <button
                         onClick={() => onChange("")}
+                        aria-label="Clear search"
                         style={{
                             width: 22,
                             height: 22,

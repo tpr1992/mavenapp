@@ -6,13 +6,14 @@ import MakerAvatar from "../ui/MakerAvatar"
 import HighlightMatch from "../ui/HighlightMatch"
 import { formatLocation } from "../../utils/distance"
 import type { Maker } from "../../types"
+import { storageGet, storageSet, storageRemove } from "../../utils/storage"
 
-const RECENT_KEY = "maven-recent-searches"
+const RECENT_KEY = "maven-recent-searches" as const
 const MAX_RECENT = 5
 
 function getRecentSearches(): string[] {
     try {
-        return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]")
+        return JSON.parse(storageGet(RECENT_KEY) || "[]")
     } catch {
         return []
     }
@@ -23,11 +24,11 @@ function saveRecentSearch(query: string) {
     if (!trimmed) return
     const recent = getRecentSearches().filter((s) => s !== trimmed)
     recent.unshift(trimmed)
-    localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)))
+    storageSet(RECENT_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)))
 }
 
 function clearRecentSearches() {
-    localStorage.removeItem(RECENT_KEY)
+    storageRemove(RECENT_KEY)
 }
 
 interface DiscoverHeaderProps {
@@ -620,6 +621,8 @@ export default function DiscoverHeader({
                                     <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
                                         {/* Location picker — always in flow (determines height), fades out */}
                                         <div
+                                            role={!isCompact ? "button" : undefined}
+                                            aria-label={!isCompact ? "Change location" : undefined}
                                             onClick={!isCompact ? onLocationPickerOpen : undefined}
                                             style={{
                                                 display: "flex",
@@ -714,6 +717,7 @@ export default function DiscoverHeader({
                                                 >
                                                     <button
                                                         aria-pressed={openNow}
+                                                        aria-label="Filter by open now"
                                                         onClick={() => {
                                                             onOpenNowChange(!openNow)
                                                             onScrollToTop()
@@ -739,6 +743,7 @@ export default function DiscoverHeader({
                                                         <button
                                                             key={cat}
                                                             aria-pressed={category === cat}
+                                                            aria-label={`Filter by ${cat}`}
                                                             onClick={() => {
                                                                 onCategoryChange(category === cat ? "All" : cat)
                                                                 onScrollToTop()

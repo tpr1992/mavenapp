@@ -167,8 +167,13 @@ export default function App() {
 
     // Preload map chunk so first tab switch is instant
     useEffect(() => {
-        const id = setTimeout(mapImport, 1000)
-        return () => clearTimeout(id)
+        if ("requestIdleCallback" in window) {
+            const id = requestIdleCallback(mapImport)
+            return () => cancelIdleCallback(id)
+        } else {
+            const id = setTimeout(mapImport, 2000)
+            return () => clearTimeout(id)
+        }
     }, [])
 
     // Listen to popstate (browser back/forward)

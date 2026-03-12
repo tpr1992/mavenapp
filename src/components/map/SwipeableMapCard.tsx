@@ -99,7 +99,12 @@ export default memo(function SwipeableMapCard({
                         setBouncing(true)
                         setIsDragging(false)
                         setDragOffset(0)
-                        setTimeout(() => setBouncing(false), 600)
+                        const card = cardRef.current
+                        if (card) {
+                            const clearBounce = () => setBouncing(false)
+                            card.addEventListener("transitionend", clearBounce, { once: true })
+                            setTimeout(clearBounce, 800)
+                        }
                     }
                 } else if (velocity > 800 || dy > 60) {
                     dismiss()
@@ -124,13 +129,23 @@ export default memo(function SwipeableMapCard({
                         setBouncing(true)
                         setIsDragging(false)
                         setDragOffset(0)
-                        setTimeout(() => setBouncing(false), 600)
+                        const card = cardRef.current
+                        if (card) {
+                            const clearBounce = () => setBouncing(false)
+                            card.addEventListener("transitionend", clearBounce, { once: true })
+                            setTimeout(clearBounce, 800)
+                        }
                     }
                 } else if (dy < -5) {
                     setBouncing(true)
                     setIsDragging(false)
                     setDragOffset(0)
-                    setTimeout(() => setBouncing(false), 600)
+                    const card = cardRef.current
+                    if (card) {
+                        const clearBounce = () => setBouncing(false)
+                        card.addEventListener("transitionend", clearBounce, { once: true })
+                        setTimeout(clearBounce, 800)
+                    }
                 } else {
                     setIsDragging(false)
                     setDragOffset(0)
@@ -301,6 +316,8 @@ export default memo(function SwipeableMapCard({
     return (
         <div
             ref={cardRef}
+            role="region"
+            aria-label={`${maker.name} details`}
             style={{
                 position: "absolute",
                 bottom: 0,
@@ -313,6 +330,7 @@ export default memo(function SwipeableMapCard({
                 background: g.background,
                 backdropFilter: g.backdropFilter,
                 WebkitBackdropFilter: g.WebkitBackdropFilter,
+                paddingBottom: "env(safe-area-inset-bottom, 0px)",
                 borderRadius: "18px 18px 0 0",
                 boxShadow: g.boxShadow,
                 borderTop: g.border,
@@ -467,7 +485,7 @@ export default memo(function SwipeableMapCard({
                                 src={thumbUrl}
                                 srcSet={thumbSrcSet}
                                 alt=""
-                                loading="lazy"
+                                loading="eager"
                                 decoding="async"
                                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                             />
@@ -478,6 +496,7 @@ export default memo(function SwipeableMapCard({
                             e.stopPropagation()
                             onToggleSave(maker.id)
                         }}
+                        aria-label={isSaved ? `Unsave ${maker.name}` : `Save ${maker.name}`}
                         style={{
                             width: 36,
                             height: 36,
@@ -611,6 +630,7 @@ export default memo(function SwipeableMapCard({
                             href={`https://www.google.com/maps/dir/?api=1&destination=${maker.lat},${maker.lng}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label={`Get directions to ${maker.name}`}
                             onClick={(e) => e.stopPropagation()}
                             style={{
                                 display: "flex",
@@ -647,6 +667,7 @@ export default memo(function SwipeableMapCard({
                                 href={maker.website_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label={`Visit ${maker.name} website`}
                                 onClick={(e) => e.stopPropagation()}
                                 style={{
                                     display: "flex",
@@ -686,6 +707,7 @@ export default memo(function SwipeableMapCard({
                                 e.stopPropagation()
                                 onTap(maker)
                             }}
+                            aria-label={`View full profile for ${maker.name}`}
                             style={{
                                 display: "flex",
                                 alignItems: "center",

@@ -1,14 +1,15 @@
 import { useState, useCallback } from "react"
+import { storageGet, storageSet } from "../utils/storage"
 
-const COMPLETE_KEY = "maven_onboarding_complete"
+const COMPLETE_KEY = "maven_onboarding_complete" as const
 
 export default function useOnboarding() {
     const [isComplete, setIsComplete] = useState(() => {
-        return localStorage.getItem(COMPLETE_KEY) === "true"
+        return storageGet(COMPLETE_KEY) === "true"
     })
 
     const completeOnboarding = useCallback(() => {
-        localStorage.setItem(COMPLETE_KEY, "true")
+        storageSet(COMPLETE_KEY, "true")
         setIsComplete(true)
     }, [])
 

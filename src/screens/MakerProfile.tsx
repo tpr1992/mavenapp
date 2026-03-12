@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
-import { optimizeImageUrl } from "../utils/image"
+import { optimizeImageUrl, imageSrcSet } from "../utils/image"
 import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow, getTodayHours } from "../utils/time"
 
@@ -354,6 +354,7 @@ function WorkTab({
                                 >
                                     <img
                                         src={optimizeImageUrl(url, 300) ?? undefined}
+                                        srcSet={imageSrcSet(url, 300)}
                                         alt={`${maker.name} ${originalIndex + 1}`}
                                         loading="lazy"
                                         decoding="async"
@@ -474,6 +475,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                         >
                             <img
                                 src={optimizeImageUrl(url, 150) ?? undefined}
+                                srcSet={imageSrcSet(url, 150) ?? undefined}
                                 alt={`${maker.name} instagram ${i + 1}`}
                                 loading="lazy"
                                 decoding="async"
@@ -553,6 +555,18 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
 function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const events = maker.events || []
 
+    const parsedDates = useMemo(
+        () =>
+            events.map((event) => {
+                const date = new Date(event.date)
+                return {
+                    day: date.getDate(),
+                    month: date.toLocaleString("en", { month: "short" }),
+                }
+            }),
+        [events],
+    )
+
     return (
         <div>
             <div
@@ -589,9 +603,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
 
             <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 }}>
                 {events.map((event, i) => {
-                    const date = new Date(event.date)
-                    const day = date.getDate()
-                    const month = date.toLocaleString("en", { month: "short" })
+                    const { day, month } = parsedDates[i]
 
                     return (
                         <div

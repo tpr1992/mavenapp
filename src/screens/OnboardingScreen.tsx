@@ -151,6 +151,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </p>
             <button
                 onClick={goNext}
+                aria-label="Get started"
                 style={{
                     width: "100%",
                     maxWidth: 320,
@@ -234,6 +235,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </p>
             <button
                 onClick={handleLocationAllow}
+                aria-label="Allow location access"
                 style={{
                     width: "100%",
                     maxWidth: 320,
@@ -266,6 +268,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </button>
             <button
                 onClick={handleLocationSkip}
+                aria-label="Skip location access"
                 style={{
                     marginTop: 12,
                     padding: "8px 16px",

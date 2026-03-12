@@ -71,6 +71,7 @@ export default function CategoryPills({
                 {showOpenNow && (
                     <button
                         aria-pressed={openNowActive}
+                        aria-label="Filter by open now"
                         onClick={onToggleOpenNow}
                         style={{
                             ...pillStyle(openNowActive),
@@ -92,6 +93,7 @@ export default function CategoryPills({
                     <button
                         key={cat}
                         aria-pressed={selected === cat}
+                        aria-label={`Filter by ${cat}`}
                         onClick={() => onSelect(selected === cat ? "All" : cat)}
                         style={pillStyle(selected === cat)}
                     >
@@ -112,6 +114,8 @@ export default function CategoryPills({
                     >
                         <button
                             onClick={() => onFeedLayoutChange("grid")}
+                            aria-label="Grid view"
+                            aria-pressed={feedLayout === "grid"}
                             style={{
                                 width: 28,
                                 height: 24,
@@ -148,6 +152,8 @@ export default function CategoryPills({
                         </button>
                         <button
                             onClick={() => onFeedLayoutChange("single")}
+                            aria-label="Single column view"
+                            aria-pressed={feedLayout === "single"}
                             style={{
                                 width: 28,
                                 height: 24,

@@ -276,6 +276,7 @@ export default memo(function ImageGalleryModal({
         <div
             role="dialog"
             aria-modal="true"
+            aria-label="Image gallery"
             style={{
                 position: "fixed",
                 inset: 0,

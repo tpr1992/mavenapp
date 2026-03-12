@@ -1,5 +1,5 @@
 import { memo } from "react"
-import { optimizeImageUrl } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
 
@@ -77,6 +77,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                             >
                                                 <img
                                                     src={optimizeImageUrl(heroUrl, 300) ?? undefined}
+                                                    srcSet={imageSrcSet(heroUrl, 300)}
                                                     alt={m.name}
                                                     loading="lazy"
                                                     decoding="async"

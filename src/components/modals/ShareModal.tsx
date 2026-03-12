@@ -72,6 +72,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                     href={directionsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`Get directions to ${maker.name}`}
                     onClick={onClose}
                     style={{
                         width: "100%",
@@ -199,6 +200,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                     </span>
                     <button
                         onClick={handleCopy}
+                        aria-label={copied ? "Link copied" : "Copy share link"}
                         style={{
                             padding: "10px 18px",
                             borderRadius: 10,
@@ -254,6 +256,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         <button
                             key={opt.label}
                             onClick={opt.action}
+                            aria-label={`Share via ${opt.label}`}
                             style={{
                                 flex: 1,
                                 display: "flex",

@@ -317,7 +317,7 @@ export default memo(function MakerProfileHeader({
                     >
                         <button
                             onClick={() => onToggleSave(maker.id)}
-                            aria-label={isSaved ? "Unsave" : "Save"}
+                            aria-label={isSaved ? `Unsave ${maker.name}` : `Save ${maker.name}`}
                             style={{
                                 ...btnStyle,
                                 color: isSaved ? "#fc8181" : isCompact ? theme.textMuted : "rgba(255,255,255,0.85)",
