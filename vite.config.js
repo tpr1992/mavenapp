@@ -4,11 +4,12 @@ import basicSsl from "@vitejs/plugin-basic-ssl"
 
 const cspContent = [
   "default-src 'self'",
-  "script-src 'self'",
+  "script-src 'self' blob:",
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
   "img-src 'self' data: https: blob:",
-  "connect-src 'self' https://xsibqwoulhymoptduuca.supabase.co wss://xsibqwoulhymoptduuca.supabase.co",
+  "connect-src 'self' https://xsibqwoulhymoptduuca.supabase.co wss://xsibqwoulhymoptduuca.supabase.co https://*.basemaps.cartocdn.com",
   "frame-ancestors 'none'",
 ].join("; ")
 
@@ -36,7 +37,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ["react", "react-dom"],
-          leaflet: ["leaflet"],
           supabase: ["@supabase/supabase-js"],
         },
       },
