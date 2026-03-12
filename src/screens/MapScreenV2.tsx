@@ -274,9 +274,10 @@ export default function MapScreenV2({
             } else {
                 // ── Individual pin marker ──
                 const id = props.id as string
-                activeKeys.add(id)
                 const maker = lookup.get(id)
                 if (!maker) continue
+
+                activeKeys.add(id)
 
                 const existing = markersRef.current.get(id)
                 if (existing) {
@@ -337,7 +338,7 @@ export default function MapScreenV2({
     // ── Rebuild Supercluster index when data or theme changes ──
     useEffect(() => {
         const index = new Supercluster({
-            radius: 30,
+            radius: 40,
             maxZoom: 17,
             minPoints: 2,
         })
