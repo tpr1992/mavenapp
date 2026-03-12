@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useCallback, memo, useMemo } from "react"
-import { motion } from "framer-motion"
 import CategoryIcon from "../ui/CategoryIcon"
 import { formatLocation } from "../../utils/distance"
 import { safeOpen } from "../../utils/safeOpen"
@@ -65,9 +64,6 @@ const patternShapes = [
     ["○", "◆", "▽"],
     ["□", "△", "◇"],
 ]
-
-const filterSpring = { type: "spring" as const, stiffness: 180, damping: 22, mass: 1.0 }
-const mountSpring = { type: "spring" as const, stiffness: 150, damping: 20, mass: 1.0 }
 
 interface MasonryGridProps {
     allMakers: Maker[]
@@ -178,22 +174,18 @@ export default memo(function MasonryGrid({
         const shapes = patternShapes[(parseInt(maker.id) - 1) % patternShapes.length]
         const hidden = !visibleIds.has(maker.id)
         return (
-            <motion.div
+            <div
                 key={maker.id}
                 className="card-offscreen"
                 {...(hidden ? {} : tapProps(() => onMakerTap(maker)))}
-                initial={hasAnimated.current ? false : { opacity: 0, y: 8 }}
-                animate={hidden ? { opacity: 0, scale: 0.97 } : { opacity: 1, y: 0, scale: 1 }}
-                transition={
-                    hasAnimated.current
-                        ? { ...filterSpring, delay: idx * 0.02 }
-                        : { ...mountSpring, delay: col * 0.04 + idx * 0.025 }
-                }
                 style={{
                     background: "transparent",
                     cursor: hidden ? "default" : "pointer",
                     display: hidden ? "none" : undefined,
                     contain: "layout style paint",
+                    animation: hasAnimated.current
+                        ? "none"
+                        : `fadeSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) ${col * 0.04 + idx * 0.025}s both`,
                 }}
             >
                 <div
@@ -342,7 +334,7 @@ export default memo(function MasonryGrid({
                         {formatLocation(maker)}
                     </div>
                 </div>
-            </motion.div>
+            </div>
         )
     }
 
