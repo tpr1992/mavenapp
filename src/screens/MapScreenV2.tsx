@@ -260,7 +260,7 @@ export default function MapScreenV2({
                     if (!ci || !map) return
                     const expZoom = ci.getClusterExpansionZoom(clkId)
                     // Cap zoom for small clusters — no need to dive to street level
-                    const cap = clkCount <= 3 ? 16 : clkCount <= 8 ? 17 : 18
+                    const cap = clkCount <= 3 ? 18 : clkCount <= 8 ? 17 : 18
                     const targetZoom = Math.min(Math.max(expZoom, map.getZoom() + 2), cap)
                     map.easeTo({
                         center: clkCoords,
@@ -337,7 +337,7 @@ export default function MapScreenV2({
     // ── Rebuild Supercluster index when data or theme changes ──
     useEffect(() => {
         const index = new Supercluster({
-            radius: 50,
+            radius: 30,
             maxZoom: 17,
             minPoints: 2,
         })

@@ -24,10 +24,8 @@ import type { Theme } from "./types"
 import SavedScreen from "./screens/SavedScreen"
 import ProfileScreen from "./screens/ProfileScreen"
 
-const mapImport = () => import("./screens/MapScreen")
+const mapImport = () => import("./screens/MapScreenV2")
 const MapScreen = lazy(mapImport)
-const mapV2Import = () => import("./screens/MapScreenV2")
-const MapScreenV2 = lazy(mapV2Import)
 const OnboardingScreen = lazy(() => import("./screens/OnboardingScreen"))
 
 function getStateFromURL() {
@@ -56,7 +54,6 @@ function ScreenPlaceholder({ theme }: { theme: Theme }) {
 
 export default function App() {
     const initialURL = useRef(getStateFromURL())
-    const useMapV1 = useRef(new URLSearchParams(window.location.search).has("mapv1"))
     const [activeTab, setActiveTab] = useState(initialURL.current.tab)
     const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null)
     const deepLinkResolved = useRef(false)
@@ -170,7 +167,7 @@ export default function App() {
 
     // Preload map chunk so first tab switch is instant
     useEffect(() => {
-        const id = setTimeout(!useMapV1.current ? mapV2Import : mapImport, 1000)
+        const id = setTimeout(mapImport, 1000)
         return () => clearTimeout(id)
     }, [])
 
@@ -231,11 +228,10 @@ export default function App() {
         switch (activeTab) {
             case "discover":
                 return null
-            case "map": {
-                const ActiveMap = !useMapV1.current ? MapScreenV2 : MapScreen
+            case "map":
                 return (
                     <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                        <ActiveMap
+                        <MapScreen
                             makers={makers}
                             onMakerTap={handleMakerTap}
                             savedIds={savedIds}
@@ -245,7 +241,6 @@ export default function App() {
                         />
                     </Suspense>
                 )
-            }
             case "saved":
                 return (
                     <SavedScreen
