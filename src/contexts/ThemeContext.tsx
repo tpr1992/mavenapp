@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useMemo, useCallback, type ReactNode } from "react"
 import type { Theme } from "../types"
+import { storageGet, storageSet } from "../utils/storage"
 
 interface ThemeContextValue {
     isDark: boolean
@@ -42,7 +43,7 @@ const DARK: Theme = {
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [isDark, setIsDark] = useState(() => {
         try {
-            const stored = localStorage.getItem("maven_dark_mode")
+            const stored = storageGet("maven_dark_mode")
             return stored === null ? true : stored === "true"
         } catch {
             return true
@@ -52,7 +53,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         document.body.style.background = isDark ? DARK.bg : LIGHT.bg
         try {
-            localStorage.setItem("maven_dark_mode", String(isDark))
+            storageSet("maven_dark_mode", String(isDark))
         } catch {}
     }, [isDark])
 

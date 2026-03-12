@@ -52,6 +52,8 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
     const scale = isSelected ? "scale(1.1)" : "scale(1)"
 
     const el = document.createElement("div")
+    el.setAttribute("role", "button")
+    el.setAttribute("aria-label", `View ${maker.name}`)
     el.style.cursor = "pointer"
     el.style.opacity = "0"
     el.style.transition = "opacity 0.2s ease"
@@ -113,6 +115,8 @@ function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
     const sz = count >= 10 ? 40 : 34
 
     const el = document.createElement("div")
+    el.setAttribute("role", "button")
+    el.setAttribute("aria-label", `Cluster of ${count} makers, click to zoom in`)
     el.style.cursor = "pointer"
     el.style.opacity = "0"
     el.style.transition = "opacity 0.15s ease"
@@ -495,6 +499,7 @@ export default function MapScreenV2({
                             {townSuggestions.map((town, i) => (
                                 <div
                                     key={town.name + town.county}
+                                    role="option"
                                     onClick={() => handleSelectTown(town)}
                                     style={{
                                         padding: "11px 16px",

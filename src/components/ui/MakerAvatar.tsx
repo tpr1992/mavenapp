@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Maker } from "../../types"
 import { getInitials } from "../../utils/time"
-import { optimizeImageUrl, IMG_QUALITY } from "../../utils/image"
+import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 
 interface MakerAvatarProps {
     maker: Maker
@@ -37,6 +37,7 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
             {showImg && (
                 <img
                     src={optimizeImageUrl(maker.avatar_url!, size * 2, { quality: IMG_QUALITY.thumbnail }) ?? undefined}
+                    srcSet={imageSrcSet(maker.avatar_url!, size * 2, { quality: IMG_QUALITY.thumbnail })}
                     alt={maker.name}
                     loading={eager ? "eager" : "lazy"}
                     decoding="async"

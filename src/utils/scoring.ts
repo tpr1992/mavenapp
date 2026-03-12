@@ -62,5 +62,13 @@ export function compositeScore(input: ScoringInput): number {
     const eng = input.p95Engagement > 0 ? Math.min(1, input.engagementScore / input.p95Engagement) : 0
     const fresh = freshnessBoost(input.createdAt)
 
+    // When location is unavailable, redistribute proximity weight to engagement + freshness
+    // so the initial render sorts by meaningful signals instead of wasting 40% on zeros
+    if (input.distanceKm == null) {
+        const engShare = w.engagement / (w.engagement + w.freshness)
+        const freshShare = w.freshness / (w.engagement + w.freshness)
+        return engShare * eng + freshShare * fresh
+    }
+
     return w.proximity * prox + w.engagement * eng + w.freshness * fresh
 }

@@ -21,6 +21,7 @@ export default function useMakers(userLocation: UserLocation | null) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const fetchedRef = useRef(false)
+    const hadLocationRef = useRef(!!userLocation)
 
     const fetchMakers = useCallback(async () => {
         setLoading(true)
@@ -66,12 +67,24 @@ export default function useMakers(userLocation: UserLocation | null) {
         setLoading(false)
     }, [])
 
-    // Fetch once — makers data doesn't change during a session
+    // Fetch immediately on mount — don't wait for location
     useEffect(() => {
         if (fetchedRef.current) return
         fetchedRef.current = true
         fetchMakers()
     }, [fetchMakers])
+
+    // Refetch when location arrives after starting with null
+    // This gets fresh click stats and re-triggers the scoring useMemo
+    useEffect(() => {
+        if (!userLocation) return
+        if (hadLocationRef.current) return
+        hadLocationRef.current = true
+        // Data was already fetched with null location — refetch for fresh stats
+        if (fetchedRef.current) {
+            fetchMakers()
+        }
+    }, [userLocation, fetchMakers])
 
     const refetch = useCallback(() => {
         fetchedRef.current = false
@@ -153,14 +166,19 @@ export default function useMakers(userLocation: UserLocation | null) {
         return { makers: interleavedByCategory(ranked), p95Engagement, isLowData, makersWithClicks }
     }, [rawMakers, userLocation, clickStats])
 
-    return {
-        makers,
-        loading,
-        error,
-        refetch,
-        p95Engagement,
-        isLowData,
-        makersWithClicks,
-        totalMakers: rawMakers.length,
-    }
+    const totalMakers = rawMakers.length
+
+    return useMemo(
+        () => ({
+            makers,
+            loading,
+            error,
+            refetch,
+            p95Engagement,
+            isLowData,
+            makersWithClicks,
+            totalMakers,
+        }),
+        [makers, loading, error, refetch, p95Engagement, isLowData, makersWithClicks, totalMakers],
+    )
 }
