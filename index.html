@@ -21,7 +21,21 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
   </head>
   <body>
-    <div id="root"><div style="width:100%;max-width:430px;margin:0 auto;height:100vh;background:#121212;display:flex;align-items:center;justify-content:center"><span style="font-family:Playfair Display,serif;font-size:40px;font-weight:700;color:#e8e6e3;letter-spacing:-0.03em">maven</span></div></div>
+    <div id="root"><div id="splash" style="width:100%;max-width:430px;margin:0 auto;height:100vh;display:flex;align-items:center;justify-content:center"><span style="font-family:Playfair Display,serif;font-size:40px;font-weight:700;letter-spacing:-0.03em">maven</span></div></div>
+    <script>
+      // Match splash to user's saved theme preference; hide text for first-time visitors
+      // so OnboardingScreen's fadeSlideIn animation is the first appearance of "maven"
+      (function(){
+        var dark=true;try{dark=localStorage.getItem("maven_dark_mode")!=="false"}catch(e){}
+        var onboarded=false;try{onboarded=localStorage.getItem("maven_onboarding_complete")==="true"}catch(e){}
+        var s=document.getElementById("splash");
+        if(s){
+          s.style.background=dark?"#121212":"#faf8f4";
+          if(onboarded){s.firstElementChild.style.color=dark?"#e8e6e3":"#1a1a1a"}
+          else{s.firstElementChild.style.display="none"}
+        }
+      })();
+    </script>
     <script>
       // Early-fetch: start Supabase requests before React boots (~1-2s head start)
       (function(){
