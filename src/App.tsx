@@ -98,6 +98,10 @@ export default function App() {
                 const img = new window.Image()
                 img.src = optimizeImageUrl(heroUrl, 800, { quality: IMG_QUALITY.hero }) ?? ""
             }
+            if (maker.avatar_url) {
+                const av = new window.Image()
+                av.src = optimizeImageUrl(maker.avatar_url, 120) ?? ""
+            }
             if (containerRef.current) scrollPosRef.current = containerRef.current.scrollTop
             history.pushState({ maker: maker.slug, tab: activeTab }, "", buildURL(activeTab, maker.slug))
             setSelectedMaker(maker)
@@ -307,6 +311,7 @@ export default function App() {
                         height: "100vh",
                         overflowY: "auto",
                         overflowX: "hidden",
+                        willChange: "transform",
                         paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
                     }}
                 >

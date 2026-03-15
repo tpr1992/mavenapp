@@ -133,7 +133,9 @@ export default function DiscoverScreen({
         [scrollContainerRef],
     )
 
+    const prevTrendingRef = useRef<Maker[]>([])
     const trendingMakers = useMemo(() => {
+        if (isHidden) return prevTrendingRef.current
         // Trending = makers with growing engagement (current > previous week).
         // This differs from the feed (which blends proximity + engagement + freshness),
         // so trending surfaces makers that are gaining momentum regardless of location.
@@ -154,72 +156,89 @@ export default function DiscoverScreen({
                 return bGrowth - aGrowth
             })
             .slice(0, 5)
-        if (withGrowth.length > 0) return withGrowth
+        if (withGrowth.length > 0) {
+            prevTrendingRef.current = withGrowth
+            return withGrowth
+        }
         // Fallback: most engaged makers by decayed score (survives week rollovers)
         const byEngagement = makers
             .filter((m) => (m.engagementScore ?? 0) > 0)
             .sort((a, b) => (b.engagementScore ?? 0) - (a.engagementScore ?? 0))
             .slice(0, 5)
-        if (byEngagement.length > 0) return byEngagement
+        if (byEngagement.length > 0) {
+            prevTrendingRef.current = byEngagement
+            return byEngagement
+        }
         // Last resort: top scored makers from the feed
-        return makers.slice(0, 5)
-    }, [makers])
+        const fallback = makers.slice(0, 5)
+        prevTrendingRef.current = fallback
+        return fallback
+    }, [makers, isHidden])
 
     const NEARBY_RADIUS_KM = 50
     const q = debouncedQuery.toLowerCase().trim()
 
     const countyMatch = useMemo(() => getCountyCenter(q, TOWNS), [q])
 
+    const prevFilteredRef = useRef<Maker[]>([])
     const allFiltered = useMemo(() => {
+        if (isHidden) return prevFilteredRef.current
         const base = makers
             .filter((m) => category === "All" || m.category === category.toLowerCase())
             .filter((m) => !openNow || isOpenNow(m.opening_hours))
 
-        if (!q) return base
-
-        // Use RPC search results when available (full-text + fuzzy + synonyms)
-        if (searchHits.length > 0) {
+        let result: Maker[]
+        if (!q) {
+            result = base
+        } else if (searchHits.length > 0) {
+            // Use RPC search results when available (full-text + fuzzy + synonyms)
             const hitMap = new Map(searchHits.map((h) => [h.id, h.search_rank]))
-            return base
+            result = base
                 .filter((m) => hitMap.has(m.id))
                 .sort((a, b) => (hitMap.get(b.id) ?? 0) - (hitMap.get(a.id) ?? 0))
-        }
-
-        // Client-side fallback while RPC is loading or returned nothing
-        if (countyMatch) {
+        } else if (countyMatch) {
+            // Client-side fallback while RPC is loading or returned nothing
+            const distMap = new Map<string, number>()
+            const getDist = (m: Maker) => {
+                let d = distMap.get(m.id)
+                if (d === undefined) {
+                    d = getDistance(countyMatch.lat, countyMatch.lng, m.lat, m.lng)
+                    distMap.set(m.id, d)
+                }
+                return d
+            }
             const results = base.filter((m) => {
                 if (m.name.toLowerCase().includes(q)) return true
                 if (m.category.toLowerCase().includes(q)) return true
                 if (m.city.toLowerCase().includes(q)) return true
                 if (m.county.toLowerCase() === countyMatch.county.toLowerCase()) return true
-                const dist = getDistance(countyMatch.lat, countyMatch.lng, m.lat, m.lng)
-                return dist <= NEARBY_RADIUS_KM
+                return getDist(m) <= NEARBY_RADIUS_KM
             })
-            return results.sort((a, b) => {
+            result = results.sort((a, b) => {
                 const aIn = a.county.toLowerCase() === countyMatch.county.toLowerCase()
                 const bIn = b.county.toLowerCase() === countyMatch.county.toLowerCase()
                 if (aIn !== bIn) return aIn ? -1 : 1
-                return (
-                    getDistance(countyMatch.lat, countyMatch.lng, a.lat, a.lng) -
-                    getDistance(countyMatch.lat, countyMatch.lng, b.lat, b.lng)
-                )
+                return getDist(a) - getDist(b)
             })
+        } else {
+            result = base.filter(
+                (m) =>
+                    m.name.toLowerCase().includes(q) ||
+                    m.category.toLowerCase().includes(q) ||
+                    m.city.toLowerCase().includes(q) ||
+                    m.county.toLowerCase().includes(q),
+            )
         }
-
-        return base.filter(
-            (m) =>
-                m.name.toLowerCase().includes(q) ||
-                m.category.toLowerCase().includes(q) ||
-                m.city.toLowerCase().includes(q) ||
-                m.county.toLowerCase().includes(q),
-        )
-    }, [makers, category, openNow, q, countyMatch, searchHits])
+        prevFilteredRef.current = result
+        return result
+    }, [makers, category, openNow, q, countyMatch, searchHits, isHidden])
 
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
     const visibleMakerIds = useMemo(() => new Set(visibleMakers.map((m) => m.id)), [visibleMakers])
     const hasMore = visibleCount < allFiltered.length
 
     const makerSuggestions = useMemo(() => {
+        if (isHidden) return []
         const raw = searchQuery.trim().toLowerCase()
         if (raw.length < 1) return []
 
@@ -239,17 +258,15 @@ export default function DiscoverScreen({
 
         if (sugCounty) {
             const ids = new Set(results.map((m) => m.id))
+            const distMap = new Map<string, number>()
             const nearby = makers
-                .filter((m) => !ids.has(m.id))
                 .filter((m) => {
+                    if (ids.has(m.id)) return false
                     const dist = getDistance(sugCounty.lat, sugCounty.lng, m.lat, m.lng)
+                    distMap.set(m.id, dist)
                     return dist <= NEARBY_RADIUS_KM
                 })
-                .sort(
-                    (a, b) =>
-                        getDistance(sugCounty.lat, sugCounty.lng, a.lat, a.lng) -
-                        getDistance(sugCounty.lat, sugCounty.lng, b.lat, b.lng),
-                )
+                .sort((a, b) => (distMap.get(a.id) ?? 0) - (distMap.get(b.id) ?? 0))
             results = [...results, ...nearby]
         }
 
@@ -260,7 +277,7 @@ export default function DiscoverScreen({
         }
 
         return results.slice(0, 5)
-    }, [searchQuery, makers, searchHits])
+    }, [searchQuery, makers, searchHits, isHidden])
 
     const pullStartX = useRef<number | null>(null)
     const pullLocked = useRef(false) // true once we've committed to pull-to-refresh
