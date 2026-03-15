@@ -1,10 +1,8 @@
-import { useTheme } from "../../contexts/ThemeContext"
 import DebugPanel from "./DebugPanel"
 import type { Maker } from "../../types"
 import type { Theme } from "../../types"
 
 interface SettingsItem {
-    icon: string
     label: string
     subtitle?: string
     action: () => void
@@ -58,28 +56,63 @@ function Toggle({ on, onToggle, theme }: { on: boolean; onToggle: () => void; th
     )
 }
 
-function SettingsRow({
-    icon,
-    label,
-    children,
+function SegmentedControl({
+    options,
+    value,
+    onChange,
     theme,
 }: {
-    icon: string
-    label: string
-    children: React.ReactNode
+    options: { label: string; value: string }[]
+    value: string
+    onChange: (v: string) => void
     theme: Theme
 }) {
     return (
         <div
             style={{
                 display: "flex",
+                background: theme.pill || theme.border,
+                borderRadius: 8,
+                padding: 2,
+                gap: 2,
+                flexShrink: 0,
+            }}
+        >
+            {options.map((opt) => (
+                <button
+                    key={opt.value}
+                    onClick={() => onChange(opt.value)}
+                    style={{
+                        padding: "5px 12px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: value === opt.value ? theme.card : "transparent",
+                        cursor: "pointer",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 12.5,
+                        fontWeight: value === opt.value ? 600 : 400,
+                        color: value === opt.value ? theme.text : theme.textMuted,
+                        transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease",
+                        boxShadow: value === opt.value ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                    }}
+                >
+                    {opt.label}
+                </button>
+            ))}
+        </div>
+    )
+}
+
+function SettingsRow({ label, children, theme }: { label: string; children: React.ReactNode; theme: Theme }) {
+    return (
+        <div
+            style={{
+                display: "flex",
                 alignItems: "center",
-                gap: 14,
-                padding: "16px 0",
+                padding: "15px 0",
                 borderBottom: `1px solid ${theme.border}`,
             }}
         >
-            <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>{icon}</span>
             <span
                 style={{
                     fontFamily: "'DM Sans', sans-serif",
@@ -109,46 +142,31 @@ export default function ProfileSettings({
 }: ProfileSettingsProps) {
     return (
         <>
-            <SettingsRow icon={"\u2600"} label="Light Mode" theme={theme}>
-                <Toggle on={!isDark} onToggle={toggleTheme} theme={theme} />
+            <SettingsRow label="Theme" theme={theme}>
+                <SegmentedControl
+                    options={[
+                        { label: "Light", value: "light" },
+                        { label: "Dark", value: "dark" },
+                    ]}
+                    value={isDark ? "dark" : "light"}
+                    onChange={() => toggleTheme()}
+                    theme={theme}
+                />
             </SettingsRow>
 
-            <SettingsRow icon={"\u25A6"} label="Default Feed" theme={theme}>
-                <div
-                    style={{
-                        display: "flex",
-                        background: theme.pill || theme.border,
-                        borderRadius: 8,
-                        padding: 2,
-                        gap: 2,
-                        flexShrink: 0,
-                    }}
-                >
-                    {(["grid", "single"] as const).map((opt) => (
-                        <button
-                            key={opt}
-                            onClick={() => setFeedLayout(opt)}
-                            style={{
-                                padding: "5px 12px",
-                                borderRadius: 6,
-                                border: "none",
-                                background: feedLayout === opt ? theme.card : "transparent",
-                                cursor: "pointer",
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 12.5,
-                                fontWeight: feedLayout === opt ? 600 : 400,
-                                color: feedLayout === opt ? theme.text : theme.textMuted,
-                                transition: "background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease",
-                                boxShadow: feedLayout === opt ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                            }}
-                        >
-                            {opt === "grid" ? "Grid" : "Single"}
-                        </button>
-                    ))}
-                </div>
+            <SettingsRow label="Default Feed" theme={theme}>
+                <SegmentedControl
+                    options={[
+                        { label: "Grid", value: "grid" },
+                        { label: "Single", value: "single" },
+                    ]}
+                    value={feedLayout}
+                    onChange={(v) => setFeedLayout(v as "grid" | "single")}
+                    theme={theme}
+                />
             </SettingsRow>
 
-            <SettingsRow icon={"\u2699"} label="Debug Mode" theme={theme}>
+            <SettingsRow label="Debug Mode" theme={theme}>
                 <Toggle on={isDebug} onToggle={toggleDebug} theme={theme} />
             </SettingsRow>
 
@@ -161,15 +179,11 @@ export default function ProfileSettings({
                     style={{
                         display: "flex",
                         alignItems: "center",
-                        gap: 14,
-                        padding: "16px 0",
+                        padding: "15px 0",
                         borderBottom: i < settingsItems.length - 1 ? `1px solid ${theme.border}` : "none",
                         cursor: "pointer",
                     }}
                 >
-                    <span style={{ fontSize: 18, color: theme.textMuted, width: 24, textAlign: "center" }}>
-                        {item.icon}
-                    </span>
                     <div style={{ flex: 1 }}>
                         <span
                             style={{
@@ -195,7 +209,6 @@ export default function ProfileSettings({
                             </span>
                         )}
                     </div>
-                    <span style={{ color: theme.textMuted, fontSize: 14 }}>{"\u203A"}</span>
                 </div>
             ))}
         </>

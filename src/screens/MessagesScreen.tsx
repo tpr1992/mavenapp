@@ -61,6 +61,20 @@ export default function MessagesScreen({
                 </h1>
             </div>
 
+            <div style={{ padding: "4px 16px 12px" }}>
+                <h2
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 22,
+                        fontWeight: 700,
+                        color: theme.text,
+                        margin: 0,
+                    }}
+                >
+                    Inbox
+                </h2>
+            </div>
+
             {loading && items.length === 0 ? (
                 <div style={{ padding: "40px 16px", textAlign: "center" }}>
                     <div

@@ -19,6 +19,7 @@ export interface Message {
     read_at: string | null
     pending?: boolean
     failed?: boolean
+    liked_by?: string[]
 }
 
 export interface InboxItem {

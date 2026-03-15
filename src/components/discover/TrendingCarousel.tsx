@@ -133,14 +133,14 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         fontSize: 24,
                         fontWeight: 700,
                         color: "#fff",
-                        margin: "10px 0 8px",
+                        margin: "4px 0 0",
                         lineHeight: 1.2,
                         position: "relative",
                     }}
                 >
                     {maker.name}
                 </h2>
-                <p
+                {/* <p
                     style={{
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 13.5,
@@ -156,8 +156,8 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                     }}
                 >
                     {maker.bio}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16, position: "relative" }}>
+                </p> */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6, position: "relative" }}>
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
