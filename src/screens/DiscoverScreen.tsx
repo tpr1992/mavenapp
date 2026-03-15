@@ -234,7 +234,6 @@ export default function DiscoverScreen({
     }, [makers, category, openNow, q, countyMatch, searchHits, isHidden])
 
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
-    const visibleMakerIds = useMemo(() => new Set(visibleMakers.map((m) => m.id)), [visibleMakers])
     const hasMore = visibleCount < allFiltered.length
 
     const makerSuggestions = useMemo(() => {
@@ -593,8 +592,7 @@ export default function DiscoverScreen({
                     </div>
                 ) : (
                     <MasonryGrid
-                        allMakers={makers}
-                        visibleIds={visibleMakerIds}
+                        makers={visibleMakers}
                         sponsoredPosts={sponsoredPosts}
                         savedIds={savedIds}
                         onMakerTap={onMakerTap}

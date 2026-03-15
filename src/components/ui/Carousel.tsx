@@ -4,7 +4,9 @@ import { useTheme } from "../../contexts/ThemeContext"
 interface CarouselProps {
     items: unknown[]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    renderItem: (item: any, index: number) => React.ReactNode
+    renderItem?: (item: any, index: number) => React.ReactNode
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ItemComponent?: React.ComponentType<{ item: any; index: number }>
     loop?: boolean
     autoPlay?: number | false
     dots?: boolean | "pill" | "mini"
@@ -24,6 +26,7 @@ const CLONES = 3
 const Carousel = memo(function Carousel({
     items,
     renderItem,
+    ItemComponent,
     loop = false,
     autoPlay = false,
     dots = false,
@@ -285,7 +288,7 @@ const Carousel = memo(function Carousel({
                                 transform: "translateZ(0)",
                             }}
                         >
-                            {renderItem(item, realIdx)}
+                            {ItemComponent ? <ItemComponent item={item} index={realIdx} /> : renderItem!(item, realIdx)}
                         </div>
                     )
                 })}

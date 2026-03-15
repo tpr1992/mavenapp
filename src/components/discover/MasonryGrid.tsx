@@ -26,7 +26,7 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
                         boxSizing: "border-box",
                     }}
                 >
-                    <div style={{ width: "100%", height: "100%", borderRadius: 10, overflow: "hidden" }}>
+                    <div style={S.imgRound}>
                         <img
                             src={optimizeImageUrl(url, imageWidth) ?? undefined}
                             srcSet={imageSrcSet(url, imageWidth)}
@@ -37,12 +37,7 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
                             fetchPriority={eager && i === 0 ? "high" : undefined}
                             decoding="async"
                             draggable={false}
-                            style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                                backfaceVisibility: "hidden",
-                            }}
+                            style={S.imgCover}
                         />
                     </div>
                 </div>
@@ -67,9 +62,123 @@ const patternShapes = [
     ["□", "△", "◇"],
 ]
 
+// Static styles — created once at module load, reused across all renders
+const S = {
+    imgCover: {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        backfaceVisibility: "hidden",
+    } as const,
+    imgRound: { width: "100%", height: "100%", borderRadius: 10, overflow: "hidden" } as const,
+    cardContain: { contain: "layout style paint" } as const,
+    cardImageRel: { position: "relative", overflow: "hidden" } as const,
+    hitArea: { position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 } as const,
+    placeholderFill: {
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 20,
+        padding: 20,
+        opacity: 0.25,
+    } as const,
+    placeholderOuter: {
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+    } as const,
+    nameRow: { display: "flex", alignItems: "center", gap: 4 } as const,
+    nameText: {
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 600,
+        lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        minWidth: 0,
+        flex: 1,
+    } as const,
+    saveBtn: {
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+        lineHeight: 1,
+        flexShrink: 0,
+        display: "flex",
+        alignItems: "center",
+    } as const,
+    locationText: {
+        fontFamily: "'DM Sans', sans-serif",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    } as const,
+    debugBadge: {
+        position: "absolute",
+        top: 4,
+        left: 4,
+        background: "rgba(0,0,0,0.7)",
+        color: "#fff",
+        fontSize: 10,
+        fontFamily: "monospace",
+        padding: "2px 6px",
+        borderRadius: 6,
+        zIndex: 5,
+        pointerEvents: "none",
+    } as const,
+    adImgCover: {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        display: "block",
+    } as const,
+    adBrandText: {
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 12.5,
+        fontWeight: 600,
+        lineHeight: 1.2,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        minWidth: 0,
+        flex: 1,
+    } as const,
+    adSponsoredLabel: {
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 9.5,
+        flexShrink: 0,
+        opacity: 0.7,
+    } as const,
+    adTagline: {
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: 10.5,
+        marginTop: 1,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+    } as const,
+    colLayout: {
+        display: "flex",
+        gap: 6,
+        alignItems: "flex-start",
+    } as const,
+    colInner: {
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        minWidth: 0,
+        marginTop: 0,
+    } as const,
+} as const
+
 interface MasonryGridProps {
-    allMakers: Maker[]
-    visibleIds: Set<string>
+    makers: Maker[]
     sponsoredPosts: SponsoredPost[]
     savedIds: Set<string>
     onMakerTap: (maker: Maker) => void
@@ -82,8 +191,7 @@ interface MasonryGridProps {
 }
 
 export default memo(function MasonryGrid({
-    allMakers,
-    visibleIds,
+    makers,
     sponsoredPosts,
     savedIds,
     onMakerTap,
@@ -112,14 +220,14 @@ export default memo(function MasonryGrid({
     }, [])
 
     const columns = useMemo(() => {
-        const visibleMakerCount = allMakers.filter((m) => visibleIds.has(m.id)).length
+        const makerCount = makers.length
         const MIN_MAKERS_FOR_ADS = 3
         const MAKERS_PER_AD = 8
-        const maxAds = visibleMakerCount >= MIN_MAKERS_FOR_ADS ? Math.floor(visibleMakerCount / MAKERS_PER_AD) : 0
+        const maxAds = makerCount >= MIN_MAKERS_FOR_ADS ? Math.floor(makerCount / MAKERS_PER_AD) : 0
 
         const items: Array<{ type: string; maker?: Maker; ad?: SponsoredPost }> = []
         let adIdx = 0
-        allMakers.forEach((maker, i) => {
+        makers.forEach((maker, i) => {
             items.push({ type: "maker", maker })
             if (adIdx < sponsoredPosts.length && adIdx < maxAds && i + 1 === sponsoredPosts[adIdx].afterItem) {
                 items.push({ type: "ad", ad: sponsoredPosts[adIdx] })
@@ -129,24 +237,13 @@ export default memo(function MasonryGrid({
         if (singleColumn) {
             return [items.map((item, idx) => ({ ...item, col: 0, idx }))]
         }
-        // Separate visible and hidden items so column assignment flows left-to-right
-        const visible: typeof items = []
-        const hidden: typeof items = []
-        items.forEach((item) => {
-            if (item.type === "ad" || (item.maker && visibleIds.has(item.maker.id))) {
-                visible.push(item)
-            } else {
-                hidden.push(item)
-            }
-        })
 
         const cols: Array<Array<{ type: string; maker?: Maker; ad?: SponsoredPost; col: number; idx: number }>> = [
             [],
             [],
         ]
-        // Assign visible items with height-balancing (tie goes left, guaranteeing left-to-right flow)
         const colHeights: number[] = [0, 0]
-        visible.forEach((item, idx) => {
+        items.forEach((item, idx) => {
             const col = colHeights[0] <= colHeights[1] ? 0 : 1
             const itemHeight =
                 item.type === "ad"
@@ -155,13 +252,8 @@ export default memo(function MasonryGrid({
             cols[col].push({ ...item, col, idx })
             colHeights[col] += itemHeight + GAP
         })
-        // Hidden items go to alternating columns (display:none, position doesn't matter)
-        hidden.forEach((item, i) => {
-            const col = i % 2
-            cols[col].push({ ...item, col, idx: visible.length + i })
-        })
         return cols
-    }, [allMakers, visibleIds, sponsoredPosts, singleColumn, largeCards])
+    }, [makers, sponsoredPosts, singleColumn, largeCards])
 
     const tapProps = (fn: () => void) => ({
         onPointerDown,
@@ -174,17 +266,15 @@ export default memo(function MasonryGrid({
     const renderMakerCard = (maker: Maker, col: number, idx: number) => {
         const cardHeight = singleColumn ? undefined : getCardHeight(maker.id, largeCards)
         const shapes = patternShapes[(parseInt(maker.id) - 1) % patternShapes.length]
-        const hidden = !visibleIds.has(maker.id)
         return (
             <div
                 key={maker.id}
                 className="card-offscreen"
-                {...(hidden ? {} : tapProps(() => onMakerTap(maker)))}
+                {...tapProps(() => onMakerTap(maker))}
                 style={{
+                    ...S.cardContain,
                     background: "transparent",
-                    cursor: hidden ? "default" : "pointer",
-                    display: hidden ? "none" : undefined,
-                    contain: "layout style paint",
+                    cursor: "pointer",
                     animation: hasAnimated.current
                         ? "none"
                         : `fadeSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) ${col * 0.04 + idx * 0.025}s both`,
@@ -192,27 +282,12 @@ export default memo(function MasonryGrid({
             >
                 <div
                     style={{
+                        ...S.cardImageRel,
                         ...(singleColumn ? { aspectRatio: "4 / 5", width: "100%" } : { height: cardHeight }),
-                        position: "relative",
-                        overflow: "hidden",
                     }}
                 >
                     {isDebug && (
-                        <span
-                            style={{
-                                position: "absolute",
-                                top: 4,
-                                left: 4,
-                                background: "rgba(0,0,0,0.7)",
-                                color: "#fff",
-                                fontSize: 10,
-                                fontFamily: "monospace",
-                                padding: "2px 6px",
-                                borderRadius: 6,
-                                zIndex: 5,
-                                pointerEvents: "none",
-                            }}
-                        >
+                        <span style={S.debugBadge}>
                             #{maker.rank} {"\u00B7"} {(maker.score || 0).toFixed(2)} {"\u00B7"}{" "}
                             {maker.currentWeekClicks ?? 0}/{maker.previousWeekClicks ?? 0}
                         </span>
@@ -227,27 +302,11 @@ export default memo(function MasonryGrid({
                     ) : (
                         <div
                             style={{
-                                height: "100%",
+                                ...S.placeholderOuter,
                                 background: `linear-gradient(135deg, ${maker.hero_color}18, ${maker.hero_color}30)`,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                position: "relative",
                             }}
                         >
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    inset: 0,
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: 20,
-                                    padding: 20,
-                                    opacity: 0.25,
-                                }}
-                            >
+                            <div style={S.placeholderFill}>
                                 {shapes.map((shape, si) => (
                                     <span
                                         key={si}
@@ -264,7 +323,7 @@ export default memo(function MasonryGrid({
                             <CategoryIcon category={maker.category} size={36} style={{ opacity: 0.6, zIndex: 1 }} />
                         </div>
                     )}
-                    <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 }}></div>
+                    <div style={S.hitArea}></div>
                 </div>
                 <div
                     style={{
@@ -273,19 +332,12 @@ export default memo(function MasonryGrid({
                         overflow: "hidden",
                     }}
                 >
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <div style={S.nameRow}>
                         <span
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                ...S.nameText,
                                 fontSize: singleColumn ? 14 : 12.5,
-                                fontWeight: 600,
                                 color: theme.text,
-                                lineHeight: 1.2,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                minWidth: 0,
-                                flex: 1,
                             }}
                         >
                             {maker.name}
@@ -297,15 +349,8 @@ export default memo(function MasonryGrid({
                             }}
                             aria-label={savedIds.has(maker.id) ? `Unsave ${maker.name}` : `Save ${maker.name}`}
                             style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                padding: 0,
-                                lineHeight: 1,
-                                flexShrink: 0,
+                                ...S.saveBtn,
                                 color: savedIds.has(maker.id) ? "#fc8181" : theme.textMuted,
-                                display: "flex",
-                                alignItems: "center",
                             }}
                         >
                             <svg
@@ -324,13 +369,10 @@ export default memo(function MasonryGrid({
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            ...S.locationText,
                             fontSize: singleColumn ? 12 : 10.5,
                             color: theme.textMuted,
                             marginTop: singleColumn ? 2 : 1,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
                         }}
                     >
                         {formatLocation(maker)}
@@ -359,96 +401,29 @@ export default memo(function MasonryGrid({
                     alt={ad.brand}
                     loading="lazy"
                     decoding="async"
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        display: "block",
-                    }}
+                    style={S.adImgCover}
                 />
             </div>
             <div style={{ padding: singleColumn ? "10px 12px 11px" : "8px 10px 9px", minWidth: 0, overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 12.5,
-                            fontWeight: 600,
-                            color: theme.text,
-                            lineHeight: 1.2,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            minWidth: 0,
-                            flex: 1,
-                        }}
-                    >
-                        {ad.brand}
-                    </span>
-                    <span
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 9.5,
-                            color: theme.textMuted,
-                            flexShrink: 0,
-                            opacity: 0.7,
-                        }}
-                    >
-                        Sponsored
-                    </span>
+                <div style={S.nameRow}>
+                    <span style={{ ...S.adBrandText, color: theme.text }}>{ad.brand}</span>
+                    <span style={{ ...S.adSponsoredLabel, color: theme.textMuted }}>Sponsored</span>
                 </div>
-                <div
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 10.5,
-                        color: theme.textMuted,
-                        marginTop: 1,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                    }}
-                >
-                    {ad.tagline}
-                </div>
+                <div style={{ ...S.adTagline, color: theme.textMuted }}>{ad.tagline}</div>
             </div>
         </div>
     )
 
     return (
         <div style={{ padding: singleColumn ? "0 8px" : "0 6px" }}>
-            <div style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+            <div style={S.colLayout}>
                 {columns.map((colItems, col) => (
-                    <div
-                        key={col}
-                        style={{
-                            flex: 1,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: singleColumn ? 10 : 6,
-                            minWidth: 0,
-                            marginTop: 0,
-                        }}
-                    >
-                        {(() => {
-                            let visibleCount = 0
-                            const deferred: typeof colItems = []
-                            const result: React.ReactNode[] = []
-                            colItems.forEach((item) => {
-                                if (item.type === "maker") {
-                                    if (visibleIds.has(item.maker!.id)) visibleCount++
-                                    result.push(renderMakerCard(item.maker!, item.col, item.idx))
-                                    if (visibleCount >= 2 && deferred.length > 0) {
-                                        deferred.forEach((ad) => result.push(renderAdTile(ad.ad!, ad.col, ad.idx)))
-                                        deferred.length = 0
-                                    }
-                                } else {
-                                    if (visibleCount < 2) deferred.push(item)
-                                    else result.push(renderAdTile(item.ad!, item.col, item.idx))
-                                }
-                            })
-                            deferred.forEach((ad) => result.push(renderAdTile(ad.ad!, ad.col, ad.idx)))
-                            return result
-                        })()}
+                    <div key={col} style={{ ...S.colInner, gap: singleColumn ? 10 : 6 }}>
+                        {colItems.map((item) =>
+                            item.type === "maker"
+                                ? renderMakerCard(item.maker!, item.col, item.idx)
+                                : renderAdTile(item.ad!, item.col, item.idx),
+                        )}
                     </div>
                 ))}
             </div>
