@@ -70,7 +70,7 @@ const S = {
         objectFit: "cover",
         backfaceVisibility: "hidden",
     } as const,
-    imgRound: { width: "100%", height: "100%", borderRadius: 10, overflow: "hidden" } as const,
+    imgRound: { width: "100%", height: "100%", borderRadius: 0, overflow: "hidden" } as const,
     cardContain: { contain: "layout style paint" } as const,
     cardImageRel: { position: "relative", overflow: "hidden" } as const,
     hitArea: { position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 } as const,
@@ -95,7 +95,7 @@ const S = {
     nameRow: { display: "flex", alignItems: "center", gap: 4 } as const,
     nameText: {
         fontFamily: "'DM Sans', sans-serif",
-        fontWeight: 600,
+        fontWeight: 500,
         lineHeight: 1.2,
         whiteSpace: "nowrap",
         overflow: "hidden",
@@ -165,7 +165,7 @@ const S = {
     } as const,
     colLayout: {
         display: "flex",
-        gap: 6,
+        gap: 2,
         alignItems: "flex-start",
     } as const,
     colInner: {
@@ -336,7 +336,7 @@ export default memo(function MasonryGrid({
                         <span
                             style={{
                                 ...S.nameText,
-                                fontSize: singleColumn ? 14 : 12.5,
+                                fontSize: singleColumn ? 13 : 12,
                                 color: theme.text,
                             }}
                         >
@@ -354,8 +354,8 @@ export default memo(function MasonryGrid({
                             }}
                         >
                             <svg
-                                width={singleColumn ? 16 : 14}
-                                height={singleColumn ? 16 : 14}
+                                width={singleColumn ? 14 : 12}
+                                height={singleColumn ? 14 : 12}
                                 viewBox="0 0 24 24"
                                 fill={savedIds.has(maker.id) ? "currentColor" : "none"}
                                 stroke="currentColor"
@@ -415,10 +415,10 @@ export default memo(function MasonryGrid({
     )
 
     return (
-        <div style={{ padding: singleColumn ? "0 8px" : "0 6px" }}>
+        <div style={{ padding: singleColumn ? "0 4px" : "0 3px" }}>
             <div style={S.colLayout}>
                 {columns.map((colItems, col) => (
-                    <div key={col} style={{ ...S.colInner, gap: singleColumn ? 10 : 6 }}>
+                    <div key={col} style={{ ...S.colInner, gap: singleColumn ? 4 : 2 }}>
                         {colItems.map((item) =>
                             item.type === "maker"
                                 ? renderMakerCard(item.maker!, item.col, item.idx)

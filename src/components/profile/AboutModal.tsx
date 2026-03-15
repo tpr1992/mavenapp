@@ -41,7 +41,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                         fontWeight: 700,
                         color: theme.text,
                         margin: "0 0 8px",
-                        letterSpacing: "-0.02em",
+                        letterSpacing: "-0.03em",
                     }}
                 >
                     maven

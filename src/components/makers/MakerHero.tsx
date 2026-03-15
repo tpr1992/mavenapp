@@ -87,22 +87,24 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                 <div
                     style={{
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: 600,
-                        letterSpacing: "0.14em",
+                        letterSpacing: "0.16em",
                         textTransform: "uppercase",
                         color: "rgba(255,255,255,0.5)",
                         marginBottom: 6,
                     }}
                 >
-                    {maker.category} {maker.city && `\u00B7 ${maker.city}`}
+                    {maker.category} {maker.city && `\u2014 ${maker.city}`}
                 </div>
 
                 <h1
                     style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 28,
-                        fontWeight: 700,
+                        fontFamily: "'Syne', sans-serif",
+                        fontSize: 26,
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.03em",
                         color: "#fff",
                         margin: 0,
                         lineHeight: 1.1,

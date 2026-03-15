@@ -152,12 +152,11 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
 
                 <h3
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 20,
-                        fontWeight: 700,
+                        fontWeight: 800,
                         color: theme.text,
                         margin: "0 0 4px",
-                        letterSpacing: "-0.02em",
                     }}
                 >
                     Share {maker.name}

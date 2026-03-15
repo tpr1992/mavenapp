@@ -26,7 +26,7 @@ const LIGHT: Theme = {
 }
 
 const DARK: Theme = {
-    bg: "#121212",
+    bg: "#0e0e0e",
     card: "#1e1e1e",
     surface: "#252525",
     pill: "#2d2d2d",
@@ -35,8 +35,8 @@ const DARK: Theme = {
     textMuted: "#707070",
     border: "#333",
     btnBg: "#e8e6e3",
-    btnText: "#121212",
-    tabBg: "rgba(18,18,18,0.92)",
+    btnText: "#0e0e0e",
+    tabBg: "rgba(14,14,14,0.92)",
     inputBg: "#1e1e1e",
 }
 

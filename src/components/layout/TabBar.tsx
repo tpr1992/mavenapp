@@ -127,7 +127,7 @@ export default memo(function TabBar({ activeTab, selectedMaker, onTabChange }: T
                                     width: 4,
                                     height: 4,
                                     borderRadius: "50%",
-                                    background: theme.text,
+                                    background: "#f5f5f0",
                                 }}
                             />
                         )}

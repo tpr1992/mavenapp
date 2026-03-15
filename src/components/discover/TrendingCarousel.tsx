@@ -21,12 +21,12 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
             <div
                 style={{
                     background: maker.gallery_urls?.[0] ? undefined : maker.hero_color,
-                    borderRadius: 20,
+                    borderRadius: 0,
                     padding: "28px 24px",
                     position: "relative",
                     overflow: "hidden",
                     filter: isDark ? "brightness(0.78) saturate(0.85)" : "none",
-                    aspectRatio: "4 / 3",
+                    height: 360,
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "flex-end",
@@ -57,9 +57,12 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         <div
                             style={{
                                 position: "absolute",
-                                inset: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: "50%",
                                 background:
-                                    "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.75) 100%)",
+                                    "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.55) 100%)",
                             }}
                         />
                     </>
@@ -117,21 +120,23 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                     <span
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 10,
+                            fontSize: 8.5,
                             fontWeight: 600,
-                            color: "rgba(255,255,255,0.6)",
+                            color: "rgba(255,255,255,0.3)",
                             textTransform: "uppercase",
-                            letterSpacing: "0.12em",
+                            letterSpacing: "0.22em",
                         }}
                     >
-                        Trending This Week
+                        Trending
                     </span>
                 </div>
                 <h2
                     style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 24,
-                        fontWeight: 700,
+                        fontFamily: "'Syne', sans-serif",
+                        fontSize: 28,
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.03em",
                         color: "#fff",
                         margin: "4px 0 0",
                         lineHeight: 1.2,

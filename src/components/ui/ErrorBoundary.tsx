@@ -58,7 +58,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                             borderRadius: 100,
                             border: "none",
                             background: isDark ? "#e8e6e3" : "#1a1a1a",
-                            color: isDark ? "#121212" : "#fff",
+                            color: isDark ? "#0e0e0e" : "#fff",
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: 14,
                             fontWeight: 600,
