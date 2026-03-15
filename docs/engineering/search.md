@@ -86,11 +86,13 @@ Makers have a `tags` text array column that feeds into the `search_text` tsvecto
 ## Client Integration
 
 ```tsx
-// useSearch.ts — simple RPC wrapper
+// useSearch.ts — RPC wrapper with stale-response guard
+const seq = ++requestSeq.current
 const { data } = await supabase.rpc("search_makers", {
     search_query: trimmed,
     match_limit: 20,
 })
+if (seq !== requestSeq.current) return // ignore superseded queries
 
 // DiscoverScreen.tsx — merge hits with local data
 if (searchHits.length > 0) {

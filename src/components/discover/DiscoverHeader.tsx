@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
-import { glassBarStyle, glassBarOpaque } from "../../utils/glass"
+import { glassBarStyle } from "../../utils/glass"
+import { useHeaderCollapse } from "../../hooks/useHeaderCollapse"
 import SearchBar from "../ui/SearchBar"
-import MakerAvatar from "../ui/MakerAvatar"
-import HighlightMatch from "../ui/HighlightMatch"
-import { formatLocation } from "../../utils/distance"
+import SearchOverlay from "./SearchOverlay"
 import type { Maker } from "../../types"
 import { storageGet, storageSet, storageRemove } from "../../utils/storage"
 
@@ -50,8 +49,6 @@ interface DiscoverHeaderProps {
     refreshKey?: number
 }
 
-const EXPANDED_THRESHOLD = 5
-
 export default function DiscoverHeader({
     scrollContainerRef,
     searchQuery,
@@ -74,13 +71,9 @@ export default function DiscoverHeader({
     const gBar = glassBarStyle(isDark)
 
     // --- State ---
-    const [isCompact, setIsCompact] = useState(false)
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchFocused, setSearchFocused] = useState(false)
-    const [topRowHidden, setTopRowHidden] = useState(false)
-    const [spacerH, setSpacerH] = useState(56) // expanded header height — measured on mount
     const [recentSearches, setRecentSearches] = useState<string[]>(getRecentSearches)
-    // pillsFade uses direct DOM — no state, no re-renders during pills scroll
 
     // --- Refs ---
     const wrapperRef = useRef<HTMLDivElement>(null)
@@ -89,76 +82,35 @@ export default function DiscoverHeader({
     const searchGridRef = useRef<HTMLDivElement>(null)
     const compactPillsRef = useRef<HTMLDivElement>(null)
     const pillsContainerRef = useRef<HTMLDivElement>(null)
-    const expandedHeight = useRef(0)
 
-    // Scroll tracking
-    const lastScrollTop = useRef(0)
-    const lastTime = useRef(Date.now())
-    const velocity = useRef(0)
-
-    // Mode tracking (refs to avoid stale closures and redundant setState)
-    const isCompactRef = useRef(false)
-    const barShown = useRef(false) // compact bar currently at translateY(0)?
-    const wasCompactRef = useRef(false) // tracks "first time becoming compact"
-
-    // Rubber band
-    const rbOffset = useRef(0)
-    const rbPrevScroll = useRef(0)
-    const rbPrevTime = useRef(0)
-    const rbVelocity = useRef(0)
-    const rbAnimating = useRef(false)
-    const isTouching = useRef(false)
-    const topRowPending = useRef<"collapse" | "expand" | null>(null)
-
-    // Stale closure refs
-    const searchQueryRef = useRef(searchQuery)
-    searchQueryRef.current = searchQuery
-    const searchOpenRef = useRef(searchOpen)
-    searchOpenRef.current = searchOpen
-    const topRowHiddenRef = useRef(topRowHidden)
-    topRowHiddenRef.current = topRowHidden
+    // --- Scroll collapse hook ---
+    const {
+        isCompact,
+        topRowHidden,
+        spacerH,
+        handleLogoTap: hookLogoTap,
+    } = useHeaderCollapse({
+        scrollContainerRef,
+        barRef,
+        searchInputRef,
+        isDark,
+        searchOpen,
+        searchQuery,
+        isHidden,
+        refreshKey,
+        onSearchQueryChange,
+        setSearchOpen,
+        setSearchFocused,
+    })
 
     // --- Auto-close search on empty + blur (only on touch devices) ---
     useEffect(() => {
         if (!searchFocused && searchOpen && !searchQuery.trim()) {
-            // Only auto-close if user has interacted via touch — on desktop/devtools,
-            // focus can be lost immediately after opening, causing premature close
             if (!("ontouchstart" in window)) return
             const timer = setTimeout(() => setSearchOpen(false), 400)
             return () => clearTimeout(timer)
         }
     }, [searchFocused, searchOpen, searchQuery])
-
-    // --- Reset on refreshKey (tab re-tap) ---
-    useEffect(() => {
-        setSearchOpen(false)
-        setSearchFocused(false)
-        onSearchQueryChange("")
-    }, [refreshKey])
-
-    // --- Reset topRowHidden when not compact and search is closed ---
-    useEffect(() => {
-        if (!isCompact && !searchOpen) {
-            setTopRowHidden(false)
-        }
-    }, [isCompact, searchOpen])
-
-    // --- Reset when returning from a maker profile ---
-    useEffect(() => {
-        if (!isHidden) {
-            barShown.current = false
-            isCompactRef.current = false
-            wasCompactRef.current = false
-            setIsCompact(false)
-            setSearchOpen(false)
-            const bar = barRef.current
-            if (bar) {
-                bar.style.transition = "none"
-                bar.style.transform = ""
-                bar.style.pointerEvents = ""
-            }
-        }
-    }, [isHidden])
 
     // --- Pills fade edge masks (direct DOM — avoids re-renders during scroll) ---
     useEffect(() => {
@@ -186,335 +138,13 @@ export default function DiscoverHeader({
         }
     }, [isCompact, category])
 
-    // --- Measure expanded height for spacer (sync before paint to avoid layout shift) ---
-    // baseSpacerH stores the header height WITHOUT the search bar (the "resting" height)
-    const baseSpacerH = useRef(56)
-    useLayoutEffect(() => {
-        const bar = barRef.current
-        if (bar && !isCompactRef.current) {
-            if (searchOpen) {
-                // When search opens, measure the full height (header + search bar)
-                setSpacerH(bar.offsetHeight)
-            } else {
-                // When search closes, immediately restore the base height —
-                // don't re-measure because the CSS transition hasn't completed yet
-                setSpacerH(baseSpacerH.current)
-            }
-        }
-    }, [searchOpen, isCompact])
-    // Capture base height on mount and whenever compact state changes
-    useLayoutEffect(() => {
-        const bar = barRef.current
-        if (bar && !isCompactRef.current && !searchOpen) {
-            baseSpacerH.current = bar.offsetHeight
-            expandedHeight.current = bar.offsetHeight
-            setSpacerH(bar.offsetHeight)
-        }
-    }, [isCompact]) // eslint-disable-line react-hooks/exhaustive-deps
-
-    // --- Initial scroll position check (iOS scroll restoration) ---
-    useEffect(() => {
-        const bar = barRef.current
-        if (bar) expandedHeight.current = bar.offsetHeight
-        const threshold = expandedHeight.current || 56
-        const el = scrollContainerRef?.current
-        if (el && el.scrollTop > threshold) {
-            isCompactRef.current = true
-            wasCompactRef.current = true
-            setIsCompact(true)
-            if (bar) {
-                bar.style.transform = "translateY(-100%)"
-                bar.style.pointerEvents = "none"
-            }
-        }
-    }, [])
-
-    // --- Scroll handler ---
-    // Matches MakerProfileHeader pattern: height:0 sticky overlay, velocity show/hide, no slide-away
-    useEffect(() => {
-        const el = scrollContainerRef?.current
-        if (!el) return
-        let desktopSettle: ReturnType<typeof setTimeout> | null = null
-        let topRowSettle: ReturnType<typeof setTimeout> | null = null
-
-        const s = (bar: HTMLDivElement) => bar.style as CSSStyleDeclaration & Record<string, string>
-        const g = glassBarStyle(isDark)
-        const killFrost = (bar: HTMLDivElement) => {
-            s(bar).backdropFilter = "none"
-            s(bar).webkitBackdropFilter = "none"
-            s(bar).background = glassBarOpaque(isDark)
-        }
-        const restoreFrost = (bar: HTMLDivElement) => {
-            s(bar).backdropFilter = g.backdropFilter
-            s(bar).webkitBackdropFilter = g.WebkitBackdropFilter
-            s(bar).background = g.background
-        }
-
-        const doSnapBack = (bar: HTMLDivElement) => {
-            const barHeight = bar.offsetHeight || 60
-            const pullRatio = Math.min(rbOffset.current / barHeight, 0.5)
-            const duration = Math.round(100 + pullRatio * 280)
-            rbAnimating.current = true
-            rbOffset.current = 0
-            rbVelocity.current = 0
-            bar.style.transition = `transform ${duration}ms cubic-bezier(0.12, 0, 0.08, 1)`
-            bar.style.transform = "translateY(0)"
-            setTimeout(() => {
-                bar.style.transition = ""
-                restoreFrost(bar)
-                rbAnimating.current = false
-            }, duration)
-        }
-
-        const doCommitHide = (bar: HTMLDivElement) => {
-            rbAnimating.current = true
-            rbOffset.current = 0
-            rbVelocity.current = 0
-            barShown.current = false
-            setSearchOpen(false)
-            searchInputRef.current?.blur()
-            setSearchFocused(false)
-            bar.style.pointerEvents = "none"
-            bar.style.transition = "transform 0.22s cubic-bezier(0.32, 0, 0.67, 0)"
-            bar.style.transform = "translateY(-100%)"
-            setTimeout(() => {
-                bar.style.transition = ""
-                restoreFrost(bar)
-                rbAnimating.current = false
-            }, 220)
-        }
-
-        const resolveRubberBand = () => {
-            if (rbOffset.current <= 0 || rbAnimating.current) return
-            const bar = barRef.current
-            if (!bar) return
-            const barHeight = bar.offsetHeight || 60
-            const progress = rbOffset.current / barHeight
-            const vel = rbVelocity.current
-            if (progress > 0.35 || vel > 0.5) {
-                doCommitHide(bar)
-            } else {
-                doSnapBack(bar)
-            }
-        }
-
-        const onTouchStart = () => {
-            isTouching.current = true
-        }
-        const onTouchEnd = () => {
-            isTouching.current = false
-            resolveRubberBand()
-
-            if (topRowPending.current === "collapse") {
-                setTopRowHidden(true)
-                topRowPending.current = null
-            } else if (topRowPending.current === "expand") {
-                setTopRowHidden(false)
-                topRowPending.current = null
-            }
-        }
-
-        const onScroll = () => {
-            const now = Date.now()
-            const st = el.scrollTop
-            const dt = Math.max(now - lastTime.current, 1)
-            const delta = st - lastScrollTop.current
-            const v = delta / dt
-
-            velocity.current = velocity.current * 0.5 + v * 0.5
-
-            const bar = barRef.current
-            const threshold = expandedHeight.current || 56
-            // Once compact, stay compact until fully back at top — like Safari's address bar
-            const shouldBeCompact = st > threshold || (wasCompactRef.current && st >= EXPANDED_THRESHOLD)
-
-            if (desktopSettle) {
-                clearTimeout(desktopSettle)
-                desktopSettle = null
-            }
-
-            // Update isCompact state (guarded by ref to avoid redundant setState)
-            if (shouldBeCompact && !isCompactRef.current) {
-                isCompactRef.current = true
-                setIsCompact(true)
-            } else if (st < EXPANDED_THRESHOLD && isCompactRef.current) {
-                isCompactRef.current = false
-                setIsCompact(false)
-            }
-
-            if (st < EXPANDED_THRESHOLD) {
-                // ── AT TOP ──
-                if (bar) {
-                    if (rbOffset.current > 0) {
-                        rbOffset.current = 0
-                        rbVelocity.current = 0
-                        restoreFrost(bar)
-                    }
-                    // Morph compact → expanded via CSS transitions on content
-                    if (wasCompactRef.current && barShown.current) {
-                        bar.style.transition = "background 0.4s ease, border-color 0.4s ease"
-                        bar.style.opacity = ""
-                        setTimeout(() => {
-                            if (bar) bar.style.transition = ""
-                        }, 350)
-                    } else {
-                        bar.style.transition = "none"
-                    }
-                    bar.style.transform = ""
-                    bar.style.pointerEvents = ""
-                }
-                // Close empty search when returning to top from compact
-                if (wasCompactRef.current) {
-                    if (searchOpenRef.current && !searchQueryRef.current.trim()) {
-                        setSearchOpen(false)
-                    }
-                }
-                topRowPending.current = null
-                if (topRowSettle) {
-                    clearTimeout(topRowSettle)
-                    topRowSettle = null
-                }
-                barShown.current = false
-                wasCompactRef.current = false
-                setTopRowHidden(false)
-                velocity.current = 0
-            } else if (shouldBeCompact) {
-                // ── COMPACT ZONE ──
-                if (!wasCompactRef.current && bar) {
-                    // First time becoming compact — hide bar, velocity will reveal it
-                    wasCompactRef.current = true
-                    if (searchOpenRef.current) {
-                        barShown.current = true
-                        bar.style.transition = "none"
-                        bar.style.transform = "translateY(0)"
-                        bar.style.pointerEvents = "auto"
-                    } else {
-                        bar.style.transition = "none"
-                        bar.style.transform = "translateY(-100%)"
-                        bar.style.pointerEvents = "none"
-                    }
-                    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
-                }
-
-                // Dismiss keyboard on any significant scroll
-                if (Math.abs(delta) > 2) {
-                    const ae = document.activeElement
-                    if (ae instanceof HTMLInputElement || ae instanceof HTMLTextAreaElement) {
-                        ae.blur()
-                    }
-                }
-
-                if (rbOffset.current > 0 && bar && !rbAnimating.current) {
-                    // Rubber band active — track movement
-                    const scrollDelta = st - rbPrevScroll.current
-                    const timeDelta = Math.max(now - rbPrevTime.current, 1)
-                    rbPrevScroll.current = st
-                    rbPrevTime.current = now
-                    rbVelocity.current = rbVelocity.current * 0.5 + (scrollDelta / timeDelta) * 0.5
-                    const barHeight = bar.offsetHeight || 60
-                    if (scrollDelta > 0) {
-                        rbOffset.current = Math.min(rbOffset.current + scrollDelta * 0.8, barHeight)
-                    } else if (scrollDelta < 0) {
-                        rbOffset.current = Math.max(0, rbOffset.current + scrollDelta * 0.8)
-                    }
-                    if (rbOffset.current <= 0) {
-                        rbOffset.current = 0
-                        rbVelocity.current = 0
-                        bar.style.transition = ""
-                        bar.style.transform = "translateY(0)"
-                        restoreFrost(bar)
-                    } else {
-                        bar.style.transition = "none"
-                        bar.style.transform = `translateY(-${rbOffset.current}px)`
-                    }
-                    if (!isTouching.current && rbOffset.current > 0) {
-                        desktopSettle = setTimeout(resolveRubberBand, 150)
-                    }
-                } else if (barShown.current && delta > 2 && bar && !rbAnimating.current) {
-                    const searchActive = searchOpenRef.current && searchQueryRef.current.trim()
-                    if (searchActive) {
-                        if (!topRowHiddenRef.current && topRowPending.current !== "collapse") {
-                            topRowPending.current = "collapse"
-                            if (topRowSettle) clearTimeout(topRowSettle)
-                            if (!isTouching.current) {
-                                topRowSettle = setTimeout(() => {
-                                    if (topRowPending.current === "collapse") {
-                                        setTopRowHidden(true)
-                                        topRowPending.current = null
-                                    }
-                                }, 150)
-                            }
-                        }
-                    } else {
-                        rbOffset.current = 0.1
-                        rbPrevScroll.current = st
-                        rbPrevTime.current = now
-                        rbVelocity.current = 0
-                        killFrost(bar)
-                        if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
-                        setSearchFocused(false)
-                    }
-                } else if (!barShown.current && velocity.current < -0.08 && !rbAnimating.current && bar) {
-                    barShown.current = true
-                    bar.style.pointerEvents = "auto"
-                    bar.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-                    bar.style.transform = "translateY(0)"
-                } else if (barShown.current && delta < -1 && !rbAnimating.current) {
-                    if (topRowHiddenRef.current && topRowPending.current !== "expand") {
-                        topRowPending.current = "expand"
-                        if (topRowSettle) clearTimeout(topRowSettle)
-                        if (!isTouching.current) {
-                            topRowSettle = setTimeout(() => {
-                                if (topRowPending.current === "expand") {
-                                    setTopRowHidden(false)
-                                    topRowPending.current = null
-                                }
-                            }, 150)
-                        }
-                    } else if (topRowPending.current === "collapse") {
-                        topRowPending.current = null
-                        if (topRowSettle) {
-                            clearTimeout(topRowSettle)
-                            topRowSettle = null
-                        }
-                    }
-                }
-            }
-
-            lastScrollTop.current = st
-            lastTime.current = now
-        }
-
-        el.addEventListener("scroll", onScroll, { passive: true })
-        el.addEventListener("touchstart", onTouchStart, { passive: true })
-        el.addEventListener("touchend", onTouchEnd, { passive: true })
-        el.addEventListener("touchcancel", onTouchEnd, { passive: true })
-        return () => {
-            el.removeEventListener("scroll", onScroll)
-            el.removeEventListener("touchstart", onTouchStart)
-            el.removeEventListener("touchend", onTouchEnd)
-            el.removeEventListener("touchcancel", onTouchEnd)
-            if (desktopSettle) clearTimeout(desktopSettle)
-            if (topRowSettle) clearTimeout(topRowSettle)
-        }
-    }, [scrollContainerRef, isDark])
-
     // --- Logo tap (shared between expanded and compact) ---
     const handleLogoTap = useCallback(() => {
         onReset()
         onSearchQueryChange("")
         setSearchOpen(false)
-        barShown.current = false
-        wasCompactRef.current = false
-        isCompactRef.current = false
-        setIsCompact(false)
-        const bar = barRef.current
-        if (bar) {
-            bar.style.transition = "none"
-            bar.style.transform = ""
-            bar.style.pointerEvents = ""
-        }
-    }, [onReset, onSearchQueryChange])
+        hookLogoTap()
+    }, [onReset, onSearchQueryChange, hookLogoTap])
 
     // --- Open search ---
     const handleSearchOpen = useCallback(() => {
@@ -844,196 +474,21 @@ export default function DiscoverHeader({
                                 />
                             </div>
                         </div>
-                        {searchOpen &&
-                            searchFocused &&
-                            (searchQuery.trim().length > 0 || recentSearches.length > 0) && (
-                                <div style={{ padding: "0 20px 10px", position: "relative", zIndex: 10 }}>
-                                    <div
-                                        style={{
-                                            background: isDark ? "rgba(32,32,32,0.97)" : "rgba(255,255,255,0.97)",
-                                            borderRadius: 12,
-                                            boxShadow: isDark
-                                                ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
-                                                : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
-                                            border: isDark
-                                                ? "1px solid rgba(255,255,255,0.10)"
-                                                : "1px solid rgba(0,0,0,0.06)",
-                                            overflow: "hidden",
-                                            maxHeight: 340,
-                                            overflowY: "auto",
-                                        }}
-                                    >
-                                        {/* Recent searches — empty query */}
-                                        {!searchQuery.trim() &&
-                                            recentSearches.length > 0 &&
-                                            (() => {
-                                                const items = recentSearches
-                                                return (
-                                                    <>
-                                                        <div
-                                                            style={{
-                                                                padding: "10px 14px 6px",
-                                                                display: "flex",
-                                                                justifyContent: "space-between",
-                                                                alignItems: "center",
-                                                            }}
-                                                        >
-                                                            <span
-                                                                style={{
-                                                                    fontFamily: "'DM Sans', sans-serif",
-                                                                    fontSize: 10,
-                                                                    fontWeight: 600,
-                                                                    letterSpacing: "0.08em",
-                                                                    textTransform: "uppercase",
-                                                                    color: theme.textMuted,
-                                                                }}
-                                                            >
-                                                                Recent
-                                                            </span>
-                                                            <button
-                                                                onClick={() => {
-                                                                    clearRecentSearches()
-                                                                    setRecentSearches([])
-                                                                }}
-                                                                style={{
-                                                                    fontFamily: "'DM Sans', sans-serif",
-                                                                    fontSize: 11,
-                                                                    color: theme.textMuted,
-                                                                    background: "none",
-                                                                    border: "none",
-                                                                    cursor: "pointer",
-                                                                    padding: 0,
-                                                                }}
-                                                            >
-                                                                Clear
-                                                            </button>
-                                                        </div>
-                                                        {items.map((term, i) => (
-                                                            <div
-                                                                key={term}
-                                                                onClick={() => onSearchQueryChange(term)}
-                                                                style={{
-                                                                    padding: "10px 14px",
-                                                                    cursor: "pointer",
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    gap: 10,
-                                                                    borderBottom:
-                                                                        i < items.length - 1
-                                                                            ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
-                                                                            : "none",
-                                                                }}
-                                                            >
-                                                                <svg
-                                                                    width="14"
-                                                                    height="14"
-                                                                    viewBox="0 0 24 24"
-                                                                    fill="none"
-                                                                    stroke={theme.textMuted}
-                                                                    strokeWidth="2"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    style={{ flexShrink: 0 }}
-                                                                >
-                                                                    <circle cx="12" cy="12" r="10" />
-                                                                    <polyline points="12 6 12 12 16 14" />
-                                                                </svg>
-                                                                <span
-                                                                    style={{
-                                                                        fontFamily: "'DM Sans', sans-serif",
-                                                                        fontSize: 13,
-                                                                        fontWeight: 500,
-                                                                        color: theme.text,
-                                                                    }}
-                                                                >
-                                                                    {term}
-                                                                </span>
-                                                            </div>
-                                                        ))}
-                                                    </>
-                                                )
-                                            })()}
-
-                                        {/* Maker suggestions */}
-                                        {searchQuery.trim() &&
-                                            makerSuggestions.length > 0 &&
-                                            makerSuggestions.map((maker, i) => (
-                                                <div
-                                                    key={maker.id}
-                                                    onClick={() => {
-                                                        saveRecentSearch(searchQuery)
-                                                        setRecentSearches(getRecentSearches())
-                                                        onMakerTap(maker)
-                                                    }}
-                                                    style={{
-                                                        padding: "9px 14px",
-                                                        cursor: "pointer",
-                                                        borderBottom:
-                                                            i < makerSuggestions.length - 1
-                                                                ? `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`
-                                                                : "none",
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        gap: 10,
-                                                    }}
-                                                >
-                                                    <MakerAvatar maker={maker} size={28} />
-                                                    <div style={{ minWidth: 0, flex: 1 }}>
-                                                        <div
-                                                            style={{
-                                                                fontFamily: "'DM Sans', sans-serif",
-                                                                fontSize: 13,
-                                                                fontWeight: 600,
-                                                                color: theme.text,
-                                                            }}
-                                                        >
-                                                            <HighlightMatch
-                                                                text={maker.name}
-                                                                query={searchQuery.trim()}
-                                                            />
-                                                        </div>
-                                                        <div
-                                                            style={{
-                                                                fontFamily: "'DM Sans', sans-serif",
-                                                                fontSize: 11,
-                                                                color: theme.textMuted,
-                                                                marginTop: 1,
-                                                            }}
-                                                        >
-                                                            {maker.category} · {formatLocation(maker)}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                        {/* No results */}
-                                        {searchQuery.trim() && makerSuggestions.length === 0 && (
-                                            <div style={{ padding: "24px 14px", textAlign: "center" }}>
-                                                <div
-                                                    style={{
-                                                        fontFamily: "'DM Sans', sans-serif",
-                                                        fontSize: 13,
-                                                        fontWeight: 500,
-                                                        color: theme.textSecondary,
-                                                        marginBottom: 4,
-                                                    }}
-                                                >
-                                                    No makers found
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        fontFamily: "'DM Sans', sans-serif",
-                                                        fontSize: 12,
-                                                        color: theme.textMuted,
-                                                    }}
-                                                >
-                                                    Try a name, category, or county
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                        {searchOpen && searchFocused && (
+                            <SearchOverlay
+                                searchQuery={searchQuery}
+                                recentSearches={recentSearches}
+                                makerSuggestions={makerSuggestions}
+                                onSearchQueryChange={onSearchQueryChange}
+                                onMakerTap={onMakerTap}
+                                onClearRecents={() => {
+                                    clearRecentSearches()
+                                    setRecentSearches([])
+                                }}
+                                onSaveSearch={saveRecentSearch}
+                                onRefreshRecents={() => setRecentSearches(getRecentSearches())}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
