@@ -355,7 +355,9 @@ function WorkTab({
                                         overflow: "hidden",
                                         height: heights[i % heights.length],
                                         background: theme.surface,
-                                        animation: `fadeSlideIn 0.4s ease ${originalIndex * 0.06}s both`,
+                                        animation: cached
+                                            ? "none"
+                                            : `fadeSlideIn 0.4s ease ${originalIndex * 0.06}s both`,
                                         cursor: "pointer",
                                     }}
                                 >
