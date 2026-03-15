@@ -30,6 +30,7 @@ interface MakerProfileProps {
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
     onLogoTap: () => void
     breakpoint?: Breakpoint
+    onMessage?: (makerId: string) => void
 }
 
 const TABS: TabItem[] = [
@@ -770,6 +771,7 @@ export default function MakerProfile({
     scrollContainerRef,
     onLogoTap,
     breakpoint = "mobile",
+    onMessage,
 }: MakerProfileProps) {
     const [showShare, setShowShare] = useState(false)
     const [showCompact, setShowCompact] = useState(false)
@@ -865,6 +867,46 @@ export default function MakerProfile({
 
             {/* Info section — inline, always visible */}
             <InfoSection maker={maker} theme={theme} />
+
+            {/* Message button */}
+            {maker.is_messageable && onMessage && (
+                <div style={{ padding: "12px 16px 0" }}>
+                    <button
+                        onClick={() => onMessage(maker.id)}
+                        style={{
+                            width: "100%",
+                            padding: "11px 0",
+                            borderRadius: 12,
+                            border: `1.5px solid ${theme.border}`,
+                            background: "transparent",
+                            color: theme.text,
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 13.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 8,
+                            letterSpacing: "0.01em",
+                        }}
+                    >
+                        <svg
+                            width="15"
+                            height="15"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+                        </svg>
+                        Message
+                    </button>
+                </div>
+            )}
 
             {/* Tabs — Gallery / Instagram / Events */}
             {visibleTabs.length > 0 && (

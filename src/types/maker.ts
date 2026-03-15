@@ -37,6 +37,7 @@ export interface Maker {
     instagram_handle: string | null
     opening_hours: OpeningHours | null
     made_in_ireland: boolean
+    is_messageable?: boolean
     events?: MakerEvent[] | null
     created_at?: string
     distance?: number | null

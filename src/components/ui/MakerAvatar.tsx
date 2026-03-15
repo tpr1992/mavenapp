@@ -4,7 +4,7 @@ import { getInitials } from "../../utils/time"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 
 interface MakerAvatarProps {
-    maker: Maker
+    maker: Pick<Maker, "name" | "avatar_url"> & { hero_color?: string }
     size?: number
     eager?: boolean
 }
@@ -20,7 +20,7 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
                 width: size,
                 height: size,
                 borderRadius: size / 2,
-                background: maker.hero_color,
+                background: maker.hero_color ?? "#6b7280",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

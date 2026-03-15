@@ -51,6 +51,14 @@ function IconHeartFilledV2() {
     )
 }
 
+function IconMessageV2() {
+    return (
+        <svg {...iconProps}>
+            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+        </svg>
+    )
+}
+
 function IconUserV2() {
     return (
         <svg {...iconProps}>
@@ -64,17 +72,25 @@ const TAB_ICONS_V2: Record<string, (hasSaved: boolean) => React.ReactNode> = {
     discover: () => <IconHomeV2 />,
     map: () => <IconMapV2 />,
     saved: (hasSaved) => (hasSaved ? <IconHeartFilledV2 /> : <IconHeartV2 />),
+    messages: () => <IconMessageV2 />,
     profile: () => <IconUserV2 />,
 }
 
 interface TabBarProps {
     activeTab: string
     savedCount: number
+    unreadMessages: number
     selectedMaker: Maker | null
     onTabChange: (tab: string) => void
 }
 
-export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTabChange }: TabBarProps) {
+export default memo(function TabBar({
+    activeTab,
+    savedCount,
+    unreadMessages,
+    selectedMaker,
+    onTabChange,
+}: TabBarProps) {
     const { theme, isDark } = useTheme()
     const g = glassBarStyle(isDark)
 
@@ -102,7 +118,7 @@ export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTa
         >
             {TAB_ITEMS.map((tab) => {
                 const isActive = !selectedMaker && activeTab === tab.id
-                const count = tab.id === "saved" ? savedCount : 0
+                const count = tab.id === "saved" ? savedCount : tab.id === "messages" ? unreadMessages : 0
                 return (
                     <button
                         key={tab.id}
@@ -124,8 +140,32 @@ export default memo(function TabBar({ activeTab, savedCount, selectedMaker, onTa
                             opacity: isActive ? 1 : isDark ? 0.45 : 0.55,
                         }}
                     >
-                        <span style={{ lineHeight: 0, color: theme.text }}>
+                        <span style={{ lineHeight: 0, color: theme.text, position: "relative" }}>
                             {TAB_ICONS_V2[tab.id]?.(count > 0) ?? tab.icon}
+                            {tab.id === "messages" && count > 0 && (
+                                <span
+                                    style={{
+                                        position: "absolute",
+                                        top: -4,
+                                        right: -6,
+                                        minWidth: 16,
+                                        height: 16,
+                                        borderRadius: 100,
+                                        background: "#E53935",
+                                        color: "#fff",
+                                        fontSize: 9,
+                                        fontWeight: 700,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        padding: "0 4px",
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    {count > 99 ? "99+" : count}
+                                </span>
+                            )}
                         </span>
                         {isActive && (
                             <div

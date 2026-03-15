@@ -65,7 +65,7 @@ export default function useMakers(userLocation: UserLocation | null) {
                 supabase
                     .from("makers")
                     .select(
-                        "id, slug, name, bio, category, city, county, address, country, lat, lng, hero_color, avatar_url, gallery_urls, website_url, instagram_handle, opening_hours, is_featured, is_spotlight, spotlight_quote, is_verified, made_in_ireland, years_active, events, created_at",
+                        "id, slug, name, bio, category, city, county, address, country, lat, lng, hero_color, avatar_url, gallery_urls, website_url, instagram_handle, opening_hours, is_featured, is_spotlight, spotlight_quote, is_verified, made_in_ireland, years_active, events, is_messageable, created_at",
                     ),
                 supabase.rpc("get_maker_click_stats"),
             ])

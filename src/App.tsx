@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo, lazy, Suspense } from "react"
+import useInbox from "./hooks/useInbox"
 import useSavedMakers from "./hooks/useSavedMakers"
 import useMakers from "./hooks/useMakers"
 import { supabase } from "./lib/supabase"
@@ -19,6 +20,8 @@ import ErrorBoundary from "./components/ui/ErrorBoundary"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfile from "./screens/MakerProfile"
+import MessagesScreen from "./screens/MessagesScreen"
+import ChatView from "./components/messages/ChatView"
 import type { Maker, Theme } from "./types"
 
 import SavedScreen from "./screens/SavedScreen"
@@ -32,13 +35,15 @@ function getStateFromURL() {
     const params = new URLSearchParams(window.location.search)
     const tab = params.get("tab") || "discover"
     const makerSlug = params.get("maker")
-    return { tab, makerSlug }
+    const conversation = params.get("conversation")
+    return { tab, makerSlug, conversation }
 }
 
-function buildURL(tab: string, makerSlug?: string | null) {
+function buildURL(tab: string, makerSlug?: string | null, conversation?: string | null) {
     const params = new URLSearchParams()
     if (tab && tab !== "discover") params.set("tab", tab)
     if (makerSlug) params.set("maker", makerSlug)
+    if (conversation) params.set("conversation", conversation)
     const qs = params.toString()
     return qs ? "/?" + qs : "/"
 }
@@ -57,6 +62,9 @@ export default function App() {
     const [activeTab, setActiveTab] = useState(initialURL.current.tab)
     const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null)
     const deepLinkResolved = useRef(false)
+    const [selectedConversation, setSelectedConversation] = useState<{ id: string | null; makerId: string } | null>(
+        null,
+    )
     const [authToast, setAuthToast] = useState(false)
     const authToastTimer = useRef<ReturnType<typeof setTimeout>>(null)
     const { userLocation, locationLabel, locationSource, setLocation } = useUserLocation()
@@ -80,6 +88,14 @@ export default function App() {
     const { user } = useAuth()
     const profileName = useProfileName(user)
     const { savedIds, toggleSave } = useSavedMakers()
+    const {
+        items: inboxItems,
+        loading: inboxLoading,
+        totalUnread,
+        clearUnread,
+        deleteConversation,
+        refetch: refetchInbox,
+    } = useInbox(user?.id)
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
@@ -139,6 +155,7 @@ export default function App() {
             if (containerRef.current) tabScrollRef.current[activeTab] = containerRef.current.scrollTop
             history.pushState({ tab }, "", buildURL(tab))
             setSelectedMaker(null)
+            setSelectedConversation(null)
             setActiveTab(tab)
             if (tab === "discover") {
                 resetDiscover()
@@ -168,6 +185,40 @@ export default function App() {
         handleTabChange("discover")
     }, [handleTabChange])
 
+    const handleConversationOpen = useCallback((conversationId: string, makerId: string) => {
+        history.pushState(
+            { tab: "messages", conversation: conversationId, makerId },
+            "",
+            buildURL("messages", null, conversationId),
+        )
+        setSelectedConversation({ id: conversationId, makerId })
+    }, [])
+
+    const handleConversationBack = useCallback(() => {
+        history.back()
+    }, [])
+
+    const handleMessageMaker = useCallback(
+        (makerId: string) => {
+            if (!user) {
+                setAuthToast(true)
+                if (authToastTimer.current) clearTimeout(authToastTimer.current)
+                authToastTimer.current = setTimeout(() => setAuthToast(false), 2500)
+                return
+            }
+            // Check if conversation already exists in inbox
+            const existing = inboxItems.find((it) => it.maker_id === makerId)
+            if (existing) {
+                handleConversationOpen(existing.conversation_id, makerId)
+            } else {
+                // Open in draft mode — conversation created on first message send
+                history.pushState({ tab: "messages", makerId }, "", buildURL("messages"))
+                setSelectedConversation({ id: null, makerId })
+            }
+        },
+        [user, inboxItems, handleConversationOpen],
+    )
+
     // Replace initial history entry with proper state
     useEffect(() => {
         const { tab, makerSlug } = initialURL.current
@@ -195,6 +246,10 @@ export default function App() {
             const makerSlug = urlState.makerSlug || e.state?.maker || null
 
             setActiveTab(tab)
+
+            const conversation = urlState.conversation || e.state?.conversation || null
+            const makerId = e.state?.makerId || null
+            setSelectedConversation(conversation && makerId ? { id: conversation, makerId } : null)
 
             if (makerSlug) {
                 const maker = makers.find((m) => m.slug === makerSlug)
@@ -236,6 +291,7 @@ export default function App() {
                     scrollContainerRef={containerRef}
                     onLogoTap={handleLogoTap}
                     breakpoint={breakpoint}
+                    onMessage={handleMessageMaker}
                 />
             )
         }
@@ -255,6 +311,18 @@ export default function App() {
                             isDebug={isDebug}
                         />
                     </Suspense>
+                )
+            case "messages":
+                return (
+                    <MessagesScreen
+                        items={inboxItems}
+                        loading={inboxLoading}
+                        isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
+                        userId={user?.id ?? ""}
+                        onConversationTap={(conversationId, makerId) => handleConversationOpen(conversationId, makerId)}
+                        onDelete={deleteConversation}
+                        onLogoTap={handleLogoTap}
+                    />
                 )
             case "saved":
                 return (
@@ -358,6 +426,27 @@ export default function App() {
                 </div>
             </ErrorBoundary>
 
+            {selectedConversation &&
+                user &&
+                (() => {
+                    const maker = makers.find((m) => m.id === selectedConversation.makerId)
+                    if (!maker) return null
+                    return (
+                        <ChatView
+                            conversationId={selectedConversation.id}
+                            makerId={selectedConversation.makerId}
+                            maker={maker}
+                            userId={user.id}
+                            onBack={handleConversationBack}
+                            onRead={clearUnread}
+                            onConversationCreated={(cid) => {
+                                setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
+                                refetchInbox()
+                            }}
+                        />
+                    )
+                })()}
+
             {/* Auth toast */}
             <div
                 style={{
@@ -396,6 +485,7 @@ export default function App() {
             <TabBar
                 activeTab={activeTab}
                 savedCount={savedIds.size}
+                unreadMessages={totalUnread}
                 selectedMaker={selectedMaker}
                 onTabChange={handleTabChange}
             />
