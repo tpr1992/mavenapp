@@ -339,6 +339,13 @@ function WorkTab({
                         {colImgs.map((url, i) => {
                             const originalIndex = i * columnCount + col
                             const heights = HEIGHT_POOLS[col % HEIGHT_POOLS.length]
+                            const imgSrc = optimizeImageUrl(url, 300) ?? undefined
+                            const cached = (() => {
+                                if (!imgSrc) return false
+                                const probe = new Image()
+                                probe.src = imgSrc
+                                return probe.complete
+                            })()
                             return (
                                 <div
                                     key={i}
@@ -353,10 +360,10 @@ function WorkTab({
                                     }}
                                 >
                                     <img
-                                        src={optimizeImageUrl(url, 300) ?? undefined}
+                                        src={imgSrc}
                                         srcSet={imageSrcSet(url, 300)}
                                         alt={`${maker.name} ${originalIndex + 1}`}
-                                        loading="lazy"
+                                        loading={originalIndex < 4 ? "eager" : "lazy"}
                                         decoding="async"
                                         onLoad={(e) => {
                                             ;(e.currentTarget as HTMLImageElement).style.opacity = "1"
@@ -366,8 +373,8 @@ function WorkTab({
                                             height: "100%",
                                             objectFit: "cover",
                                             display: "block",
-                                            opacity: 0,
-                                            transition: "opacity 0.3s ease",
+                                            opacity: cached ? 1 : 0,
+                                            transition: cached ? "none" : "opacity 0.3s ease",
                                         }}
                                     />
                                 </div>
