@@ -296,6 +296,17 @@ function WorkTab({
     columnCount?: number
 }) {
     const images = maker.gallery_urls || []
+    const cachedSet = useMemo(() => {
+        const set = new Set<number>()
+        images.forEach((url, i) => {
+            const src = optimizeImageUrl(url, 300)
+            if (!src) return
+            const probe = new Image()
+            probe.src = src
+            if (probe.complete) set.add(i)
+        })
+        return set
+    }, [images])
     const HEIGHT_POOLS = [
         [195, 155, 175, 190],
         [215, 160, 180, 170],
@@ -340,12 +351,7 @@ function WorkTab({
                             const originalIndex = i * columnCount + col
                             const heights = HEIGHT_POOLS[col % HEIGHT_POOLS.length]
                             const imgSrc = optimizeImageUrl(url, 300) ?? undefined
-                            const cached = (() => {
-                                if (!imgSrc) return false
-                                const probe = new Image()
-                                probe.src = imgSrc
-                                return probe.complete
-                            })()
+                            const cached = cachedSet.has(originalIndex)
                             return (
                                 <div
                                     key={i}
