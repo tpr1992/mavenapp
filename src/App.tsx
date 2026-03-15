@@ -195,8 +195,10 @@ export default function App() {
     }, [])
 
     const handleConversationBack = useCallback(() => {
+        // Refetch inbox to get self-healed counters after viewing a conversation
+        refetchInbox()
         history.back()
-    }, [])
+    }, [refetchInbox])
 
     const handleMessageMaker = useCallback(
         (makerId: string) => {
@@ -291,6 +293,7 @@ export default function App() {
                     scrollContainerRef={containerRef}
                     onLogoTap={handleLogoTap}
                     breakpoint={breakpoint}
+                    userId={user?.id}
                     onMessage={handleMessageMaker}
                 />
             )

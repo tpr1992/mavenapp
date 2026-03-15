@@ -38,6 +38,7 @@ export interface Maker {
     opening_hours: OpeningHours | null
     made_in_ireland: boolean
     is_messageable?: boolean
+    user_id?: string | null
     events?: MakerEvent[] | null
     created_at?: string
     distance?: number | null
