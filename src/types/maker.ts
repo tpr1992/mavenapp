@@ -33,6 +33,7 @@ export interface Maker {
     is_featured: boolean
     is_spotlight?: boolean
     spotlight_quote?: string
+    quote_attribution?: string | null
     website_url: string | null
     instagram_handle: string | null
     opening_hours: OpeningHours | null
