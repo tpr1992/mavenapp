@@ -102,8 +102,8 @@ export default function App() {
                 const av = new window.Image()
                 av.src = optimizeImageUrl(maker.avatar_url, 120) ?? ""
             }
-            // Preload first 4 gallery images (Work tab uses 300px width)
-            maker.gallery_urls?.slice(1, 5).forEach((url) => {
+            // Preload first 6 gallery images at Work tab size (300px)
+            maker.gallery_urls?.slice(0, 6).forEach((url) => {
                 const g = new window.Image()
                 g.src = optimizeImageUrl(url, 300) ?? ""
             })
