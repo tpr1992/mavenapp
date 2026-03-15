@@ -4,7 +4,6 @@ import { optimizeImageUrl, imageSrcSet } from "../utils/image"
 import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow, getTodayHours } from "../utils/time"
 
-import MadeInIrelandBadge from "../components/ui/MadeInIrelandBadge"
 import { useTheme } from "../contexts/ThemeContext"
 import { safeOpen } from "../utils/safeOpen"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
@@ -57,7 +56,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
     const bioIsLong = maker.bio && maker.bio.length > 120
 
     return (
-        <div style={{ padding: "14px 16px 0" }}>
+        <div style={{ padding: "16px 20px 0" }}>
             {/* Bio — truncated to 2 lines */}
             <p
                 onClick={() => bioIsLong && setBioExpanded(!bioExpanded)}
@@ -82,57 +81,23 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                 {bioIsLong && !bioExpanded && <span style={{ color: theme.textMuted, fontWeight: 500 }}> more</span>}
             </p>
 
-            {/* Compact info row — pills + status inline */}
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                <span
-                    style={{
-                        padding: "4px 10px",
-                        borderRadius: 100,
-                        border: `1.5px solid ${theme.border}`,
-                        background: "transparent",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 11,
-                        fontWeight: 500,
-                        color: theme.textSecondary,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 3,
-                    }}
-                >
-                    <CategoryIcon category={maker.category} /> {maker.category}
-                </span>
-                <span
-                    style={{
-                        padding: "4px 10px",
-                        borderRadius: 100,
-                        border: `1.5px solid ${theme.border}`,
-                        background: "transparent",
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 11,
-                        fontWeight: 500,
-                        color: theme.textSecondary,
-                    }}
-                >
-                    {todayStatus ? "\u25CF " : "\u25CB "}
+            {/* Compact info row */}
+            <div
+                style={{
+                    display: "flex",
+                    gap: 16,
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 11.5,
+                    color: theme.textSecondary,
+                    marginTop: 2,
+                }}
+            >
+                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ color: todayStatus ? "#4ade80" : theme.textMuted, fontSize: 7 }}>{"\u25CF"}</span>
                     {todayText}
                 </span>
-                {maker.years_active && (
-                    <span
-                        style={{
-                            padding: "4px 10px",
-                            borderRadius: 100,
-                            border: `1.5px solid ${theme.border}`,
-                            background: "transparent",
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 11,
-                            fontWeight: 500,
-                            color: theme.textSecondary,
-                        }}
-                    >
-                        {maker.years_active} yrs
-                    </span>
-                )}
-                {maker.made_in_ireland && <MadeInIrelandBadge variant="card" />}
+                <span>{maker.category}</span>
+                {maker.years_active && <span>{maker.years_active} years active</span>}
             </div>
         </div>
     )
@@ -157,8 +122,9 @@ function ProfileTabs({
                 overflowX: "auto",
                 scrollbarWidth: "none",
                 borderBottom: `1px solid ${theme.border}`,
-                padding: "0 4px",
+                padding: "0 20px",
                 marginTop: 10,
+                gap: 22,
             }}
         >
             {tabs.map((tab) => (
@@ -173,7 +139,8 @@ function ProfileTabs({
                         letterSpacing: "0.08em",
                         textTransform: "uppercase",
                         color: activeTab === tab.id ? theme.text : theme.textMuted,
-                        padding: "13px 18px 11px",
+                        padding: "12px 0",
+                        marginBottom: -1,
                         background: "none",
                         border: "none",
                         borderBottom: `2px solid ${activeTab === tab.id ? theme.text : "transparent"}`,
@@ -298,22 +265,6 @@ function WorkTab({
     columnCount?: number
 }) {
     const images = maker.gallery_urls || []
-    const cachedSet = useMemo(() => {
-        const set = new Set<number>()
-        images.forEach((url, i) => {
-            const src = optimizeImageUrl(url, 300)
-            if (!src) return
-            const probe = new Image()
-            probe.src = src
-            if (probe.complete) set.add(i)
-        })
-        return set
-    }, [images])
-    const HEIGHT_POOLS = [
-        [195, 155, 175, 190],
-        [215, 160, 180, 170],
-        [200, 170, 185, 165],
-    ]
 
     if (!images.length) {
         return (
@@ -333,11 +284,264 @@ function WorkTab({
         )
     }
 
+    // ─── Editorial showcase layout (7+ images) ───
+    if (images.length >= 7) {
+        return (
+            <div style={{ padding: 0 }}>
+                {/* Block 1 — Hero image (full width) */}
+                <div
+                    onClick={() => onImageTap && onImageTap(0)}
+                    style={{ height: 320, width: "100%", overflow: "hidden", position: "relative", cursor: "pointer" }}
+                >
+                    <img
+                        src={optimizeImageUrl(images[0], 800) ?? undefined}
+                        srcSet={imageSrcSet(images[0], 800)}
+                        alt={`${maker.name} 1`}
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                        onLoad={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = "1"
+                        }}
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            opacity: 0,
+                            transition: "opacity 0.3s ease",
+                        }}
+                    />
+                    <span
+                        style={{
+                            position: "absolute",
+                            bottom: 12,
+                            right: 14,
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 9.5,
+                            color: "rgba(255,255,255,0.3)",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                        }}
+                    >
+                        {maker.category}
+                    </span>
+                </div>
+
+                {/* Block 2 — Tight 2-up */}
+                <div style={{ display: "flex", gap: 3, marginTop: 3 }}>
+                    {[1, 2].map((idx) => (
+                        <div
+                            key={idx}
+                            onClick={() => onImageTap && onImageTap(idx)}
+                            style={{ flex: 1, height: 240, overflow: "hidden", borderRadius: 0, cursor: "pointer" }}
+                        >
+                            <img
+                                src={optimizeImageUrl(images[idx], 400) ?? undefined}
+                                srcSet={imageSrcSet(images[idx], 400)}
+                                alt={`${maker.name} ${idx + 1}`}
+                                loading="eager"
+                                decoding="async"
+                                onLoad={(e) => {
+                                    ;(e.target as HTMLImageElement).style.opacity = "1"
+                                }}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    opacity: 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Block 3 — Pull quote */}
+                {maker.spotlight_quote && (
+                    <div
+                        style={{
+                            padding: "32px 28px",
+                            borderTop: `1px solid ${theme.border}`,
+                            borderBottom: `1px solid ${theme.border}`,
+                            margin: "3px 0",
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontFamily: "'Instrument Serif', serif",
+                                fontSize: 22,
+                                fontStyle: "italic",
+                                color: theme.text,
+                                lineHeight: 1.45,
+                                letterSpacing: "-0.01em",
+                                margin: "0 0 14px",
+                            }}
+                        >
+                            &ldquo;{maker.spotlight_quote}&rdquo;
+                        </p>
+                        <span
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 10,
+                                fontWeight: 500,
+                                letterSpacing: "0.14em",
+                                textTransform: "uppercase",
+                                color: theme.textMuted,
+                            }}
+                        >
+                            &mdash; {(maker.quote_attribution || maker.name).toUpperCase()}
+                        </span>
+                    </div>
+                )}
+
+                {/* Block 4 — Full-width detail */}
+                <div
+                    onClick={() => onImageTap && onImageTap(3)}
+                    style={{
+                        height: 220,
+                        width: "100%",
+                        overflow: "hidden",
+                        position: "relative",
+                        marginTop: 3,
+                        cursor: "pointer",
+                    }}
+                >
+                    <img
+                        src={optimizeImageUrl(images[3], 800) ?? undefined}
+                        srcSet={imageSrcSet(images[3], 800)}
+                        alt={`${maker.name} 4`}
+                        loading="lazy"
+                        decoding="async"
+                        onLoad={(e) => {
+                            ;(e.target as HTMLImageElement).style.opacity = "1"
+                        }}
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            opacity: 0,
+                            transition: "opacity 0.3s ease",
+                        }}
+                    />
+                    <span
+                        style={{
+                            position: "absolute",
+                            bottom: 12,
+                            right: 14,
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 9.5,
+                            color: "rgba(255,255,255,0.3)",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                        }}
+                    >
+                        {maker.name}
+                    </span>
+                </div>
+
+                {/* Block 5 — 3-up strip */}
+                <div style={{ display: "flex", gap: 2, marginTop: 3 }}>
+                    {[4, 5, 6].map((idx) => (
+                        <div
+                            key={idx}
+                            onClick={() => onImageTap && onImageTap(idx)}
+                            style={{ flex: 1, height: 140, overflow: "hidden", borderRadius: 0, cursor: "pointer" }}
+                        >
+                            <img
+                                src={optimizeImageUrl(images[idx], 300) ?? undefined}
+                                srcSet={imageSrcSet(images[idx], 300)}
+                                alt={`${maker.name} ${idx + 1}`}
+                                loading="lazy"
+                                decoding="async"
+                                onLoad={(e) => {
+                                    ;(e.target as HTMLImageElement).style.opacity = "1"
+                                }}
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    opacity: 0,
+                                    transition: "opacity 0.3s ease",
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Block 6 — Remaining images as 2-column grid */}
+                {images.length > 7 && (
+                    <div style={{ display: "flex", gap: 3, marginTop: 3, padding: "0 3px" }}>
+                        {[0, 1].map((col) => (
+                            <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+                                {images
+                                    .slice(7)
+                                    .filter((_, i) => i % 2 === col)
+                                    .map((url, i) => {
+                                        const originalIndex = 7 + i * 2 + col
+                                        const heights = [195, 155, 175, 190]
+                                        return (
+                                            <div
+                                                key={i}
+                                                onClick={() => onImageTap && onImageTap(originalIndex)}
+                                                style={{
+                                                    borderRadius: 0,
+                                                    overflow: "hidden",
+                                                    height: heights[i % heights.length],
+                                                    background: theme.surface,
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                <img
+                                                    src={optimizeImageUrl(url, 300) ?? undefined}
+                                                    srcSet={imageSrcSet(url, 300)}
+                                                    alt={`${maker.name} ${originalIndex + 1}`}
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    onLoad={(e) => {
+                                                        ;(e.target as HTMLImageElement).style.opacity = "1"
+                                                    }}
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        objectFit: "cover",
+                                                        opacity: 0,
+                                                        transition: "opacity 0.3s ease",
+                                                    }}
+                                                />
+                                            </div>
+                                        )
+                                    })}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    // ─── Masonry fallback (< 7 images) ───
+    const cachedSet = new Set<number>()
+    images.forEach((url, i) => {
+        const src = optimizeImageUrl(url, 300)
+        if (!src) return
+        const probe = new Image()
+        probe.src = src
+        if (probe.complete) cachedSet.add(i)
+    })
+    const HEIGHT_POOLS = [
+        [195, 155, 175, 190],
+        [215, 160, 180, 170],
+        [200, 170, 185, 165],
+    ]
     const colImages = Array.from({ length: columnCount }, (_, col) => images.filter((_, i) => i % columnCount === col))
 
     return (
-        <div style={{ padding: "12px 12px 0" }}>
-            <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+        <div style={{ padding: "8px 3px 0" }}>
+            <div style={{ display: "flex", gap: 3, alignItems: "flex-start" }}>
                 {colImages.map((colImgs, col) => (
                     <div
                         key={col}
@@ -345,8 +549,8 @@ function WorkTab({
                             flex: 1,
                             display: "flex",
                             flexDirection: "column",
-                            gap: 8,
-                            marginTop: col > 0 ? 32 / col : 0,
+                            gap: 3,
+                            marginTop: col > 0 ? 20 : 0,
                         }}
                     >
                         {colImgs.map((url, i) => {
@@ -359,7 +563,7 @@ function WorkTab({
                                     key={i}
                                     onClick={() => onImageTap && onImageTap(originalIndex)}
                                     style={{
-                                        borderRadius: 12,
+                                        borderRadius: 0,
                                         overflow: "hidden",
                                         height: heights[i % heights.length],
                                         background: theme.surface,
@@ -864,7 +1068,7 @@ export default function MakerProfile({
                 maker={maker}
                 heroRef={heroRef}
                 isDark={isDark}
-                minHeroHeight={breakpoint === "mobile" ? 190 : 280}
+                minHeroHeight={breakpoint === "mobile" ? 340 : 280}
             />
 
             {/* Info section — inline, always visible */}
@@ -872,25 +1076,26 @@ export default function MakerProfile({
 
             {/* Message button */}
             {maker.is_messageable && onMessage && maker.user_id !== userId && (
-                <div style={{ padding: "12px 16px 0" }}>
+                <div style={{ padding: "0 20px", marginTop: 14 }}>
                     <button
                         onClick={() => onMessage(maker.id)}
                         style={{
                             width: "100%",
-                            padding: "11px 0",
-                            borderRadius: 12,
-                            border: `1.5px solid ${theme.border}`,
+                            padding: "12px 0",
+                            borderRadius: 0,
+                            border: "1px solid rgba(255,255,255,0.2)",
                             background: "transparent",
                             color: theme.text,
                             fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 13.5,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             gap: 8,
-                            letterSpacing: "0.01em",
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
                         }}
                     >
                         <svg
@@ -899,7 +1104,7 @@ export default function MakerProfile({
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         >

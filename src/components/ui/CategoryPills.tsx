@@ -65,7 +65,7 @@ export default function CategoryPills({
                     msOverflowStyle: "none",
                 }}
             >
-                {showOpenNow && (
+                {/* {showOpenNow && (
                     <button
                         aria-pressed={openNowActive}
                         aria-label="Filter by open now"
@@ -76,7 +76,7 @@ export default function CategoryPills({
                     >
                         {"\u25CF"} Open
                     </button>
-                )}
+                )} */}
                 {CATEGORIES.filter((cat) => cat !== "All").map((cat) => (
                     <button
                         key={cat}

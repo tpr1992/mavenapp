@@ -1,5 +1,6 @@
 import { memo } from "react"
 import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
+import { formatLocation } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
 
@@ -17,13 +18,15 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
     if (!makers.length) return null
 
     return (
-        <div style={{ marginTop: 28, padding: "0 12px" }}>
-            <div style={{ padding: "0 4px", marginBottom: 16 }}>
+        <div style={{ marginTop: 28 }}>
+            <div style={{ padding: "24px 20px 12px" }}>
                 <h3
                     style={{
                         fontFamily: "'Syne', sans-serif",
                         fontSize: 18,
                         fontWeight: 800,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.03em",
                         color: theme.text,
                         margin: 0,
                     }}
@@ -35,6 +38,8 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 12,
                         color: theme.textMuted,
+                        fontWeight: 400,
+                        letterSpacing: "0.02em",
                         margin: "4px 0 0",
                     }}
                 >
@@ -42,10 +47,9 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                 </p>
             </div>
 
-            {/* Masonry grid — responsive columns with staggered heights */}
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", gap: 3, alignItems: "flex-start", padding: "0 3px" }}>
                 {Array.from({ length: columnCount }, (_, col) => (
-                    <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
                         {makers
                             .filter((_, i) => i % columnCount === col)
                             .map((m, i) => {
@@ -58,23 +62,20 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                         key={m.id}
                                         onClick={() => onMakerTap(m)}
                                         style={{
-                                            borderRadius: 14,
-                                            overflow: "hidden",
                                             cursor: "pointer",
-                                            background: theme.card,
-                                            border: `1px solid ${theme.border}`,
                                             animation: `fadeSlideIn 0.4s ease ${delay}s both`,
                                         }}
                                     >
-                                        {heroUrl ? (
-                                            <div
-                                                style={{
-                                                    position: "relative",
-                                                    height: imgHeight,
-                                                    background: theme.surface,
-                                                    overflow: "hidden",
-                                                }}
-                                            >
+                                        {/* Image — clean, no overlay */}
+                                        <div
+                                            style={{
+                                                height: imgHeight,
+                                                background: theme.surface,
+                                                overflow: "hidden",
+                                                borderRadius: 0,
+                                            }}
+                                        >
+                                            {heroUrl ? (
                                                 <img
                                                     src={optimizeImageUrl(heroUrl, 300) ?? undefined}
                                                     srcSet={imageSrcSet(heroUrl, 300)}
@@ -93,88 +94,58 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                                         transition: "opacity 0.35s ease",
                                                     }}
                                                 />
-                                                {/* Bottom scrim */}
+                                            ) : (
                                                 <div
                                                     style={{
-                                                        position: "absolute",
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        height: "50%",
-                                                        background:
-                                                            "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 100%)",
-                                                        pointerEvents: "none",
-                                                    }}
-                                                />
-                                                {/* Overlay text */}
-                                                <div
-                                                    style={{
-                                                        position: "absolute",
-                                                        bottom: 0,
-                                                        left: 0,
-                                                        right: 0,
-                                                        padding: "10px 12px",
+                                                        width: "100%",
+                                                        height: "100%",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
                                                     }}
                                                 >
-                                                    <div
+                                                    <span
                                                         style={{
-                                                            fontFamily: "'Syne', sans-serif",
-                                                            fontSize: 14,
-                                                            fontWeight: 800,
-                                                            color: "#fff",
-                                                            lineHeight: 1.2,
+                                                            fontFamily: "'DM Sans', sans-serif",
+                                                            fontSize: 12,
+                                                            color: theme.textMuted,
                                                         }}
                                                     >
                                                         {m.name}
-                                                    </div>
-                                                    <div
-                                                        style={{
-                                                            fontFamily: "'DM Sans', sans-serif",
-                                                            fontSize: 10.5,
-                                                            color: "rgba(255,255,255,0.7)",
-                                                            marginTop: 2,
-                                                        }}
-                                                    >
-                                                        {m.category}
-                                                        {m.city && ` \u00B7 ${m.city}`}
-                                                    </div>
+                                                    </span>
                                                 </div>
-                                            </div>
-                                        ) : (
+                                            )}
+                                        </div>
+                                        {/* Name + location below image */}
+                                        <div style={{ padding: "8px 8px 10px" }}>
                                             <div
                                                 style={{
-                                                    height: 120,
-                                                    background: theme.surface,
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    padding: 16,
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 12,
+                                                    fontWeight: 500,
+                                                    color: theme.text,
+                                                    lineHeight: 1.2,
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
                                                 }}
                                             >
-                                                <div style={{ textAlign: "center" }}>
-                                                    <div
-                                                        style={{
-                                                            fontFamily: "'Syne', sans-serif",
-                                                            fontSize: 14,
-                                                            fontWeight: 800,
-                                                            color: theme.text,
-                                                        }}
-                                                    >
-                                                        {m.name}
-                                                    </div>
-                                                    <div
-                                                        style={{
-                                                            fontFamily: "'DM Sans', sans-serif",
-                                                            fontSize: 10.5,
-                                                            color: theme.textMuted,
-                                                            marginTop: 4,
-                                                        }}
-                                                    >
-                                                        {m.category}
-                                                    </div>
-                                                </div>
+                                                {m.name}
                                             </div>
-                                        )}
+                                            <div
+                                                style={{
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 10.5,
+                                                    color: theme.textMuted,
+                                                    marginTop: 1,
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}
+                                            >
+                                                {formatLocation(m)}
+                                            </div>
+                                        </div>
                                     </div>
                                 )
                             })}
@@ -182,7 +153,6 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                 ))}
             </div>
 
-            {/* Footer count */}
             <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
                 <span
                     style={{

@@ -37,6 +37,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.8,
         made_in_ireland: true,
+        spotlight_quote:
+            "Every glaze I mix starts with what's outside the window. Storm grey, seaweed green — the bay decides the palette.",
+        quote_attribution: "Cloch Ceramics, Founder",
     },
     {
         id: "2",
@@ -74,6 +77,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 1.2,
         made_in_ireland: false,
+        spotlight_quote:
+            "I work with recycled silver because it already has a life. My job is just to give it a new shape.",
+        quote_attribution: "Niamh Daly",
     },
     {
         id: "3",
@@ -111,6 +117,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 1.5,
         made_in_ireland: false,
+        spotlight_quote: "You can't rush a natural dye bath. You can't rush anything good, really.",
+        quote_attribution: "FOLD Textiles, Founder",
     },
     {
         id: "4",
@@ -147,6 +155,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.3,
         made_in_ireland: false,
+        spotlight_quote:
+            "I bought a broken Risograph off a lad in Limerick. Nine years later it's still running and I'm still surprised.",
+        quote_attribution: "Seán Keane",
     },
     {
         id: "5",
@@ -183,6 +194,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 2.1,
         made_in_ireland: false,
+        spotlight_quote:
+            "Three designers, one studio above a chipper, and all the deadstock fabric Galway can give us. That's the whole business plan.",
+        quote_attribution: "Ríona Collective",
     },
     {
         id: "6",
@@ -220,6 +234,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 5.4,
         made_in_ireland: false,
+        spotlight_quote:
+            "I started woodturning to stop looking at screens. Twelve years later my phone's on permanent silent.",
+        quote_attribution: "Mark, Founder",
     },
     {
         id: "7",
@@ -247,6 +264,7 @@ export const MAKERS: Maker[] = [
         is_spotlight: true,
         spotlight_quote:
             "Every ring I make starts with a walk along the Claddagh. The shapes of the stones, the curve of the water — it all ends up in the silver.",
+        quote_attribution: "Lúnasa Silver, Founder",
         website_url: "https://lunasasilver.ie",
         instagram_handle: "@lunasa.silver",
         opening_hours: {
@@ -296,6 +314,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 3.2,
         made_in_ireland: false,
+        spotlight_quote: "Half the studio is paper, the other half is fire. Somehow it works.",
+        quote_attribution: "INK & IRON",
     },
     {
         id: "9",
@@ -332,6 +352,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 8.2,
         made_in_ireland: false,
+        spotlight_quote: "A good mug can fix most things. I genuinely believe that.",
+        quote_attribution: "Caoilfhionn",
     },
     {
         id: "10",
@@ -368,6 +390,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 8.9,
         made_in_ireland: false,
+        spotlight_quote: "My grandmother's poker is still in use. Try getting that from a department store.",
+        quote_attribution: "Flaherty Family, Third Generation",
     },
     {
         id: "11",
@@ -405,6 +429,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 7.8,
         made_in_ireland: false,
+        spotlight_quote:
+            "Tilly is the dog. Moss is the garden. The candles are me, pouring soy wax with sea thrift and meadowsweet.",
+        quote_attribution: "Sarah, Founder",
     },
     {
         id: "12",
@@ -434,6 +461,7 @@ export const MAKERS: Maker[] = [
         is_spotlight: true,
         spotlight_quote:
             "My grandmother taught me the blackberry stitch on this same loom. Eleven years later, I'm still finding new patterns in the old stitches.",
+        quote_attribution: "Foxford Knit Co., Founder",
         website_url: "https://spiddalknit.ie",
         instagram_handle: "@spiddalknit",
         opening_hours: {
@@ -484,6 +512,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 10.1,
         made_in_ireland: false,
+        spotlight_quote: "Fourteen years on the kick wheel. My pots aren't fancy — they're just honest.",
+        quote_attribution: "Burren Pottery, Founder",
     },
     {
         id: "14",
@@ -520,6 +550,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.9,
         made_in_ireland: false,
+        spotlight_quote:
+            "The lino block doesn't care about your plans. You carve what it lets you carve. That's half the fun.",
+        quote_attribution: "Aoife",
     },
     {
         id: "15",
@@ -560,6 +593,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 22.5,
         made_in_ireland: true,
+        spotlight_quote:
+            "Nine years in and I'm only getting started. That's the thing about leather — it rewards patience.",
+        quote_attribution: "Ciarán, Founder",
     },
     {
         id: "16",
@@ -597,6 +633,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 62,
         made_in_ireland: false,
+        spotlight_quote: "Twenty years, no catalogue. Every ring starts with a conversation and ends with a handshake.",
+        quote_attribution: "Waterford Goldsmith",
     },
     {
         id: "17",
@@ -633,6 +671,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.5,
         made_in_ireland: false,
+        spotlight_quote:
+            "We dye with elderberry and madder root. The colours fade a bit over time, which is the whole point.",
+        quote_attribution: "West & Wild",
     },
     {
         id: "18",
@@ -660,6 +701,7 @@ export const MAKERS: Maker[] = [
         is_spotlight: true,
         spotlight_quote:
             "I fire with sea salt in the glaze. You can taste the Atlantic in every plate — or at least, that's what I tell people at markets.",
+        quote_attribution: "Kinsale Ceramics, Founder",
         website_url: "https://roundstoneceramics.ie",
         instagram_handle: "@roundstone.ceramics",
         opening_hours: {
@@ -716,6 +758,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 1,
         made_in_ireland: false,
+        spotlight_quote:
+            "I want people to feel the weight of the cloth in their hands and know exactly where it came from.",
+        quote_attribution: "Fia Murray, Founder",
     },
     {
         id: "20",
@@ -753,6 +798,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 72,
         made_in_ireland: false,
+        spotlight_quote:
+            "The waiting list is long. The furniture lasts longer. I learned that trade-off at Letterfrack and never looked back.",
+        quote_attribution: "Dunmore Furniture, Founder",
     },
     {
         id: "21",
@@ -779,6 +827,7 @@ export const MAKERS: Maker[] = [
         is_spotlight: true,
         spotlight_quote:
             "We opened the doors so anyone could pull a print. Last Saturday a 9-year-old made the best poster in the shop.",
+        quote_attribution: "Temple Bar Print House",
         website_url: "",
         instagram_handle: "@athenryprinthouse",
         opening_hours: {
@@ -828,6 +877,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 7.5,
         made_in_ireland: false,
+        spotlight_quote: "No two pieces are alike. My accountant finds this difficult. I find it romantic.",
+        quote_attribution: "Máire",
     },
     {
         id: "23",
@@ -865,6 +916,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 24,
         made_in_ireland: false,
+        spotlight_quote:
+            "Simple, functional, beautiful — in that order. A spoon should earn its place in your kitchen.",
+        quote_attribution: "Darach Woodcraft, Founder",
     },
     {
         id: "24",
@@ -903,6 +957,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.6,
         made_in_ireland: false,
+        spotlight_quote:
+            "Hand-harvesting seaweed in January sounds romantic until you've done it. The soap's worth it, though.",
+        quote_attribution: "Galway Soap Co.",
     },
     {
         id: "25",
@@ -940,6 +997,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 15,
         made_in_ireland: true,
+        spotlight_quote:
+            "The loom is a hundred years old. I could replace it. I won't. The cloth it makes can't come from anything else.",
+        quote_attribution: "Margaret, Founder",
     },
     {
         id: "26",
@@ -978,6 +1038,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 2.4,
         made_in_ireland: false,
+        spotlight_quote:
+            "We met at a silversmithing night class and never left. Now we work side by side. It's grand. Mostly.",
+        quote_attribution: "Salthill Silversmiths",
     },
     {
         id: "27",
@@ -1016,6 +1079,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 23,
         made_in_ireland: false,
+        spotlight_quote:
+            "Every drawing is done from life, crouched on limestone. It sounds idyllic. Mostly it involves being rained on.",
+        quote_attribution: "Dingle Press, Founder",
     },
     {
         id: "28",
@@ -1052,6 +1118,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 15.8,
         made_in_ireland: false,
+        spotlight_quote:
+            "Raku is controlled chaos. You pull the piece red-hot, drop it in sawdust, and hope. That's the whole technique.",
+        quote_attribution: "Thomastown Ceramics, Founder",
     },
     {
         id: "29",
@@ -1091,6 +1160,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.2,
         made_in_ireland: false,
+        spotlight_quote:
+            "I make the kind of earrings strangers ask you about on the bus. That's my whole design brief.",
+        quote_attribution: "Eyre Sq. Jewellers, Founder",
     },
     {
         id: "30",
@@ -1127,6 +1199,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 32,
         made_in_ireland: false,
+        spotlight_quote:
+            "The cyanotypes are sun-printed in actual Connemara sun — when it shows up. Every blue is different.",
+        quote_attribution: "Aisling, Founder",
     },
     {
         id: "31",
@@ -1165,6 +1240,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 11.2,
         made_in_ireland: false,
+        spotlight_quote:
+            "Everything is sourced within ten miles. The bees belong to a neighbour. The moth is real and has eaten at least one piece.",
+        quote_attribution: "Meadow & Moth",
     },
     {
         id: "32",
@@ -1201,6 +1279,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 63,
         made_in_ireland: false,
+        spotlight_quote:
+            "Taibhse means ghost. Misty bogs, empty beaches, stone walls in cloud — I photograph what haunts me.",
+        quote_attribution: "Taibhse Studio, Founder",
     },
     {
         id: "33",
@@ -1238,6 +1319,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 30,
         made_in_ireland: false,
+        spotlight_quote: "Some tapestries take weeks. The slow ones take months. The slow ones are usually the best.",
+        quote_attribution: "Birr Loom, Founder",
     },
     {
         id: "34",
@@ -1276,6 +1359,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 0.7,
         made_in_ireland: false,
+        spotlight_quote:
+            "Two sisters, Irish rapeseed wax, and scents named after Galway places. We got tired of candles that smelled like chemicals.",
+        quote_attribution: "Corrib Candles",
     },
     {
         id: "35",
@@ -1313,6 +1399,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 58,
         made_in_ireland: true,
+        spotlight_quote: "You can meet the sheep who made your jumper. They will not be impressed by you.",
+        quote_attribution: "Flaherty Family, Ardara",
     },
     {
         id: "36",
@@ -1350,6 +1438,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 8,
         made_in_ireland: false,
+        spotlight_quote:
+            "The kiln fires for two days straight. Friends bring soup. What comes out is marked by flame in ways I couldn't plan.",
+        quote_attribution: "Pádraig Walsh",
     },
     {
         id: "37",
@@ -1386,6 +1477,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 54,
         made_in_ireland: false,
+        spotlight_quote:
+            "Every stone I set has been worn smooth by decades of tide. No two are the same colour or story.",
+        quote_attribution: "Doirín",
     },
     {
         id: "38",
@@ -1422,6 +1516,8 @@ export const MAKERS: Maker[] = [
         },
         distance: 2.8,
         made_in_ireland: false,
+        spotlight_quote: "Anyone with an idea and a fiver for ink can use the machines. That's the whole manifesto.",
+        quote_attribution: "Westside Press",
     },
     {
         id: "39",
@@ -1462,6 +1558,9 @@ export const MAKERS: Maker[] = [
         },
         distance: 1,
         made_in_ireland: true,
+        spotlight_quote:
+            "She’s the nose, he’s the spreadsheet. Galway meets Brooklyn in every pour. It shouldn’t work, but it does.",
+        quote_attribution: "Lauren & Terence",
     },
     {
         id: "40",
@@ -1506,5 +1605,7 @@ export const MAKERS: Maker[] = [
         },
         distance: 0,
         made_in_ireland: false,
+        spotlight_quote: "People expect vintage kitchenware. Then they see the Lancia and everything changes.",
+        quote_attribution: "Teresa, Founder",
     },
 ]

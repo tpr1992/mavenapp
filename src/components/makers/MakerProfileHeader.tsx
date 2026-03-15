@@ -118,20 +118,15 @@ export default memo(function MakerProfileHeader({
     const btnSize = isCompact ? 32 : 36
 
     const btnStyle: React.CSSProperties = {
-        width: btnSize,
-        height: btnSize,
-        borderRadius: "50%",
-        border: isCompact ? "none" : GLASS.overlay.border,
-        background: isCompact ? theme.pill : GLASS.overlay.background,
-        backdropFilter: isCompact ? "none" : GLASS.overlay.backdropFilter,
-        WebkitBackdropFilter: isCompact ? "none" : GLASS.overlay.WebkitBackdropFilter,
-        boxShadow: isCompact ? "none" : GLASS.overlay.boxShadow,
+        background: "none",
+        border: "none",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         cursor: "pointer",
         flexShrink: 0,
-        transition: t,
+        padding: 0,
+        pointerEvents: "auto",
     }
 
     const iconColor = isCompact ? theme.textSecondary : "rgba(255,255,255,0.7)"
@@ -247,8 +242,8 @@ export default memo(function MakerProfileHeader({
                         >
                             <path
                                 d="M10 3L5.5 8L10 13"
-                                stroke={isCompact ? theme.textSecondary : "#fff"}
-                                strokeWidth="2"
+                                stroke={isCompact ? theme.textSecondary : "rgba(255,255,255,0.7)"}
+                                strokeWidth="1.5"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 style={{ transition: "stroke 0.3s ease" }}
@@ -334,7 +329,7 @@ export default memo(function MakerProfileHeader({
                                 viewBox="0 0 24 24"
                                 fill={isSaved ? "currentColor" : "none"}
                                 stroke="currentColor"
-                                strokeWidth={2}
+                                strokeWidth={1.5}
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >

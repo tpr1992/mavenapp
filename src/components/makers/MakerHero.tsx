@@ -10,7 +10,7 @@ interface MakerHeroProps {
     minHeroHeight?: number
 }
 
-export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight = 190 }: MakerHeroProps) {
+export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight = 340 }: MakerHeroProps) {
     const hasGallery = maker.gallery_urls && maker.gallery_urls.length > 0
     const heroImage = hasGallery ? maker.gallery_urls[0] : null
     const heroSrc = heroImage
@@ -67,8 +67,8 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    height: "60%",
-                    background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 100%)",
+                    height: "55%",
+                    background: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 50%, #0e0e0e 100%)",
                     pointerEvents: "none",
                 }}
             />
@@ -89,9 +89,9 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 9,
                         fontWeight: 600,
-                        letterSpacing: "0.16em",
+                        letterSpacing: "0.18em",
                         textTransform: "uppercase",
-                        color: "rgba(255,255,255,0.5)",
+                        color: "rgba(255,255,255,0.3)",
                         marginBottom: 6,
                     }}
                 >
@@ -101,7 +101,7 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                 <h1
                     style={{
                         fontFamily: "'Syne', sans-serif",
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: 800,
                         textTransform: "uppercase",
                         letterSpacing: "0.03em",

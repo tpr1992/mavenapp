@@ -41,6 +41,7 @@ async function seed() {
     is_featured: m.is_featured,
     is_spotlight: m.is_spotlight || false,
     spotlight_quote: m.spotlight_quote || null,
+    quote_attribution: m.quote_attribution || null,
     website_url: m.website_url,
     instagram_handle: m.instagram_handle,
     opening_hours: m.opening_hours,

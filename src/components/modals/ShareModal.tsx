@@ -155,6 +155,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         fontFamily: "'Syne', sans-serif",
                         fontSize: 20,
                         fontWeight: 800,
+                        textTransform: "uppercase",
                         color: theme.text,
                         margin: "0 0 4px",
                     }}
