@@ -10,7 +10,8 @@ No router. Navigation is state-driven via `activeTab` + `selectedMaker` in `App.
 - **Components** (`src/components/`): Reusable pieces used across screens.
   - `ui/` — Generic primitives (Carousel, CategoryPills, Toast, etc.)
   - `makers/` — Maker-specific display (MakerHero, MakerListItem, etc.)
-  - `discover/` — Discover feed components (DiscoverHeader)
+  - `discover/` — Discover feed components (DiscoverHeader, SearchOverlay, TrendingCarousel, MasonryGrid)
+  - `profile/` — Profile screen components (AuthForm, DebugPanel, AboutModal)
   - `layout/` — App chrome (TabBar)
 
 ## State Ownership

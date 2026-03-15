@@ -12,7 +12,7 @@
     <meta name="theme-color" content="#faf8f4" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="preconnect" href="https://xsibqwoulhymoptduuca.supabase.co" crossorigin />
+    <link rel="preconnect" href="%VITE_SUPABASE_URL%" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin />
@@ -39,8 +39,8 @@
     <script>
       // Early-fetch: start Supabase requests before React boots (~1-2s head start)
       (function(){
-        var base="https://xsibqwoulhymoptduuca.supabase.co";
-        var key="sb_publishable_MQ2jyGBR_TlX_qwWvV3Z7w_AjK3hqm2";
+        var base="%VITE_SUPABASE_URL%";
+        var key="%VITE_SUPABASE_ANON_KEY%";
         var h={"apikey":key,"Authorization":"Bearer "+key};
         var cols="id,slug,name,bio,category,city,county,address,country,lat,lng,hero_color,avatar_url,gallery_urls,website_url,instagram_handle,opening_hours,is_featured,is_spotlight,spotlight_quote,is_verified,made_in_ireland,years_active,events,created_at";
         window.__prefetchMakers=fetch(base+"/rest/v1/makers?select="+encodeURIComponent(cols),{headers:h}).then(function(r){return r.json()}).catch(function(){return null});

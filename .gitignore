@@ -5,3 +5,6 @@ dist
 .env
 .env.*
 lighthouse-report.*
+
+# Override global gitignore that excludes types/ directories
+!src/types/

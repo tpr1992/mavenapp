@@ -15,6 +15,7 @@ import { optimizeImageUrl, IMG_QUALITY } from "./utils/image"
 import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
+import ErrorBoundary from "./components/ui/ErrorBoundary"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfile from "./screens/MakerProfile"
@@ -300,50 +301,52 @@ export default function App() {
                 borderRight: "var(--app-border)",
             }}
         >
-            <div
-                ref={containerRef}
-                style={{
-                    height: "100vh",
-                    overflowY: "auto",
-                    overflowX: "hidden",
-                    paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
-                }}
-            >
-                {activeTab === "discover" && (
-                    <div style={{ display: selectedMaker ? "none" : undefined }}>
-                        <DiscoverScreen
-                            makers={makers}
-                            makersLoading={makersLoading}
-                            makersError={makersError}
-                            onRetry={refetch}
-                            onRefresh={refetch}
-                            onMakerTap={handleMakerTap}
-                            savedIds={savedIds}
-                            onToggleSave={handleToggleSave}
-                            onScrollToTop={handleScrollToTop}
-                            onReset={resetDiscover}
-                            scrollContainerRef={containerRef}
-                            locationLabel={locationLabel}
-                            locationSource={locationSource}
-                            userLocation={userLocation}
-                            setLocation={setLocation}
-                            sponsoredPosts={sponsoredPosts}
-                            isHidden={!!selectedMaker}
-                            category={discoverCategory}
-                            onCategoryChange={setDiscoverCategory}
-                            openNow={discoverOpenNow}
-                            refreshKey={discoverKey}
-                            onOpenNowChange={setDiscoverOpenNow}
-                            isDebug={isDebug}
-                            debugMeta={debugMeta}
-                            feedLayout={feedLayout}
-                            setFeedLayout={setFeedLayout}
-                            breakpoint={breakpoint}
-                        />
-                    </div>
-                )}
-                {renderScreen()}
-            </div>
+            <ErrorBoundary>
+                <div
+                    ref={containerRef}
+                    style={{
+                        height: "100vh",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                        paddingBottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
+                    }}
+                >
+                    {activeTab === "discover" && (
+                        <div style={{ display: selectedMaker ? "none" : undefined }}>
+                            <DiscoverScreen
+                                makers={makers}
+                                makersLoading={makersLoading}
+                                makersError={makersError}
+                                onRetry={refetch}
+                                onRefresh={refetch}
+                                onMakerTap={handleMakerTap}
+                                savedIds={savedIds}
+                                onToggleSave={handleToggleSave}
+                                onScrollToTop={handleScrollToTop}
+                                onReset={resetDiscover}
+                                scrollContainerRef={containerRef}
+                                locationLabel={locationLabel}
+                                locationSource={locationSource}
+                                userLocation={userLocation}
+                                setLocation={setLocation}
+                                sponsoredPosts={sponsoredPosts}
+                                isHidden={!!selectedMaker}
+                                category={discoverCategory}
+                                onCategoryChange={setDiscoverCategory}
+                                openNow={discoverOpenNow}
+                                refreshKey={discoverKey}
+                                onOpenNowChange={setDiscoverOpenNow}
+                                isDebug={isDebug}
+                                debugMeta={debugMeta}
+                                feedLayout={feedLayout}
+                                setFeedLayout={setFeedLayout}
+                                breakpoint={breakpoint}
+                            />
+                        </div>
+                    )}
+                    {renderScreen()}
+                </div>
+            </ErrorBoundary>
 
             {/* Auth toast */}
             <div
