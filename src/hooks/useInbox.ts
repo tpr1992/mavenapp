@@ -87,7 +87,7 @@ export default function useInbox(userId: string | undefined) {
                     },
                     (payload) => {
                         const msg = payload.new as { sender_id: string; body: string; created_at: string }
-                        if (msg.sender_id === userId) return
+                        const isFromOther = msg.sender_id !== userId
                         setItems((prev) =>
                             prev
                                 .map((it) =>
@@ -96,7 +96,7 @@ export default function useInbox(userId: string | undefined) {
                                               ...it,
                                               last_message_preview: msg.body.slice(0, 100),
                                               updated_at: msg.created_at,
-                                              unread_count: it.unread_count + 1,
+                                              unread_count: isFromOther ? it.unread_count + 1 : it.unread_count,
                                           }
                                         : it,
                                 )
