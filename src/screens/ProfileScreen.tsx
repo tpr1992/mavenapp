@@ -354,6 +354,7 @@ export default function ProfileScreen({
                             fontSize: 18,
                             fontWeight: 700,
                             color: theme.textMuted,
+                            letterSpacing: "-0.03em",
                         }}
                     >
                         maven

@@ -38,21 +38,18 @@ export default function CategoryPills({
     const g = glassStyle(isDark)
 
     const pillStyle = (active: boolean) => ({
-        padding: `7px ${px}px`,
-        borderRadius: 100,
-        border: active ? "none" : useGlass ? g.border : `1.5px solid ${theme.border}`,
-        background: active ? theme.btnBg : useGlass ? g.background : elevated ? theme.card : "transparent",
-        color: active ? theme.btnText : useGlass ? "rgba(255,255,255,0.85)" : theme.textSecondary,
+        padding: 0,
+        border: "none",
+        background: "none",
+        color: active ? theme.text : theme.textMuted,
         fontFamily: "'DM Sans', sans-serif",
-        fontSize,
-        fontWeight: 500,
+        fontSize: 11.5,
+        fontWeight: active ? 600 : 400,
         cursor: "pointer",
         whiteSpace: "nowrap" as const,
-        transition: "background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
-        letterSpacing: "0.01em",
-        boxShadow: useGlass && !active ? g.boxShadow : elevated && !active ? "0 1px 4px rgba(0,0,0,0.1)" : undefined,
-        backdropFilter: useGlass && !active ? g.backdropFilter : undefined,
-        WebkitBackdropFilter: useGlass && !active ? g.WebkitBackdropFilter : undefined,
+        transition: "color 0.2s ease",
+        letterSpacing: "0.04em",
+        textTransform: "uppercase" as const,
     })
 
     return (
@@ -61,7 +58,7 @@ export default function CategoryPills({
                 style={{
                     flex: 1,
                     display: "flex",
-                    gap: compact ? 6 : 8,
+                    gap: 20,
                     overflowX: "auto",
                     padding: showToggle ? `0 ${compact ? 8 : 12}px 8px ${compact ? 16 : 20}px` : "0 20px 8px",
                     scrollbarWidth: "none",
@@ -75,15 +72,6 @@ export default function CategoryPills({
                         onClick={onToggleOpenNow}
                         style={{
                             ...pillStyle(openNowActive),
-                            background: openNowActive
-                                ? "#22543d"
-                                : useGlass
-                                  ? g.background
-                                  : elevated
-                                    ? theme.card
-                                    : "transparent",
-                            color: openNowActive ? "#fff" : useGlass ? "rgba(255,255,255,0.85)" : theme.textSecondary,
-                            border: openNowActive ? "none" : useGlass ? g.border : `1.5px solid ${theme.border}`,
                         }}
                     >
                         {"\u25CF"} Open

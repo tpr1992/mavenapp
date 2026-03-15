@@ -209,12 +209,11 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </div>
             <h2
                 style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'Syne', sans-serif",
                     fontSize: 24,
-                    fontWeight: 700,
+                    fontWeight: 800,
                     color: theme.text,
                     margin: "0 0 10px",
-                    letterSpacing: "-0.02em",
                     textAlign: "center",
                 }}
             >

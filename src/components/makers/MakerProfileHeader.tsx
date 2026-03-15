@@ -264,7 +264,7 @@ export default memo(function MakerProfileHeader({
                             fontSize: isCompact ? 19 : 22,
                             fontWeight: 700,
                             color: isCompact ? theme.text : "rgba(255,255,255,0.9)",
-                            letterSpacing: "-0.02em",
+                            letterSpacing: "-0.03em",
                             cursor: "pointer",
                             lineHeight: 1,
                             position: "relative",
@@ -291,10 +291,12 @@ export default memo(function MakerProfileHeader({
                     />
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: "'Syne', sans-serif",
                             fontSize: 13.5,
-                            fontWeight: 600,
+                            fontWeight: 800,
                             color: theme.textSecondary,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.02em",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",

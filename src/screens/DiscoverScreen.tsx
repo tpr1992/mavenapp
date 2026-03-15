@@ -403,9 +403,9 @@ export default function DiscoverScreen({
                     <div style={{ fontSize: 36, marginBottom: 12 }}>{"\u26A0\uFE0F"}</div>
                     <h2
                         style={{
-                            fontFamily: "'Playfair Display', serif",
+                            fontFamily: "'Syne', sans-serif",
                             fontSize: 18,
-                            fontWeight: 600,
+                            fontWeight: 800,
                             color: theme.text,
                             margin: "0 0 8px",
                         }}
@@ -570,9 +570,9 @@ export default function DiscoverScreen({
                         <div style={{ fontSize: 36, marginBottom: 12 }}>{"\uD83D\uDD0D"}</div>
                         <h3
                             style={{
-                                fontFamily: "'Playfair Display', serif",
+                                fontFamily: "'Syne', sans-serif",
                                 fontSize: 18,
-                                fontWeight: 600,
+                                fontWeight: 800,
                                 color: theme.text,
                                 margin: "0 0 6px",
                             }}
@@ -643,6 +643,7 @@ export default function DiscoverScreen({
                         fontSize: 18,
                         fontWeight: 700,
                         color: theme.textMuted,
+                        letterSpacing: "-0.03em",
                     }}
                 >
                     maven

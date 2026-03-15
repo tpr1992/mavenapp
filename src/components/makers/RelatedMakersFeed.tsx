@@ -21,9 +21,9 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
             <div style={{ padding: "0 4px", marginBottom: 16 }}>
                 <h3
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 18,
-                        fontWeight: 600,
+                        fontWeight: 800,
                         color: theme.text,
                         margin: 0,
                     }}
@@ -118,9 +118,9 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                                 >
                                                     <div
                                                         style={{
-                                                            fontFamily: "'Playfair Display', serif",
+                                                            fontFamily: "'Syne', sans-serif",
                                                             fontSize: 14,
-                                                            fontWeight: 600,
+                                                            fontWeight: 800,
                                                             color: "#fff",
                                                             lineHeight: 1.2,
                                                         }}
@@ -154,9 +154,9 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                                 <div style={{ textAlign: "center" }}>
                                                     <div
                                                         style={{
-                                                            fontFamily: "'Playfair Display', serif",
+                                                            fontFamily: "'Syne', sans-serif",
                                                             fontSize: 14,
-                                                            fontWeight: 600,
+                                                            fontWeight: 800,
                                                             color: theme.text,
                                                         }}
                                                     >

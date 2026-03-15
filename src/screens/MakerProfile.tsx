@@ -437,9 +437,9 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                 <div style={{ flex: 1 }}>
                     <div
                         style={{
-                            fontFamily: "'Playfair Display', serif",
+                            fontFamily: "'Syne', sans-serif",
                             fontSize: 16,
-                            fontWeight: 600,
+                            fontWeight: 800,
                             color: theme.text,
                         }}
                     >
@@ -596,9 +596,9 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
             >
                 <span
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 16,
-                        fontWeight: 600,
+                        fontWeight: 800,
                         color: theme.text,
                     }}
                 >
@@ -651,9 +651,9 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                             >
                                 <div
                                     style={{
-                                        fontFamily: "'Playfair Display', serif",
+                                        fontFamily: "'Syne', sans-serif",
                                         fontSize: 22,
-                                        fontWeight: 700,
+                                        fontWeight: 800,
                                         color: theme.text,
                                         lineHeight: 1,
                                     }}
@@ -693,9 +693,9 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                 )}
                                 <div
                                     style={{
-                                        fontFamily: "'Playfair Display', serif",
+                                        fontFamily: "'Syne', sans-serif",
                                         fontSize: 14,
-                                        fontWeight: 600,
+                                        fontWeight: 800,
                                         color: theme.text,
                                         lineHeight: 1.25,
                                         marginBottom: 4,

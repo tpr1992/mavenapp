@@ -157,14 +157,14 @@ export default function DiscoverHeader({
     // --- Search icon SVG ---
     const searchIcon = (
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <circle cx="7" cy="7" r="5.5" stroke={theme.textMuted} strokeWidth="1.6" />
+            <circle cx="7" cy="7" r="5.5" stroke={theme.textMuted} strokeWidth="1.5" />
             <line
                 x1="11"
                 y1="11"
                 x2="14.5"
                 y2="14.5"
                 stroke={theme.textMuted}
-                strokeWidth="1.6"
+                strokeWidth="1.5"
                 strokeLinecap="round"
             />
         </svg>
@@ -173,9 +173,8 @@ export default function DiscoverHeader({
     const searchBtnStyle = {
         width: 30,
         height: 30,
-        borderRadius: "50%",
-        border: `1.5px solid ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"}`,
-        background: "transparent",
+        border: "none",
+        background: "none",
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
