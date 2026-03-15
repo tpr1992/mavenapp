@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
     <title>maven — Discover Local Makers</title>
     <meta name="description" content="Discover local craftspeople and makers in Galway, Ireland" />
     <meta property="og:title" content="maven — Discover Local Makers" />
@@ -42,7 +42,7 @@
         var base="%VITE_SUPABASE_URL%";
         var key="%VITE_SUPABASE_ANON_KEY%";
         var h={"apikey":key,"Authorization":"Bearer "+key};
-        var cols="id,slug,name,bio,category,city,county,address,country,lat,lng,hero_color,avatar_url,gallery_urls,website_url,instagram_handle,opening_hours,is_featured,is_spotlight,spotlight_quote,is_verified,made_in_ireland,years_active,events,created_at";
+        var cols="id,slug,name,bio,category,city,county,address,country,lat,lng,hero_color,avatar_url,gallery_urls,website_url,instagram_handle,opening_hours,is_featured,is_spotlight,spotlight_quote,is_verified,made_in_ireland,years_active,events,is_messageable,created_at";
         window.__prefetchMakers=fetch(base+"/rest/v1/makers?select="+encodeURIComponent(cols),{headers:h}).then(function(r){return r.json()}).catch(function(){return null});
         window.__prefetchStats=fetch(base+"/rest/v1/rpc/get_maker_click_stats",{method:"POST",headers:Object.assign({"Content-Type":"application/json"},h),body:"{}"}).then(function(r){return r.json()}).catch(function(){return null});
       })();
