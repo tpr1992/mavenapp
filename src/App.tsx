@@ -92,7 +92,7 @@ export default function App() {
 
     const handleMakerTap = useCallback(
         (maker: Maker) => {
-            // Preload hero image so it's cached before MakerProfile renders
+            // Preload hero, avatar, and first gallery images so they're cached before MakerProfile renders
             const heroUrl = maker.gallery_urls?.[0]
             if (heroUrl) {
                 const img = new window.Image()
@@ -102,6 +102,11 @@ export default function App() {
                 const av = new window.Image()
                 av.src = optimizeImageUrl(maker.avatar_url, 120) ?? ""
             }
+            // Preload first 4 gallery images (Work tab uses 300px width)
+            maker.gallery_urls?.slice(1, 5).forEach((url) => {
+                const g = new window.Image()
+                g.src = optimizeImageUrl(url, 300) ?? ""
+            })
             if (containerRef.current) scrollPosRef.current = containerRef.current.scrollTop
             history.pushState({ maker: maker.slug, tab: activeTab }, "", buildURL(activeTab, maker.slug))
             setSelectedMaker(maker)
@@ -221,6 +226,7 @@ export default function App() {
         if (selectedMaker) {
             return (
                 <MakerProfile
+                    key={selectedMaker.id}
                     maker={selectedMaker}
                     makers={makers}
                     onBack={handleBack}

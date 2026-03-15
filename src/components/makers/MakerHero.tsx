@@ -13,6 +13,18 @@ interface MakerHeroProps {
 export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight = 190 }: MakerHeroProps) {
     const hasGallery = maker.gallery_urls && maker.gallery_urls.length > 0
     const heroImage = hasGallery ? maker.gallery_urls[0] : null
+    const heroSrc = heroImage
+        ? (optimizeImageUrl(heroImage, 800, { quality: IMG_QUALITY.hero }) ?? undefined)
+        : undefined
+
+    // If the image was preloaded (handleMakerTap), it's already in the browser cache —
+    // show immediately instead of fading from black
+    const isCached = (() => {
+        if (!heroSrc) return false
+        const img = new Image()
+        img.src = heroSrc
+        return img.complete
+    })()
 
     return (
         <div
@@ -23,10 +35,10 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                 minHeight: minHeroHeight,
             }}
         >
-            {heroImage && (
+            {heroSrc && (
                 <img
-                    src={optimizeImageUrl(heroImage, 800, { quality: IMG_QUALITY.hero }) ?? undefined}
-                    srcSet={imageSrcSet(heroImage, 400, { quality: IMG_QUALITY.hero })}
+                    src={heroSrc}
+                    srcSet={imageSrcSet(heroImage!, 400, { quality: IMG_QUALITY.hero })}
                     sizes="100vw"
                     alt=""
                     loading="eager"
@@ -42,8 +54,8 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                         height: "100%",
                         objectFit: "cover",
                         filter: isDark ? "brightness(0.75) saturate(0.9)" : "brightness(0.9) saturate(1)",
-                        opacity: 0,
-                        transition: "opacity 0.3s ease",
+                        opacity: isCached ? 1 : 0,
+                        transition: isCached ? "none" : "opacity 0.3s ease",
                     }}
                 />
             )}
