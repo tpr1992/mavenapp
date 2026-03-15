@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
 import { isOpenNow } from "../../utils/time"
 import { formatLocationName } from "../../utils/distance"
@@ -40,6 +40,8 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                                 undefined
                             }
                             srcSet={imageSrcSet(maker.gallery_urls[0], imageWidth, { quality: IMG_QUALITY.hero })}
+                            width={imageWidth}
+                            height={Math.round(imageWidth * 0.75)}
                             alt=""
                             loading="eager"
                             fetchPriority="high"
@@ -205,24 +207,25 @@ export default memo(function TrendingCarousel({
     resetKey,
 }: TrendingCarouselProps) {
     const { isDark } = useTheme()
-    if (!makers.length) return null
-    return (
-        <Carousel
-            items={makers}
-            renderItem={(maker) => (
+
+    const SlideComponent = useMemo(() => {
+        function TrendingSlide({ item }: { item: Maker; index: number }) {
+            return (
                 <TrendingCard
-                    maker={maker}
+                    maker={item}
                     onTap={onTap}
                     showOpenStatus={showOpenStatus}
                     isDark={isDark}
                     isDebug={isDebug}
                     imageWidth={imageWidth}
                 />
-            )}
-            loop
-            autoPlay={7000}
-            dots="pill"
-            resetKey={resetKey}
-        />
+            )
+        }
+        return memo(TrendingSlide)
+    }, [onTap, showOpenStatus, isDark, isDebug, imageWidth])
+
+    if (!makers.length) return null
+    return (
+        <Carousel items={makers} ItemComponent={SlideComponent} loop autoPlay={7000} dots="pill" resetKey={resetKey} />
     )
 })
