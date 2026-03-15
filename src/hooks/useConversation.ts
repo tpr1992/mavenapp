@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { supabase } from "../lib/supabase"
 import type { Message } from "../types"
+import { filterProfanity } from "../utils/profanity"
 
 const PAGE_SIZE = 30
 
@@ -22,6 +23,9 @@ export default function useConversation({ conversationId, makerId, onConversatio
     useEffect(() => {
         activeConvId.current = conversationId ?? null
     }, [conversationId])
+
+    // Cached user ID to avoid repeated getUser() API calls
+    const userIdRef = useRef<string | null>(null)
 
     // Rate limiting refs
     const lastSendRef = useRef(0)
@@ -141,6 +145,8 @@ export default function useConversation({ conversationId, makerId, onConversatio
             const trimmed = body.trim()
             if (!trimmed || trimmed.length > 2000) return
 
+            const filtered = filterProfanity(trimmed)
+
             // Rate limit: 1/sec, 50/min
             const now = Date.now()
             if (now - lastSendRef.current < 1000) return
@@ -174,7 +180,7 @@ export default function useConversation({ conversationId, makerId, onConversatio
                 id: crypto.randomUUID(),
                 conversation_id: cid,
                 sender_id: userId,
-                body: trimmed,
+                body: filtered,
                 created_at: new Date().toISOString(),
                 delivered_at: null,
                 read_at: null,
@@ -188,7 +194,7 @@ export default function useConversation({ conversationId, makerId, onConversatio
                 .insert({
                     conversation_id: cid,
                     sender_id: userId,
-                    body: trimmed,
+                    body: filtered,
                 })
                 .select("id, delivered_at")
                 .single()
@@ -240,8 +246,12 @@ export default function useConversation({ conversationId, makerId, onConversatio
         const cid = activeConvId.current
         if (!cid || document.visibilityState !== "visible") return
 
-        const { data: userData } = await supabase.auth.getUser()
-        const uid = userData?.user?.id
+        let uid = userIdRef.current
+        if (!uid) {
+            const { data: userData } = await supabase.auth.getUser()
+            uid = userData?.user?.id ?? null
+            userIdRef.current = uid
+        }
         if (!uid) return
 
         // Direct UPDATE goes through RLS → Realtime sees it → sender gets the update
@@ -252,8 +262,8 @@ export default function useConversation({ conversationId, makerId, onConversatio
             .neq("sender_id", uid)
             .is("read_at", null)
 
-        // Also reset the unread counter via RPC (this part doesn't need Realtime)
-        supabase.rpc("mark_conversation_read", { p_conversation_id: cid })
+        // Reset unread counter AFTER the update commits — self-healing recalculation
+        await supabase.rpc("mark_conversation_read", { p_conversation_id: cid })
     }, [])
 
     return { messages, loading, hasMore, loadMore, sendMessage, retryMessage, markRead }

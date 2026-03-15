@@ -32,11 +32,55 @@ export default function ChatView({
         onConversationCreated,
     })
     const scrollRef = useRef<HTMLDivElement>(null)
-    const isAtBottom = useRef(true)
-    const prevCountRef = useRef(0)
+    const bottomRef = useRef<HTMLDivElement>(null)
+    const scrollBtnRef = useRef<HTMLDivElement>(null)
+    const scrollBtnVisible = useRef(false)
     const [keyboardHeight, setKeyboardHeight] = useState(0)
+    const prevCountRef = useRef(0)
+    const initialScrollDone = useRef(false)
 
-    // Track iOS virtual keyboard via visualViewport
+    // ── Scroll helpers ──
+    const scrollToBottom = useCallback((smooth = false) => {
+        const el = bottomRef.current
+        if (el) el.scrollIntoView(smooth ? { behavior: "smooth", block: "end" } : { block: "end" })
+    }, [])
+
+    const isNearBottom = useCallback(() => {
+        const el = scrollRef.current
+        if (!el) return true
+        return el.scrollHeight - el.scrollTop - el.clientHeight < 80
+    }, [])
+
+    const scrollBtnLocked = useRef(false)
+
+    const showScrollBtn = useCallback(() => {
+        const el = scrollBtnRef.current
+        if (!el || scrollBtnVisible.current || scrollBtnLocked.current) return
+        scrollBtnVisible.current = true
+        el.style.transition =
+            "opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+        el.style.opacity = "1"
+        el.style.transform = "translateY(0) scale(1)"
+        el.style.pointerEvents = "auto"
+    }, [])
+
+    const hideScrollBtn = useCallback((lock = false) => {
+        const el = scrollBtnRef.current
+        if (!el || !scrollBtnVisible.current) return
+        scrollBtnVisible.current = false
+        if (lock) {
+            scrollBtnLocked.current = true
+            setTimeout(() => {
+                scrollBtnLocked.current = false
+            }, 600)
+        }
+        el.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out"
+        el.style.opacity = "0"
+        el.style.transform = "translateY(6px) scale(0.9)"
+        el.style.pointerEvents = "none"
+    }, [])
+
+    // ── Keyboard tracking via visualViewport ──
     useEffect(() => {
         const vv = window.visualViewport
         if (!vv) return
@@ -50,16 +94,10 @@ export default function ChatView({
 
     // Scroll to bottom when keyboard opens
     useEffect(() => {
-        if (keyboardHeight > 0) {
-            const el = scrollRef.current
-            if (el)
-                setTimeout(() => {
-                    el.scrollTop = el.scrollHeight
-                }, 50)
-        }
-    }, [keyboardHeight])
+        if (keyboardHeight > 0) scrollToBottom()
+    }, [keyboardHeight, scrollToBottom])
 
-    // Prevent body scroll while chat is open
+    // ── Prevent body scroll ──
     useEffect(() => {
         const prev = document.body.style.overflow
         document.body.style.overflow = "hidden"
@@ -68,6 +106,36 @@ export default function ChatView({
         }
     }, [])
 
+    // ── Keyboard dismiss on scroll down ──
+    // Use native touchmove so we get consistent events even during iOS scroll
+    useEffect(() => {
+        const el = scrollRef.current
+        if (!el) return
+        let startY = 0
+        let dismissed = false
+
+        const onTouchStart = (e: TouchEvent) => {
+            startY = e.touches[0].clientY
+            dismissed = false
+        }
+        const onTouchMove = (e: TouchEvent) => {
+            if (dismissed) return
+            const dy = e.touches[0].clientY - startY
+            // Finger moving up = scrolling content down = dismiss keyboard
+            if (dy < -30 && keyboardHeight > 0) {
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+                dismissed = true
+            }
+        }
+        el.addEventListener("touchstart", onTouchStart, { passive: true })
+        el.addEventListener("touchmove", onTouchMove, { passive: true })
+        return () => {
+            el.removeEventListener("touchstart", onTouchStart)
+            el.removeEventListener("touchmove", onTouchMove)
+        }
+    }, [keyboardHeight])
+
+    // ── Mark as read ──
     useEffect(() => {
         if (!conversationId) return
         markRead()
@@ -79,8 +147,6 @@ export default function ChatView({
                 if (conversationId) onRead(conversationId)
             }
         }
-        // Also mark read on any user interaction (tap, scroll) — catches cases where
-        // the chat is already open and new messages arrive
         const onInteraction = () => {
             if (document.visibilityState === "visible") markRead()
         }
@@ -94,7 +160,7 @@ export default function ChatView({
         }
     }, [conversationId, markRead, onRead])
 
-    // Mark read when new messages arrive while chat is visible
+    // Mark read when new messages arrive
     useEffect(() => {
         if (messages.length > 0 && conversationId && document.visibilityState === "visible") {
             markRead()
@@ -102,55 +168,92 @@ export default function ChatView({
         }
     }, [messages.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Auto-scroll on new messages
+    // ── Scroll to bottom: ensures messages start at bottom ──
+    const forceScrollBottom = useCallback(() => {
+        const el = scrollRef.current
+        if (!el) return
+        el.scrollTop = el.scrollHeight
+        requestAnimationFrame(() => {
+            if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+            initialScrollDone.current = true
+        })
+    }, [])
+
+    // On initial load complete — scroll to bottom
+    const wasLoading = useRef(true)
     useEffect(() => {
-        if (messages.length > prevCountRef.current) {
+        if (wasLoading.current && !loading && messages.length > 0) {
+            forceScrollBottom()
+        }
+        wasLoading.current = loading
+    }, [loading, messages.length, forceScrollBottom])
+
+    // On new messages while near bottom — auto-scroll
+    useEffect(() => {
+        if (messages.length > prevCountRef.current && initialScrollDone.current) {
             const el = scrollRef.current
-            if (el && isAtBottom.current) {
-                setTimeout(() => {
-                    el.scrollTop = el.scrollHeight
-                }, 20)
+            if (el) {
+                const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+                if (nearBottom) {
+                    requestAnimationFrame(() => {
+                        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+                    })
+                }
             }
         }
         prevCountRef.current = messages.length
     }, [messages.length])
 
-    // Initial scroll to bottom after first load
+    // Reset on conversation change
     useEffect(() => {
-        if (!loading && messages.length > 0) {
-            const el = scrollRef.current
-            if (el)
-                setTimeout(() => {
-                    el.scrollTop = el.scrollHeight
-                }, 20)
-        }
-    }, [loading]) // eslint-disable-line react-hooks/exhaustive-deps
+        initialScrollDone.current = false
+        wasLoading.current = true
+    }, [conversationId])
+
+    // ── Scroll handler: scroll-to-bottom button + load more ──
+    const loadMoreTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const handleScroll = useCallback(() => {
         const el = scrollRef.current
-        if (!el) return
-        // Dismiss keyboard on scroll
-        if (
-            document.activeElement instanceof HTMLInputElement ||
-            document.activeElement instanceof HTMLTextAreaElement
-        ) {
-            document.activeElement.blur()
-        }
-        isAtBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40
-        if (el.scrollTop < 60 && hasMore && !loading) {
-            const prevHeight = el.scrollHeight
-            loadMore().then(() => {
-                requestAnimationFrame(() => {
-                    if (scrollRef.current) {
-                        scrollRef.current.scrollTop = scrollRef.current.scrollHeight - prevHeight
-                    }
-                })
-            })
-        }
-    }, [hasMore, loading, loadMore])
+        if (!el || !initialScrollDone.current) return
 
-    // Tap on message area dismisses keyboard
-    const handleAreaTap = useCallback(() => {
+        const scrollable = el.scrollHeight - el.clientHeight
+        // No scrollable content — never show button
+        if (scrollable < 10) {
+            hideScrollBtn()
+            return
+        }
+
+        // Ignore overscroll: scrollTop < 0 (top bounce) or scrollTop > scrollable (bottom bounce)
+        if (el.scrollTop < 0 || el.scrollTop > scrollable + 5) return
+
+        const distFromBottom = scrollable - el.scrollTop
+
+        // Show button only when user has scrolled up significantly (400px ≈ 3+ messages)
+        if (distFromBottom > 400) {
+            showScrollBtn()
+        } else if (distFromBottom < 80) {
+            // Near bottom — hide button
+            hideScrollBtn()
+        }
+
+        // Load more — debounced to avoid interrupting momentum scroll
+        if (el.scrollTop < 100 && hasMore && !loading) {
+            if (loadMoreTimer.current) clearTimeout(loadMoreTimer.current)
+            loadMoreTimer.current = setTimeout(() => {
+                const prevHeight = el.scrollHeight
+                loadMore().then(() => {
+                    requestAnimationFrame(() => {
+                        if (scrollRef.current) {
+                            scrollRef.current.scrollTop = scrollRef.current.scrollHeight - prevHeight
+                        }
+                    })
+                })
+            }, 150)
+        }
+    }, [hasMore, loading, loadMore, showScrollBtn, hideScrollBtn])
+
+    const blurInput = useCallback(() => {
         if (
             document.activeElement instanceof HTMLInputElement ||
             document.activeElement instanceof HTMLTextAreaElement
@@ -174,9 +277,12 @@ export default function ChatView({
                 maxWidth: "var(--app-max-width)",
                 margin: "0 auto",
                 transition: "bottom 0.15s ease",
+                overflow: "hidden",
             }}
         >
+            {/* Header */}
             <div
+                onClick={blurInput}
                 style={{
                     display: "flex",
                     alignItems: "center",
@@ -188,7 +294,10 @@ export default function ChatView({
                 }}
             >
                 <button
-                    onClick={onBack}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onBack()
+                    }}
                     style={{
                         background: "none",
                         border: "none",
@@ -225,21 +334,25 @@ export default function ChatView({
                 </span>
             </div>
 
+            {/* Message list */}
             <div
                 ref={scrollRef}
                 onScroll={handleScroll}
-                onClick={handleAreaTap}
                 style={{
                     flex: 1,
                     overflowY: "auto",
                     overflowX: "hidden",
+                    WebkitOverflowScrolling: "touch",
+                    overscrollBehavior: "contain",
                     padding: "12px 0",
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "flex-end",
                     minHeight: 0,
+                    position: "relative",
                 }}
             >
+                {/* Spacer pushes messages to bottom when content is shorter than container */}
+                <div style={{ flex: 1 }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     {loading && messages.length === 0 && (
                         <div style={{ textAlign: "center", padding: 20 }}>
@@ -259,7 +372,6 @@ export default function ChatView({
                     {messages.map((msg, i) => {
                         const isMine = msg.sender_id === userId
                         const next = messages[i + 1]
-                        // Show status only on the last message in a consecutive run from the same sender
                         const isLastInRun = !next || next.sender_id !== msg.sender_id
                         return (
                             <MessageBubble
@@ -272,7 +384,52 @@ export default function ChatView({
                             />
                         )
                     })}
+                    <div ref={bottomRef} />
                 </div>
+            </div>
+
+            {/* Scroll to bottom button — always mounted, visibility controlled via ref */}
+            <div
+                ref={scrollBtnRef}
+                onClick={() => {
+                    hideScrollBtn(true)
+                    scrollToBottom(true)
+                }}
+                style={{
+                    position: "absolute",
+                    bottom: 70,
+                    left: "50%",
+                    marginLeft: -18,
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: theme.card,
+                    border: `1px solid ${theme.border}`,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    zIndex: 10,
+                    opacity: 0,
+                    transform: "translateY(6px) scale(0.9)",
+                    pointerEvents: "none",
+                    willChange: "opacity, transform",
+                }}
+            >
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={theme.text}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <path d="m7 13 5 5 5-5" />
+                    <path d="M12 6v12" />
+                </svg>
             </div>
 
             <ChatInput onSend={sendMessage} theme={theme} isDark={isDark} />

@@ -30,6 +30,7 @@ interface MakerProfileProps {
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
     onLogoTap: () => void
     breakpoint?: Breakpoint
+    userId?: string | null
     onMessage?: (makerId: string) => void
 }
 
@@ -771,6 +772,7 @@ export default function MakerProfile({
     scrollContainerRef,
     onLogoTap,
     breakpoint = "mobile",
+    userId,
     onMessage,
 }: MakerProfileProps) {
     const [showShare, setShowShare] = useState(false)
@@ -869,7 +871,7 @@ export default function MakerProfile({
             <InfoSection maker={maker} theme={theme} />
 
             {/* Message button */}
-            {maker.is_messageable && onMessage && (
+            {maker.is_messageable && onMessage && maker.user_id !== userId && (
                 <div style={{ padding: "12px 16px 0" }}>
                     <button
                         onClick={() => onMessage(maker.id)}
