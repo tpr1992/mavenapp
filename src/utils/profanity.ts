@@ -70,3 +70,28 @@ function buildRegex(): RegExp {
 export function filterProfanity(text: string): string {
     return text.replace(buildRegex(), (match) => "*".repeat(match.length))
 }
+
+// Phone: 7+ digits with optional separators (+, spaces, dashes, parens)
+const PHONE_RE = /(?:\+?\d[\d\s\-()]{5,}\d)/g
+
+// Email: standard word@domain.tld
+const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
+
+/** Replace phone numbers and email addresses with *** */
+export function filterContactInfo(text: string): string {
+    return text.replace(EMAIL_RE, "***").replace(PHONE_RE, (match) => {
+        // Only match if there are 7+ actual digits
+        const digitCount = match.replace(/\D/g, "").length
+        return digitCount >= 7 ? "***" : match
+    })
+}
+
+/** Full message filter pipeline: contact info → profanity */
+export function filterMessage(text: string): string {
+    return filterProfanity(filterContactInfo(text))
+}
+
+/** Check if text contains an external link (http://, https://, www.) */
+export function hasExternalLink(text: string): boolean {
+    return /https?:\/\/|www\./i.test(text)
+}

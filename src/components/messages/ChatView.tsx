@@ -12,6 +12,7 @@ interface ChatViewProps {
     maker: Maker
     userId: string
     onBack: () => void
+    onMakerTap: (maker: Maker) => void
     onRead: (conversationId: string) => void
     onConversationCreated?: (conversationId: string) => void
 }
@@ -22,11 +23,12 @@ export default function ChatView({
     maker,
     userId,
     onBack,
+    onMakerTap,
     onRead,
     onConversationCreated,
 }: ChatViewProps) {
     const { theme, isDark } = useTheme()
-    const { messages, loading, hasMore, loadMore, sendMessage, retryMessage, markRead } = useConversation({
+    const { messages, loading, hasMore, loadMore, sendMessage, retryMessage, toggleLike, markRead } = useConversation({
         conversationId,
         makerId,
         onConversationCreated,
@@ -36,8 +38,27 @@ export default function ChatView({
     const scrollBtnRef = useRef<HTMLDivElement>(null)
     const scrollBtnVisible = useRef(false)
     const [keyboardHeight, setKeyboardHeight] = useState(0)
+    const [reportModal, setReportModal] = useState<{ messageId: string } | null>(null)
+    const [reportReason, setReportReason] = useState<string | null>(null)
     const prevCountRef = useRef(0)
     const initialScrollDone = useRef(false)
+
+    const handleLongPress = useCallback((_messageId: string, action: "like" | "report") => {
+        if (action === "report") {
+            setReportModal({ messageId: _messageId })
+            setReportReason(null)
+        }
+    }, [])
+
+    const [reportToast, setReportToast] = useState(false)
+    const handleReport = useCallback(() => {
+        if (!reportModal || !reportReason) return
+        console.log("Report:", { messageId: reportModal.messageId, reason: reportReason })
+        setReportModal(null)
+        setReportReason(null)
+        setReportToast(true)
+        setTimeout(() => setReportToast(false), 3000)
+    }, [reportModal, reportReason])
 
     // ── Scroll helpers ──
     const scrollToBottom = useCallback((smooth = false) => {
@@ -45,7 +66,7 @@ export default function ChatView({
         if (el) el.scrollIntoView(smooth ? { behavior: "smooth", block: "end" } : { block: "end" })
     }, [])
 
-    const isNearBottom = useCallback(() => {
+    const _isNearBottom = useCallback(() => {
         const el = scrollRef.current
         if (!el) return true
         return el.scrollHeight - el.scrollTop - el.clientHeight < 80
@@ -321,17 +342,25 @@ export default function ChatView({
                         <path d="m15 18-6-6 6-6" />
                     </svg>
                 </button>
-                <MakerAvatar maker={maker} size={32} />
-                <span
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: theme.text,
-                    }}
+                <div
+                    onClick={() => onMakerTap(maker)}
+                    style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flex: 1, minWidth: 0 }}
                 >
-                    {maker.name}
-                </span>
+                    <MakerAvatar maker={maker} size={32} />
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 15,
+                            fontWeight: 600,
+                            color: theme.text,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                        }}
+                    >
+                        {maker.name}
+                    </span>
+                </div>
             </div>
 
             {/* Message list */}
@@ -380,7 +409,10 @@ export default function ChatView({
                                 isMine={isMine}
                                 showStatus={isMine && isLastInRun}
                                 theme={theme}
+                                userId={userId}
                                 onRetry={retryMessage}
+                                onLongPress={handleLongPress}
+                                onDoubleTap={(messageId) => toggleLike(messageId, userId)}
                             />
                         )
                     })}
@@ -432,7 +464,137 @@ export default function ChatView({
                 </svg>
             </div>
 
+            {/* Report confirmation toast */}
+            {reportToast && (
+                <div
+                    style={{
+                        padding: "10px 16px",
+                        background: theme.surface,
+                        borderTop: `1px solid ${theme.border}`,
+                        flexShrink: 0,
+                        animation: "fadeIn 0.15s ease",
+                    }}
+                >
+                    <span
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 13,
+                            color: theme.textSecondary,
+                        }}
+                    >
+                        Report submitted. We'll review it shortly.
+                    </span>
+                </div>
+            )}
+
             <ChatInput onSend={sendMessage} theme={theme} isDark={isDark} />
+
+            {/* Report modal */}
+            {reportModal && (
+                <div
+                    onClick={() => {
+                        setReportModal(null)
+                        setReportReason(null)
+                    }}
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.4)",
+                        zIndex: 200,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 24,
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: theme.card,
+                            borderRadius: 20,
+                            padding: "28px 24px",
+                            maxWidth: 320,
+                            width: "100%",
+                            textAlign: "center",
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 15,
+                                fontWeight: 600,
+                                color: theme.text,
+                                margin: "0 0 16px",
+                            }}
+                        >
+                            Report this message?
+                        </p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+                            {(["Spam", "Harassment", "Inappropriate content", "Other"] as const).map((reason) => (
+                                <button
+                                    key={reason}
+                                    onClick={() => setReportReason(reason)}
+                                    style={{
+                                        padding: "10px 16px",
+                                        borderRadius: 12,
+                                        border: `1px solid ${reportReason === reason ? theme.btnBg : theme.border}`,
+                                        background: reportReason === reason ? theme.btnBg : "transparent",
+                                        color: reportReason === reason ? theme.btnText : theme.text,
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 14,
+                                        fontWeight: 500,
+                                        cursor: "pointer",
+                                        textAlign: "left",
+                                        transition: "border-color 0.15s ease, background 0.15s ease, color 0.15s ease",
+                                    }}
+                                >
+                                    {reason}
+                                </button>
+                            ))}
+                        </div>
+                        <div style={{ display: "flex", gap: 10 }}>
+                            <button
+                                onClick={() => {
+                                    setReportModal(null)
+                                    setReportReason(null)
+                                }}
+                                style={{
+                                    flex: 1,
+                                    padding: "12px 0",
+                                    borderRadius: 100,
+                                    border: `1px solid ${theme.border}`,
+                                    background: theme.card,
+                                    color: theme.text,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleReport}
+                                style={{
+                                    flex: 1,
+                                    padding: "12px 0",
+                                    borderRadius: 100,
+                                    border: "none",
+                                    background: reportReason ? theme.btnBg : theme.border,
+                                    color: reportReason ? theme.btnText : theme.textMuted,
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    cursor: reportReason ? "pointer" : "default",
+                                    transition: "background 0.15s ease, color 0.15s ease",
+                                }}
+                            >
+                                Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

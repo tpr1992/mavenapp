@@ -36,13 +36,15 @@ function getStateFromURL() {
     const tab = params.get("tab") || "discover"
     const makerSlug = params.get("maker")
     const conversation = params.get("conversation")
-    return { tab, makerSlug, conversation }
+    const view = params.get("view") as "saved" | "messages" | null
+    return { tab, makerSlug, conversation, view }
 }
 
-function buildURL(tab: string, makerSlug?: string | null, conversation?: string | null) {
+function buildURL(tab: string, makerSlug?: string | null, conversation?: string | null, view?: string | null) {
     const params = new URLSearchParams()
     if (tab && tab !== "discover") params.set("tab", tab)
     if (makerSlug) params.set("maker", makerSlug)
+    if (view) params.set("view", view)
     if (conversation) params.set("conversation", conversation)
     const qs = params.toString()
     return qs ? "/?" + qs : "/"
@@ -99,6 +101,7 @@ export default function App() {
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
+    const [profileSubView, setProfileSubView] = useState<"saved" | "messages" | null>(initialURL.current.view)
     const [discoverCategory, setDiscoverCategory] = useState("All")
     const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
     const [discoverKey, setDiscoverKey] = useState(0)
@@ -156,6 +159,7 @@ export default function App() {
             history.pushState({ tab }, "", buildURL(tab))
             setSelectedMaker(null)
             setSelectedConversation(null)
+            setProfileSubView(null)
             setActiveTab(tab)
             if (tab === "discover") {
                 resetDiscover()
@@ -253,6 +257,9 @@ export default function App() {
             const makerId = e.state?.makerId || null
             setSelectedConversation(conversation && makerId ? { id: conversation, makerId } : null)
 
+            const subView = urlState.view || e.state?.subView || null
+            setProfileSubView(subView)
+
             if (makerSlug) {
                 const maker = makers.find((m) => m.slug === makerSlug)
                 setSelectedMaker(maker || null)
@@ -315,32 +322,50 @@ export default function App() {
                         />
                     </Suspense>
                 )
-            case "messages":
+            case "shop":
                 return (
-                    <MessagesScreen
-                        items={inboxItems}
-                        loading={inboxLoading}
-                        isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
-                        userId={user?.id ?? ""}
-                        onConversationTap={(conversationId, makerId) => handleConversationOpen(conversationId, makerId)}
-                        onDelete={deleteConversation}
-                        onLogoTap={handleLogoTap}
-                    />
-                )
-            case "saved":
-                return (
-                    <SavedScreen
-                        makers={makers}
-                        makersLoading={makersLoading}
-                        onMakerTap={handleMakerTap}
-                        savedIds={savedIds}
-                        onToggleSave={handleToggleSave}
-                        onTabChange={handleTabChange}
-                        onLogoTap={handleLogoTap}
-                        breakpoint={breakpoint}
-                    />
+                    <div style={{ padding: "60px 20px", textAlign: "center" }}>
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 15,
+                                color: theme.textSecondary,
+                            }}
+                        >
+                            Marketplace coming soon
+                        </p>
+                    </div>
                 )
             case "profile":
+                if (profileSubView === "saved") {
+                    return (
+                        <SavedScreen
+                            makers={makers}
+                            makersLoading={makersLoading}
+                            onMakerTap={handleMakerTap}
+                            savedIds={savedIds}
+                            onToggleSave={handleToggleSave}
+                            onTabChange={handleTabChange}
+                            onLogoTap={handleLogoTap}
+                            breakpoint={breakpoint}
+                        />
+                    )
+                }
+                if (profileSubView === "messages") {
+                    return (
+                        <MessagesScreen
+                            items={inboxItems}
+                            loading={inboxLoading}
+                            isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
+                            userId={user?.id ?? ""}
+                            onConversationTap={(conversationId, makerId) =>
+                                handleConversationOpen(conversationId, makerId)
+                            }
+                            onDelete={deleteConversation}
+                            onLogoTap={handleLogoTap}
+                        />
+                    )
+                }
                 return (
                     <ProfileScreen
                         isDebug={isDebug}
@@ -351,6 +376,25 @@ export default function App() {
                         setFeedLayout={setFeedLayout}
                         onLogoTap={handleLogoTap}
                         profileName={profileName}
+                        unreadMessages={totalUnread}
+                        inboxItems={inboxItems}
+                        userId={user?.id ?? ""}
+                        onSavedTap={() => {
+                            history.pushState(
+                                { tab: "profile", subView: "saved" },
+                                "",
+                                buildURL("profile", null, null, "saved"),
+                            )
+                            setProfileSubView("saved")
+                        }}
+                        onMessagesTap={() => {
+                            history.pushState(
+                                { tab: "profile", subView: "messages" },
+                                "",
+                                buildURL("profile", null, null, "messages"),
+                            )
+                            setProfileSubView("messages")
+                        }}
                     />
                 )
             default:
@@ -441,6 +485,10 @@ export default function App() {
                             maker={maker}
                             userId={user.id}
                             onBack={handleConversationBack}
+                            onMakerTap={(m) => {
+                                setSelectedConversation(null)
+                                handleMakerTap(m)
+                            }}
                             onRead={clearUnread}
                             onConversationCreated={(cid) => {
                                 setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
@@ -485,13 +533,7 @@ export default function App() {
                 </div>
             </div>
 
-            <TabBar
-                activeTab={activeTab}
-                savedCount={savedIds.size}
-                unreadMessages={totalUnread}
-                selectedMaker={selectedMaker}
-                onTabChange={handleTabChange}
-            />
+            <TabBar activeTab={activeTab} selectedMaker={selectedMaker} onTabChange={handleTabChange} />
             <SpeedInsights />
             <Analytics />
         </div>

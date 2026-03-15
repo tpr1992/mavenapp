@@ -25,36 +25,22 @@ function IconHomeV2() {
     )
 }
 
+function IconShopV2() {
+    return (
+        <svg {...iconProps}>
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+        </svg>
+    )
+}
+
 function IconMapV2() {
     return (
         <svg {...iconProps}>
             <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
             <path d="M15 5.764v15" />
             <path d="M9 3.236v15" />
-        </svg>
-    )
-}
-
-function IconHeartV2() {
-    return (
-        <svg {...iconProps}>
-            <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
-        </svg>
-    )
-}
-
-function IconHeartFilledV2() {
-    return (
-        <svg {...iconProps} fill="currentColor">
-            <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
-        </svg>
-    )
-}
-
-function IconMessageV2() {
-    return (
-        <svg {...iconProps}>
-            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
         </svg>
     )
 }
@@ -68,29 +54,20 @@ function IconUserV2() {
     )
 }
 
-const TAB_ICONS_V2: Record<string, (hasSaved: boolean) => React.ReactNode> = {
+const TAB_ICONS_V2: Record<string, () => React.ReactNode> = {
     discover: () => <IconHomeV2 />,
+    shop: () => <IconShopV2 />,
     map: () => <IconMapV2 />,
-    saved: (hasSaved) => (hasSaved ? <IconHeartFilledV2 /> : <IconHeartV2 />),
-    messages: () => <IconMessageV2 />,
     profile: () => <IconUserV2 />,
 }
 
 interface TabBarProps {
     activeTab: string
-    savedCount: number
-    unreadMessages: number
     selectedMaker: Maker | null
     onTabChange: (tab: string) => void
 }
 
-export default memo(function TabBar({
-    activeTab,
-    savedCount,
-    unreadMessages,
-    selectedMaker,
-    onTabChange,
-}: TabBarProps) {
+export default memo(function TabBar({ activeTab, selectedMaker, onTabChange }: TabBarProps) {
     const { theme, isDark } = useTheme()
     const g = glassBarStyle(isDark)
 
@@ -118,7 +95,6 @@ export default memo(function TabBar({
         >
             {TAB_ITEMS.map((tab) => {
                 const isActive = !selectedMaker && activeTab === tab.id
-                const count = tab.id === "saved" ? savedCount : tab.id === "messages" ? unreadMessages : 0
                 return (
                     <button
                         key={tab.id}
@@ -140,33 +116,7 @@ export default memo(function TabBar({
                             opacity: isActive ? 1 : isDark ? 0.45 : 0.55,
                         }}
                     >
-                        <span style={{ lineHeight: 0, color: theme.text, position: "relative" }}>
-                            {TAB_ICONS_V2[tab.id]?.(count > 0) ?? tab.icon}
-                            {tab.id === "messages" && count > 0 && (
-                                <span
-                                    style={{
-                                        position: "absolute",
-                                        top: -4,
-                                        right: -6,
-                                        minWidth: 16,
-                                        height: 16,
-                                        borderRadius: 100,
-                                        background: "#E53935",
-                                        color: "#fff",
-                                        fontSize: 9,
-                                        fontWeight: 700,
-                                        fontFamily: "'DM Sans', sans-serif",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        padding: "0 4px",
-                                        lineHeight: 1,
-                                    }}
-                                >
-                                    {count > 99 ? "99+" : count}
-                                </span>
-                            )}
-                        </span>
+                        <span style={{ lineHeight: 0, color: theme.text }}>{TAB_ICONS_V2[tab.id]?.() ?? tab.icon}</span>
                         {isActive && (
                             <div
                                 style={{

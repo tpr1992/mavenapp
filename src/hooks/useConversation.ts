@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { supabase } from "../lib/supabase"
 import type { Message } from "../types"
-import { filterProfanity } from "../utils/profanity"
+import { filterMessage } from "../utils/profanity"
 
 const PAGE_SIZE = 30
 
@@ -128,7 +128,9 @@ export default function useConversation({ conversationId, makerId, onConversatio
                 (payload) => {
                     const updated = payload.new as Message
                     setMessages((prev) =>
-                        prev.map((m) => (m.id === updated.id ? { ...m, read_at: updated.read_at } : m)),
+                        prev.map((m) =>
+                            m.id === updated.id ? { ...m, read_at: updated.read_at, liked_by: updated.liked_by } : m,
+                        ),
                     )
                 },
             )
@@ -145,7 +147,7 @@ export default function useConversation({ conversationId, makerId, onConversatio
             const trimmed = body.trim()
             if (!trimmed || trimmed.length > 2000) return
 
-            const filtered = filterProfanity(trimmed)
+            const filtered = filterMessage(trimmed)
 
             // Rate limit: 1/sec, 50/min
             const now = Date.now()
@@ -241,6 +243,26 @@ export default function useConversation({ conversationId, makerId, onConversatio
         [messages],
     )
 
+    // Toggle like — optimistic update + persist to database
+    const toggleLike = useCallback(
+        async (messageId: string, uid: string) => {
+            let newLikes: string[] = []
+            setMessages((prev) =>
+                prev.map((m) => {
+                    if (m.id !== messageId) return m
+                    const currentLikes = m.liked_by ?? []
+                    const alreadyLiked = currentLikes.includes(uid)
+                    newLikes = alreadyLiked ? currentLikes.filter((id) => id !== uid) : [...currentLikes, uid]
+                    return { ...m, liked_by: newLikes }
+                }),
+            )
+            const msg = messages.find((m) => m.id === messageId)
+            if (msg?.pending) return
+            await supabase.from("messages").update({ liked_by: newLikes }).eq("id", messageId)
+        },
+        [messages],
+    )
+
     // Mark as read — direct UPDATE so Realtime broadcasts the change to the sender
     const markRead = useCallback(async () => {
         const cid = activeConvId.current
@@ -266,5 +288,5 @@ export default function useConversation({ conversationId, makerId, onConversatio
         await supabase.rpc("mark_conversation_read", { p_conversation_id: cid })
     }, [])
 
-    return { messages, loading, hasMore, loadMore, sendMessage, retryMessage, markRead }
+    return { messages, loading, hasMore, loadMore, sendMessage, retryMessage, toggleLike, markRead }
 }

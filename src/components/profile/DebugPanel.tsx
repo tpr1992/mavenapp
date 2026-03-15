@@ -79,35 +79,41 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                 <p
                     style={{
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: 600,
                         color: theme.textMuted,
-                        margin: "0 0 10px",
+                        margin: "0 0 12px",
                         textTransform: "uppercase",
-                        letterSpacing: "0.05em",
+                        letterSpacing: "0.06em",
                     }}
                 >
-                    Click Simulation
+                    Click Simulation Scenarios
                 </p>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                <div
+                    style={{
+                        display: "flex",
+                        gap: 8,
+                    }}
+                >
                     {SCENARIO_BUTTONS.map(({ label, value }) => (
                         <button
                             key={value}
                             onClick={() => setConfirmAction({ scenario: value })}
                             disabled={simRunning !== null}
                             style={{
-                                padding: "8px 14px",
-                                borderRadius: 100,
+                                flex: 1,
+                                padding: "9px 0",
+                                borderRadius: 10,
                                 border: `1px solid ${theme.border}`,
-                                background: theme.surface,
-                                color: theme.text,
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                fontWeight: 500,
+                                background: theme.card,
                                 cursor: simRunning ? "default" : "pointer",
-                                opacity: simRunning && simRunning !== value ? 0.4 : 1,
-                                minWidth: 70,
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: theme.text,
+                                opacity: simRunning && simRunning !== value ? 0.35 : 1,
                                 textAlign: "center" as const,
+                                transition: "opacity 0.15s ease",
                             }}
                         >
                             {simRunning === value ? "\u23F3" : label}
@@ -118,16 +124,19 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                     onClick={() => setConfirmAction({ isReset: true })}
                     disabled={simRunning !== null}
                     style={{
-                        padding: "8px 14px",
-                        borderRadius: 100,
-                        border: "1px solid #e53e3e40",
-                        background: "transparent",
-                        color: "#c53030",
+                        width: "100%",
+                        marginTop: 10,
+                        padding: "9px 0",
+                        borderRadius: 10,
+                        border: "none",
+                        background: "rgba(229,62,62,0.1)",
+                        color: "#e53e3e",
                         fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 13,
-                        fontWeight: 500,
+                        fontSize: 12,
+                        fontWeight: 600,
                         cursor: simRunning ? "default" : "pointer",
-                        opacity: simRunning && simRunning !== "reset" ? 0.4 : 1,
+                        opacity: simRunning && simRunning !== "reset" ? 0.35 : 1,
+                        transition: "opacity 0.15s ease",
                     }}
                 >
                     {simRunning === "reset" ? "\u23F3 Clearing..." : "Reset Clicks"}
@@ -136,9 +145,10 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                     <p
                         style={{
                             fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 12,
-                            color: simStatus.startsWith("Error") ? "#c53030" : theme.textMuted,
-                            margin: "8px 0 0",
+                            fontSize: 11.5,
+                            color: simStatus.startsWith("Error") ? "#e53e3e" : theme.textSecondary,
+                            margin: "10px 0 0",
+                            textAlign: "center",
                         }}
                     >
                         {simStatus}

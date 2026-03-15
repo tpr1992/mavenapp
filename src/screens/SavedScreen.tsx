@@ -33,7 +33,7 @@ export default function SavedScreen({
     return (
         <div style={{ paddingBottom: 100 }}>
             <Helmet>
-                <title>Saved Makers — maven</title>
+                <title>Favourites — maven</title>
             </Helmet>
             <div
                 style={{
@@ -59,6 +59,19 @@ export default function SavedScreen({
                 >
                     maven
                 </h1>
+            </div>
+            <div style={{ padding: "4px 16px 12px" }}>
+                <h2
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 22,
+                        fontWeight: 700,
+                        color: theme.text,
+                        margin: 0,
+                    }}
+                >
+                    Favourites
+                </h2>
             </div>
             <div style={{ animation: "fadeIn 0.15s ease" }}>
                 <div style={{ padding: "14px 16px 14px" }}>
