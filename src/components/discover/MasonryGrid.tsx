@@ -30,6 +30,8 @@ const CardGallery = memo(function CardGallery({ urls, height, eager = false, ima
                         <img
                             src={optimizeImageUrl(url, imageWidth) ?? undefined}
                             srcSet={imageSrcSet(url, imageWidth)}
+                            width={imageWidth}
+                            height={Math.round(imageWidth * 1.25)}
                             alt=""
                             loading={eager ? "eager" : "lazy"}
                             fetchPriority={eager && i === 0 ? "high" : undefined}
@@ -352,6 +354,8 @@ export default memo(function MasonryGrid({
                 <img
                     src={optimizeImageUrl(ad.image_url, 300) ?? undefined}
                     srcSet={imageSrcSet(ad.image_url, 300)}
+                    width={300}
+                    height={ad.tile_height || 200}
                     alt={ad.brand}
                     loading="lazy"
                     decoding="async"

@@ -27,6 +27,7 @@
 body {
   margin: 0;
   background: #faf8f4;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 @keyframes pulse {
