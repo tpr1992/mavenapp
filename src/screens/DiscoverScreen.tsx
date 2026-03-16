@@ -157,7 +157,8 @@ export default function DiscoverScreen({
                 return bGrowth - aGrowth
             })
             .slice(0, 5)
-        if (withGrowth.length > 0) {
+        // Only use growth-based trending if we have at least 3 results
+        if (withGrowth.length >= 3) {
             prevTrendingRef.current = withGrowth
             return withGrowth
         }
@@ -166,11 +167,11 @@ export default function DiscoverScreen({
             .filter((m) => (m.engagementScore ?? 0) > 0)
             .sort((a, b) => (b.engagementScore ?? 0) - (a.engagementScore ?? 0))
             .slice(0, 5)
-        if (byEngagement.length > 0) {
+        if (byEngagement.length >= 3) {
             prevTrendingRef.current = byEngagement
             return byEngagement
         }
-        // Last resort: top scored makers from the feed
+        // Last resort: top scored makers from the feed (always returns 5)
         const fallback = makers.slice(0, 5)
         prevTrendingRef.current = fallback
         return fallback

@@ -22,7 +22,7 @@ export default memo(function NearbyMakersCarousel({
     const { theme } = useTheme()
 
     const nearbyMakers = useMemo(() => {
-        return makers
+        const candidates = makers
             .filter((m) => m.id !== currentMaker.id)
             .filter((m) => !excludeIds?.has(m.id))
             .map(
@@ -32,36 +32,58 @@ export default memo(function NearbyMakersCarousel({
                         distanceFromMaker: getDistance(currentMaker.lat, currentMaker.lng, m.lat, m.lng),
                     }) as MakerWithDistance,
             )
-            .filter((m) => m.distanceFromMaker <= 50)
             .sort((a, b) => a.distanceFromMaker - b.distanceFromMaker)
-            .slice(0, 5)
+
+        // Dynamic radius: find the natural "cluster" of nearby makers
+        // Start tight (2km), expand only if we don't have enough
+        let radius = 2
+        let result = candidates.filter((m) => m.distanceFromMaker <= radius)
+
+        // If fewer than 3 within 2km, expand to 10km
+        if (result.length < 3) {
+            radius = 10
+            result = candidates.filter((m) => m.distanceFromMaker <= radius)
+        }
+
+        // If still fewer than 3, expand to 30km (but no further)
+        if (result.length < 3) {
+            radius = 30
+            result = candidates.filter((m) => m.distanceFromMaker <= radius)
+        }
+
+        // Cap at 5 — this is a hint, not a directory
+        return result.slice(0, 5)
     }, [makers, currentMaker.id, currentMaker.lat, currentMaker.lng, excludeIds])
 
     if (nearbyMakers.length < 2) return null
 
+    const farthest = nearbyMakers[nearbyMakers.length - 1]?.distanceFromMaker ?? 0
+    const nearbyCities = new Set(nearbyMakers.map((m) => m.city))
+    const allSameCity = nearbyCities.size === 1 && nearbyMakers[0]?.city === currentMaker.city
+
+    const headingText =
+        allSameCity && farthest <= 2
+            ? "AROUND THE CORNER"
+            : allSameCity
+              ? `NEARBY IN ${currentMaker.city.toUpperCase()}`
+              : farthest <= 15
+                ? "A SHORT DRIVE"
+                : `MORE IN ${(currentMaker.county || "THE AREA").toUpperCase()}`
+
     return (
         <div style={{ padding: "32px 0 0" }}>
-            <div
-                style={{
-                    padding: "0 20px 14px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                }}
-            >
-                <div>
-                    <div
-                        style={{
-                            fontFamily: "'Syne', sans-serif",
-                            fontSize: 16,
-                            fontWeight: 700,
-                            letterSpacing: "0.05em",
-                            textTransform: "uppercase" as const,
-                            color: theme.text,
-                        }}
-                    >
-                        {`NEARBY IN ${currentMaker.city.toUpperCase()}`}
-                    </div>
+            <div style={{ padding: "0 20px 14px" }}>
+                <div
+                    style={{
+                        fontFamily: "'Syne', sans-serif",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        letterSpacing: "0.05em",
+                        textTransform: "uppercase" as const,
+                        color: theme.text,
+                    }}
+                >
+                    {headingText}
                 </div>
             </div>
 
@@ -73,6 +95,7 @@ export default memo(function NearbyMakersCarousel({
                     overflowX: "auto",
                     scrollbarWidth: "none" as const,
                     WebkitOverflowScrolling: "touch",
+                    scrollSnapType: "x mandatory",
                 }}
             >
                 {nearbyMakers.map((maker) => {
@@ -90,6 +113,7 @@ export default memo(function NearbyMakersCarousel({
                                 position: "relative",
                                 cursor: "pointer",
                                 flexShrink: 0,
+                                scrollSnapAlign: "start",
                             }}
                         >
                             {imgSrc ? (
