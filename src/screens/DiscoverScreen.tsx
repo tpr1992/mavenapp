@@ -12,6 +12,7 @@ import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
 import DiscoverHeader from "../components/discover/DiscoverHeader"
+import OverscrollLogo from "../components/ui/OverscrollLogo"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
 
@@ -636,29 +637,7 @@ export default function DiscoverScreen({
                 )}
             </div>
 
-            <div style={{ paddingTop: 48, paddingBottom: 24, textAlign: "center" }}>
-                <span
-                    style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: theme.textMuted,
-                        letterSpacing: "-0.03em",
-                    }}
-                >
-                    maven
-                </span>
-                <p
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 11,
-                        color: theme.textMuted,
-                        margin: "4px 0 0",
-                    }}
-                >
-                    v0.1.0 {"\u00B7"} Made with {"\u2665"} in Galway
-                </p>
-            </div>
+            <OverscrollLogo scrollContainerRef={scrollContainerRef} />
 
             {showLocationPicker && (
                 <LocationPicker
