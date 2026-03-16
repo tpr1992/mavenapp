@@ -24,6 +24,7 @@ interface ProfileScreenProps {
     onMessagesTap: () => void
     savedCount: number
     recentlyViewedIds?: string[]
+    discoveredCount?: number
     onMakerTap?: (maker: Maker) => void
 }
 
@@ -43,6 +44,7 @@ export default function ProfileScreen({
     onMessagesTap,
     savedCount,
     recentlyViewedIds,
+    discoveredCount,
     onMakerTap,
 }: ProfileScreenProps) {
     const { user, loading, signOut } = useAuth()
@@ -307,7 +309,7 @@ export default function ProfileScreen({
                     <div style={{ display: "flex", borderBottom: `1px solid ${theme.border}` }}>
                         {[
                             { num: savedCount, label: "SAVED" },
-                            { num: makers.length, label: "DISCOVERED" },
+                            { num: discoveredCount ?? 0, label: "DISCOVERED" },
                             { num: inboxItems.length, label: "MESSAGES" },
                         ].map((stat, i) => (
                             <div

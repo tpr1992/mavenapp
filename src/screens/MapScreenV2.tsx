@@ -21,6 +21,12 @@ const STYLES = {
     light: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
 }
 
+export interface MapState {
+    center: [number, number]
+    zoom: number
+    selectedMakerId: string | null
+}
+
 interface MapScreenV2Props {
     makers?: Maker[]
     onMakerTap: (maker: Maker) => void
@@ -28,6 +34,8 @@ interface MapScreenV2Props {
     onToggleSave: (id: string) => void
     userLocation: UserLocation | null
     isDebug?: boolean
+    initialMapState?: MapState | null
+    onMapStateChange?: (state: MapState) => void
 }
 
 // ── Pin element factory ──
@@ -136,6 +144,8 @@ export default function MapScreenV2({
     onToggleSave,
     userLocation,
     isDebug,
+    initialMapState,
+    onMapStateChange,
 }: MapScreenV2Props) {
     const { isDark, theme } = useTheme()
 
@@ -323,13 +333,15 @@ export default function MapScreenV2({
     useEffect(() => {
         if (!mapContainerRef.current || mapRef.current) return
 
-        const center: [number, number] = userLocation ? [userLocation.lng, userLocation.lat] : [-9.05, 53.27]
+        const center: [number, number] =
+            initialMapState?.center ?? (userLocation ? [userLocation.lng, userLocation.lat] : [-9.05, 53.27])
+        const zoom = initialMapState?.zoom ?? 13
 
         const map = new maplibregl.Map({
             container: mapContainerRef.current,
             style: isDarkRef.current ? STYLES.dark : STYLES.light,
             center,
-            zoom: 13,
+            zoom,
             attributionControl: false,
         })
 
@@ -337,10 +349,30 @@ export default function MapScreenV2({
 
         map.on("moveend", syncMarkers)
 
+        // Report viewport changes back to parent for state preservation
+        if (onMapStateChange) {
+            map.on("moveend", () => {
+                const c = map.getCenter()
+                onMapStateChange({
+                    center: [c.lng, c.lat],
+                    zoom: map.getZoom(),
+                    selectedMakerId: selectedIdRef.current,
+                })
+            })
+        }
+
         // Initial sync once style loads — resize ensures tiles load if container wasn't fully laid out
         map.on("load", () => {
             map.resize()
             syncMarkers()
+
+            // Restore previously selected maker
+            if (initialMapState?.selectedMakerId) {
+                const maker = makerByIdRef.current.get(initialMapState.selectedMakerId)
+                if (maker) {
+                    setSelectedMaker(maker)
+                }
+            }
         })
 
         return () => {
@@ -395,6 +427,12 @@ export default function MapScreenV2({
         const prevId = selectedIdRef.current
         const nextId = selectedMaker?.id ?? null
         selectedIdRef.current = nextId
+
+        // Report selection change to parent for state preservation
+        if (onMapStateChange && mapRef.current) {
+            const c = mapRef.current.getCenter()
+            onMapStateChange({ center: [c.lng, c.lat], zoom: mapRef.current.getZoom(), selectedMakerId: nextId })
+        }
 
         const map = mapRef.current
         if (!map) return
