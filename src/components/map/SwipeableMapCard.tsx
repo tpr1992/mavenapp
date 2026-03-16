@@ -306,13 +306,6 @@ export default memo(function SwipeableMapCard({
     const hours = getTodayHours(maker.opening_hours)
     const heroUrl = maker.gallery_urls?.[0] ? optimizeImageUrl(maker.gallery_urls[0], 400) : null
     const heroSrcSet = maker.gallery_urls?.[0] ? imageSrcSet(maker.gallery_urls[0], 400) : undefined
-    const thumbUrl = maker.gallery_urls?.[0]
-        ? optimizeImageUrl(maker.gallery_urls[0], 80, { quality: IMG_QUALITY.thumbnail })
-        : null
-    const thumbSrcSet = maker.gallery_urls?.[0]
-        ? imageSrcSet(maker.gallery_urls[0], 80, { quality: IMG_QUALITY.thumbnail })
-        : undefined
-
     return (
         <div
             ref={cardRef}
@@ -470,27 +463,6 @@ export default memo(function SwipeableMapCard({
                             </span>
                         </div>
                     </div>
-                    {thumbUrl && cardState === "peek" && (
-                        <div
-                            style={{
-                                width: 56,
-                                height: 56,
-                                borderRadius: 0,
-                                overflow: "hidden",
-                                flexShrink: 0,
-                                border: `1px solid ${theme.border}`,
-                            }}
-                        >
-                            <img
-                                src={thumbUrl}
-                                srcSet={thumbSrcSet}
-                                alt=""
-                                loading="eager"
-                                decoding="async"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                            />
-                        </div>
-                    )}
                     <button
                         onClick={(e) => {
                             e.stopPropagation()

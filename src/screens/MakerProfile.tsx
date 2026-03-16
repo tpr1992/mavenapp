@@ -7,6 +7,7 @@ import { isOpenNow, getTodayHours } from "../utils/time"
 import { useTheme } from "../contexts/ThemeContext"
 import { safeOpen } from "../utils/safeOpen"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
+import NearbyMakersCarousel from "../components/makers/NearbyMakersCarousel"
 import ShareModal from "../components/modals/ShareModal"
 import ImageGalleryModal from "../components/modals/ImageGalleryModal"
 import MakerHero from "../components/makers/MakerHero"
@@ -1093,6 +1094,8 @@ export default function MakerProfile({
                     </div>
                 </>
             )}
+
+            <NearbyMakersCarousel currentMaker={maker} makers={makers || []} onMakerTap={onMakerTap} />
 
             <RelatedMakersFeed
                 makers={relatedMakers}

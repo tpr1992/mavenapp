@@ -24,6 +24,7 @@ import MakerProfile from "./screens/MakerProfile"
 import MessagesScreen from "./screens/MessagesScreen"
 import ChatView from "./components/messages/ChatView"
 import type { Maker, Theme } from "./types"
+import type { MapState } from "./screens/MapScreenV2"
 
 import SavedScreen from "./screens/SavedScreen"
 import ProfileScreen from "./screens/ProfileScreen"
@@ -102,7 +103,7 @@ export default function App() {
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
-    const { recentIds, recordView } = useRecentlyViewed()
+    const { recentIds, discoveredIds, recordView } = useRecentlyViewed(user?.id)
     const [profileSubView, setProfileSubView] = useState<"saved" | "messages" | null>(initialURL.current.view)
     const [discoverCategory, setDiscoverCategory] = useState("All")
     const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
@@ -110,6 +111,10 @@ export default function App() {
     const containerRef = useRef<HTMLDivElement>(null)
     const scrollPosRef = useRef(0)
     const tabScrollRef = useRef<Record<string, number>>({})
+    const mapStateRef = useRef<MapState | null>(null)
+    const handleMapStateChange = useCallback((s: MapState) => {
+        mapStateRef.current = s
+    }, [])
 
     const handleMakerTap = useCallback(
         (maker: Maker) => {
@@ -322,6 +327,8 @@ export default function App() {
                             onToggleSave={handleToggleSave}
                             userLocation={userLocation}
                             isDebug={isDebug}
+                            initialMapState={mapStateRef.current}
+                            onMapStateChange={handleMapStateChange}
                         />
                     </Suspense>
                 )
@@ -384,6 +391,7 @@ export default function App() {
                         userId={user?.id ?? ""}
                         savedCount={savedIds.size}
                         recentlyViewedIds={recentIds}
+                        discoveredCount={discoveredIds.length}
                         onMakerTap={handleMakerTap}
                         onSavedTap={() => {
                             history.pushState(

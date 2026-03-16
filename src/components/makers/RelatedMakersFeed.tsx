@@ -18,33 +18,21 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
     if (!makers.length) return null
 
     return (
-        <div style={{ marginTop: 28 }}>
-            <div style={{ padding: "24px 20px 12px" }}>
+        <div style={{ marginTop: 0 }}>
+            <div style={{ padding: "32px 20px 12px" }}>
                 <h3
                     style={{
                         fontFamily: "'Syne', sans-serif",
-                        fontSize: 18,
-                        fontWeight: 800,
+                        fontSize: 16,
+                        fontWeight: 700,
                         textTransform: "uppercase",
-                        letterSpacing: "0.03em",
+                        letterSpacing: "0.05em",
                         color: theme.text,
                         margin: 0,
                     }}
                 >
                     Discover more
                 </h3>
-                <p
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 12,
-                        color: theme.textMuted,
-                        fontWeight: 400,
-                        letterSpacing: "0.02em",
-                        margin: "4px 0 0",
-                    }}
-                >
-                    Makers you might love
-                </p>
             </div>
 
             <div style={{ display: "flex", gap: 3, alignItems: "flex-start", padding: "0 3px" }}>
