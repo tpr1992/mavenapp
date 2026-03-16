@@ -255,7 +255,7 @@ export default memo(function MakerProfileHeader({
                     <span
                         onClick={onLogoTap}
                         style={{
-                            fontFamily: "'Playfair Display', serif",
+                            fontFamily: "'Space Grotesk', sans-serif",
                             fontSize: isCompact ? 19 : 22,
                             fontWeight: 700,
                             color: isCompact ? theme.text : "rgba(255,255,255,0.9)",
@@ -285,6 +285,7 @@ export default memo(function MakerProfileHeader({
                         }}
                     />
                     <span
+                        onClick={() => scrollContainerRef?.current?.scrollTo({ top: 0, behavior: "smooth" })}
                         style={{
                             fontFamily: "'Syne', sans-serif",
                             fontSize: 13.5,
@@ -301,6 +302,8 @@ export default memo(function MakerProfileHeader({
                             opacity: isCompact ? 1 : 0,
                             maxWidth: isCompact ? 200 : 0,
                             transition: "opacity 0.3s ease, max-width 0.3s ease",
+                            cursor: "pointer",
+                            pointerEvents: isCompact ? "auto" : "none",
                         }}
                     >
                         {maker.name}

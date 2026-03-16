@@ -89,7 +89,7 @@ export default function ProfileScreen({
                 <h1
                     onClick={onLogoTap}
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Space Grotesk', sans-serif",
                         fontSize: 30,
                         fontWeight: 700,
                         color: theme.text,
@@ -350,7 +350,7 @@ export default function ProfileScreen({
                 <div style={{ paddingTop: 24, paddingBottom: 24, textAlign: "center" }}>
                     <span
                         style={{
-                            fontFamily: "'Playfair Display', serif",
+                            fontFamily: "'Space Grotesk', sans-serif",
                             fontSize: 18,
                             fontWeight: 700,
                             color: theme.textMuted,

@@ -8,9 +8,10 @@ interface MakerHeroProps {
     heroRef: React.RefObject<HTMLDivElement | null>
     isDark: boolean
     minHeroHeight?: number
+    onImageTap?: () => void
 }
 
-export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight = 340 }: MakerHeroProps) {
+export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight = 340, onImageTap }: MakerHeroProps) {
     const hasGallery = maker.gallery_urls && maker.gallery_urls.length > 0
     const heroImage = hasGallery ? maker.gallery_urls[0] : null
     const heroSrc = heroImage
@@ -29,10 +30,12 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
     return (
         <div
             ref={heroRef}
+            onClick={onImageTap}
             style={{
                 position: "relative",
                 background: "#1a1a1a",
                 minHeight: minHeroHeight,
+                cursor: onImageTap ? "pointer" : "default",
             }}
         >
             {heroSrc && (
@@ -84,20 +87,6 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                     padding: "20px 20px 16px",
                 }}
             >
-                <div
-                    style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 9,
-                        fontWeight: 600,
-                        letterSpacing: "0.18em",
-                        textTransform: "uppercase",
-                        color: "rgba(255,255,255,0.3)",
-                        marginBottom: 6,
-                    }}
-                >
-                    {maker.category} {maker.city && `\u2014 ${maker.city}`}
-                </div>
-
                 <h1
                     style={{
                         fontFamily: "'Syne', sans-serif",

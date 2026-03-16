@@ -227,7 +227,7 @@ export default function DiscoverHeader({
                                     <h1
                                         onClick={handleLogoTap}
                                         style={{
-                                            fontFamily: "'Playfair Display', serif",
+                                            fontFamily: "'Space Grotesk', sans-serif",
                                             fontSize: isCompact ? 22 : 30,
                                             fontWeight: 700,
                                             color: theme.text,

@@ -47,7 +47,7 @@ export default function MessagesScreen({
                 <h1
                     onClick={onLogoTap}
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Space Grotesk', sans-serif",
                         fontSize: 30,
                         fontWeight: 700,
                         color: theme.text,

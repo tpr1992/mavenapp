@@ -36,7 +36,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
             >
                 <h2
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Space Grotesk', sans-serif",
                         fontSize: 28,
                         fontWeight: 700,
                         color: theme.text,

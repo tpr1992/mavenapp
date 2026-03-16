@@ -57,30 +57,6 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
 
     return (
         <div style={{ padding: "16px 20px 0" }}>
-            {/* Bio — truncated to 2 lines */}
-            <p
-                onClick={() => bioIsLong && setBioExpanded(!bioExpanded)}
-                style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13.5,
-                    color: theme.textSecondary,
-                    lineHeight: 1.55,
-                    margin: "0 0 10px",
-                    cursor: bioIsLong ? "pointer" : "default",
-                    ...(!bioExpanded && bioIsLong
-                        ? {
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                          }
-                        : {}),
-                }}
-            >
-                {maker.bio}
-                {bioIsLong && !bioExpanded && <span style={{ color: theme.textMuted, fontWeight: 500 }}> more</span>}
-            </p>
-
             {/* Compact info row */}
             <div
                 style={{
@@ -284,34 +260,53 @@ function WorkTab({
         )
     }
 
-    // ─── Editorial showcase layout (7+ images) ───
-    if (images.length >= 7) {
+    // ─── Editorial showcase layout (8+ images, skipping index 0 which is the hero) ───
+    if (images.length >= 8) {
+        // Layout pattern: each entry consumes N images from the queue
+        // "hero-1" = 1 full-width tall, "pair" = 2 side-by-side, "quote" = pull quote (no image),
+        // "full-1" = 1 full-width short, "strip-3" = 3 in a row, "grid" = remaining as masonry
+        const editorialImages = images.slice(1) // skip index 0 (page hero)
+        let cursor = 0
+        const next = (n: number) => {
+            const slice = editorialImages.slice(cursor, cursor + n)
+            const startIdx = cursor + 1 // +1 because we skipped images[0]
+            cursor += n
+            return slice.map((url, i) => ({ url, index: startIdx + i }))
+        }
+
+        const imgStyle = (loaded = false): React.CSSProperties => ({
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            opacity: loaded ? 1 : 0,
+            transition: "opacity 0.3s ease",
+        })
+        const onLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+            ;(e.target as HTMLImageElement).style.opacity = "1"
+        }
+
+        const hero = next(1)
+        const pair = next(2)
+        const detail = next(1)
+        const strip = next(3)
+        const remaining = editorialImages.slice(cursor).map((url, i) => ({ url, index: cursor + 1 + i }))
+
         return (
             <div style={{ padding: 0 }}>
-                {/* Block 1 — Hero image (full width) */}
+                {/* Full-width hero */}
                 <div
-                    onClick={() => onImageTap && onImageTap(0)}
+                    onClick={() => onImageTap && onImageTap(hero[0].index)}
                     style={{ height: 320, width: "100%", overflow: "hidden", position: "relative", cursor: "pointer" }}
                 >
                     <img
-                        src={optimizeImageUrl(images[0], 800) ?? undefined}
-                        srcSet={imageSrcSet(images[0], 800)}
-                        alt={`${maker.name} 1`}
+                        src={optimizeImageUrl(hero[0].url, 800) ?? undefined}
+                        srcSet={imageSrcSet(hero[0].url, 800)}
+                        alt={maker.name}
                         loading="eager"
                         fetchPriority="high"
                         decoding="async"
-                        onLoad={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = "1"
-                        }}
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            opacity: 0,
-                            transition: "opacity 0.3s ease",
-                        }}
+                        onLoad={onLoad}
+                        style={{ ...imgStyle(), position: "absolute", inset: 0 }}
                     />
                     <span
                         style={{
@@ -329,36 +324,28 @@ function WorkTab({
                     </span>
                 </div>
 
-                {/* Block 2 — Tight 2-up */}
+                {/* 2-up pair */}
                 <div style={{ display: "flex", gap: 3, marginTop: 3 }}>
-                    {[1, 2].map((idx) => (
+                    {pair.map((img) => (
                         <div
-                            key={idx}
-                            onClick={() => onImageTap && onImageTap(idx)}
-                            style={{ flex: 1, height: 240, overflow: "hidden", borderRadius: 0, cursor: "pointer" }}
+                            key={img.index}
+                            onClick={() => onImageTap && onImageTap(img.index)}
+                            style={{ flex: 1, height: 240, overflow: "hidden", cursor: "pointer" }}
                         >
                             <img
-                                src={optimizeImageUrl(images[idx], 400) ?? undefined}
-                                srcSet={imageSrcSet(images[idx], 400)}
-                                alt={`${maker.name} ${idx + 1}`}
+                                src={optimizeImageUrl(img.url, 400) ?? undefined}
+                                srcSet={imageSrcSet(img.url, 400)}
+                                alt={maker.name}
                                 loading="eager"
                                 decoding="async"
-                                onLoad={(e) => {
-                                    ;(e.target as HTMLImageElement).style.opacity = "1"
-                                }}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    opacity: 0,
-                                    transition: "opacity 0.3s ease",
-                                }}
+                                onLoad={onLoad}
+                                style={imgStyle()}
                             />
                         </div>
                     ))}
                 </div>
 
-                {/* Block 3 — Pull quote */}
+                {/* Pull quote */}
                 {maker.spotlight_quote && (
                     <div
                         style={{
@@ -396,9 +383,9 @@ function WorkTab({
                     </div>
                 )}
 
-                {/* Block 4 — Full-width detail */}
+                {/* Full-width detail */}
                 <div
-                    onClick={() => onImageTap && onImageTap(3)}
+                    onClick={() => onImageTap && onImageTap(detail[0].index)}
                     style={{
                         height: 220,
                         width: "100%",
@@ -409,23 +396,13 @@ function WorkTab({
                     }}
                 >
                     <img
-                        src={optimizeImageUrl(images[3], 800) ?? undefined}
-                        srcSet={imageSrcSet(images[3], 800)}
-                        alt={`${maker.name} 4`}
+                        src={optimizeImageUrl(detail[0].url, 800) ?? undefined}
+                        srcSet={imageSrcSet(detail[0].url, 800)}
+                        alt={maker.name}
                         loading="lazy"
                         decoding="async"
-                        onLoad={(e) => {
-                            ;(e.target as HTMLImageElement).style.opacity = "1"
-                        }}
-                        style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            opacity: 0,
-                            transition: "opacity 0.3s ease",
-                        }}
+                        onLoad={onLoad}
+                        style={{ ...imgStyle(), position: "absolute", inset: 0 }}
                     />
                     <span
                         style={{
@@ -443,74 +420,55 @@ function WorkTab({
                     </span>
                 </div>
 
-                {/* Block 5 — 3-up strip */}
+                {/* 3-up strip */}
                 <div style={{ display: "flex", gap: 2, marginTop: 3 }}>
-                    {[4, 5, 6].map((idx) => (
+                    {strip.map((img) => (
                         <div
-                            key={idx}
-                            onClick={() => onImageTap && onImageTap(idx)}
-                            style={{ flex: 1, height: 140, overflow: "hidden", borderRadius: 0, cursor: "pointer" }}
+                            key={img.index}
+                            onClick={() => onImageTap && onImageTap(img.index)}
+                            style={{ flex: 1, height: 140, overflow: "hidden", cursor: "pointer" }}
                         >
                             <img
-                                src={optimizeImageUrl(images[idx], 300) ?? undefined}
-                                srcSet={imageSrcSet(images[idx], 300)}
-                                alt={`${maker.name} ${idx + 1}`}
+                                src={optimizeImageUrl(img.url, 300) ?? undefined}
+                                srcSet={imageSrcSet(img.url, 300)}
+                                alt={maker.name}
                                 loading="lazy"
                                 decoding="async"
-                                onLoad={(e) => {
-                                    ;(e.target as HTMLImageElement).style.opacity = "1"
-                                }}
-                                style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    objectFit: "cover",
-                                    opacity: 0,
-                                    transition: "opacity 0.3s ease",
-                                }}
+                                onLoad={onLoad}
+                                style={imgStyle()}
                             />
                         </div>
                     ))}
                 </div>
 
-                {/* Block 6 — Remaining images as 2-column grid */}
-                {images.length > 7 && (
+                {/* Remaining as 2-column masonry */}
+                {remaining.length > 0 && (
                     <div style={{ display: "flex", gap: 3, marginTop: 3, padding: "0 3px" }}>
                         {[0, 1].map((col) => (
                             <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-                                {images
-                                    .slice(7)
+                                {remaining
                                     .filter((_, i) => i % 2 === col)
-                                    .map((url, i) => {
-                                        const originalIndex = 7 + i * 2 + col
+                                    .map((img) => {
                                         const heights = [195, 155, 175, 190]
                                         return (
                                             <div
-                                                key={i}
-                                                onClick={() => onImageTap && onImageTap(originalIndex)}
+                                                key={img.index}
+                                                onClick={() => onImageTap && onImageTap(img.index)}
                                                 style={{
-                                                    borderRadius: 0,
                                                     overflow: "hidden",
-                                                    height: heights[i % heights.length],
+                                                    height: heights[img.index % heights.length],
                                                     background: theme.surface,
                                                     cursor: "pointer",
                                                 }}
                                             >
                                                 <img
-                                                    src={optimizeImageUrl(url, 300) ?? undefined}
-                                                    srcSet={imageSrcSet(url, 300)}
-                                                    alt={`${maker.name} ${originalIndex + 1}`}
+                                                    src={optimizeImageUrl(img.url, 300) ?? undefined}
+                                                    srcSet={imageSrcSet(img.url, 300)}
+                                                    alt={maker.name}
                                                     loading="lazy"
                                                     decoding="async"
-                                                    onLoad={(e) => {
-                                                        ;(e.target as HTMLImageElement).style.opacity = "1"
-                                                    }}
-                                                    style={{
-                                                        width: "100%",
-                                                        height: "100%",
-                                                        objectFit: "cover",
-                                                        opacity: 0,
-                                                        transition: "opacity 0.3s ease",
-                                                    }}
+                                                    onLoad={onLoad}
+                                                    style={imgStyle()}
                                                 />
                                             </div>
                                         )
@@ -1068,6 +1026,7 @@ export default function MakerProfile({
                 maker={maker}
                 heroRef={heroRef}
                 isDark={isDark}
+                onImageTap={() => setViewerIndex(0)}
                 minHeroHeight={breakpoint === "mobile" ? 340 : 280}
             />
 

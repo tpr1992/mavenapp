@@ -50,23 +50,6 @@ export default memo(function MakerListItem({
         >
             <div style={{ position: "relative", flexShrink: 0 }}>
                 <MakerAvatar maker={maker} size={48} eager={eager} />
-                {maker.made_in_ireland && (
-                    <svg
-                        width="16"
-                        height="11"
-                        viewBox="0 0 20 14"
-                        style={{
-                            position: "absolute",
-                            bottom: -1,
-                            right: -3,
-                            borderRadius: 1,
-                        }}
-                    >
-                        <rect x="0" y="0" width="7" height="14" fill="#169B62" />
-                        <rect x="7" y="0" width="6" height="14" fill="#fff" />
-                        <rect x="13" y="0" width="7" height="14" fill="#FF883E" />
-                    </svg>
-                )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
