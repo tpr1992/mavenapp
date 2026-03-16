@@ -13,6 +13,7 @@ const APP_KEYS = [
     "maven_location_ts",
     "maven_visitor_id",
     "maven-recent-searches",
+    "maven_recently_viewed",
 ] as const
 
 type AppKey = (typeof APP_KEYS)[number]
