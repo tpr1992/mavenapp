@@ -6,6 +6,7 @@ dist
 .env.*
 lighthouse-report.*
 bundle-stats.html
+scripts/pexels-downloads/
 
 # Override global gitignore that excludes types/ directories
 !src/types/

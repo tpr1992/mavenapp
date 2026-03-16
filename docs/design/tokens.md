@@ -6,7 +6,7 @@ Always use `theme.*` from `useTheme()`. Never hardcode hex values for themed pro
 
 | Token | Light | Dark | Usage |
 |-------|-------|------|-------|
-| `bg` | `#faf8f4` | `#121212` | Page background |
+| `bg` | `#faf8f4` | `#0e0e0e` | Page background |
 | `card` | `#fff` | `#1e1e1e` | Card backgrounds |
 | `surface` | `#f9f7f3` | `#252525` | Muted surface (stats, hours) |
 | `pill` | `#f0ece6` | `#2d2d2d` | Filter pill background |
@@ -15,8 +15,8 @@ Always use `theme.*` from `useTheme()`. Never hardcode hex values for themed pro
 | `textMuted` | `#999` | `#707070` | Metadata, captions |
 | `border` | `#e8e4de` | `#333` | Card borders |
 | `btnBg` | `#1a1a1a` | `#e8e6e3` | Button background (inverts) |
-| `btnText` | `#fff` | `#121212` | Button text (inverts) |
-| `tabBg` | `rgba(250,248,244,0.92)` | `rgba(18,18,18,0.92)` | Tab bar background |
+| `btnText` | `#fff` | `#0e0e0e` | Button text (inverts) |
+| `tabBg` | `rgba(250,248,244,0.92)` | `rgba(14,14,14,0.92)` | Tab bar background |
 | `inputBg` | `#fff` | `#1e1e1e` | Input field background |
 
 ## Non-Themed Constants

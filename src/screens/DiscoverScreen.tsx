@@ -639,7 +639,7 @@ export default function DiscoverScreen({
             <div style={{ paddingTop: 48, paddingBottom: 24, textAlign: "center" }}>
                 <span
                     style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Space Grotesk', sans-serif",
                         fontSize: 18,
                         fontWeight: 700,
                         color: theme.textMuted,

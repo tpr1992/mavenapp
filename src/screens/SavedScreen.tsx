@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async"
-import MakerListItem from "../components/makers/MakerListItem"
+import { optimizeImageUrl, imageSrcSet } from "../utils/image"
+import { formatLocation } from "../utils/distance"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
 import type { Maker } from "../types"
@@ -16,6 +17,31 @@ interface SavedScreenProps {
     breakpoint?: Breakpoint
 }
 
+interface LayoutRow {
+    type: "full" | "pair"
+    makers: Maker[]
+}
+
+function buildRows(makers: Maker[]): LayoutRow[] {
+    const rows: LayoutRow[] = []
+    let i = 0
+    let rowType = 0
+    while (i < makers.length) {
+        if (rowType % 3 === 0 && i < makers.length) {
+            rows.push({ type: "full", makers: [makers[i]] })
+            i++
+        } else if (i + 1 < makers.length) {
+            rows.push({ type: "pair", makers: [makers[i], makers[i + 1]] })
+            i += 2
+        } else {
+            rows.push({ type: "full", makers: [makers[i]] })
+            i++
+        }
+        rowType++
+    }
+    return rows
+}
+
 export default function SavedScreen({
     makers = [],
     makersLoading,
@@ -23,70 +49,43 @@ export default function SavedScreen({
     savedIds,
     onToggleSave,
     onTabChange,
-    onLogoTap,
-    breakpoint = "mobile",
+    onLogoTap: _onLogoTap,
+    breakpoint: _breakpoint = "mobile",
 }: SavedScreenProps) {
     const { theme } = useTheme()
     const { user } = useAuth()
     const savedMakers = makers.filter((m) => savedIds.has(m.id))
 
     return (
-        <div style={{ paddingBottom: 100 }}>
+        <div style={{ paddingBottom: 16 }}>
             <Helmet>
-                <title>Favourites — maven</title>
+                <title>Saved — maven</title>
             </Helmet>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    height: 50,
-                    boxSizing: "border-box",
-                    padding: "10px 16px 10px 20px",
-                }}
-            >
-                <h1
-                    onClick={onLogoTap}
-                    style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 30,
-                        fontWeight: 700,
-                        color: theme.text,
-                        margin: 0,
-                        letterSpacing: "-0.03em",
-                        lineHeight: 0.75,
-                        cursor: "pointer",
-                    }}
-                >
-                    maven
-                </h1>
-            </div>
-            <div style={{ padding: "4px 16px 12px" }}>
+            <div style={{ padding: "0 20px 16px" }}>
                 <h2
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 22,
-                        fontWeight: 700,
+                        fontWeight: 800,
+                        letterSpacing: "0.04em",
+                        textTransform: "uppercase",
                         color: theme.text,
-                        margin: 0,
+                        margin: "14px 0 4px",
                     }}
                 >
-                    Favourites
+                    Saved
                 </h2>
+                <span
+                    style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 12,
+                        color: theme.textMuted,
+                    }}
+                >
+                    {savedMakers.length} maker{savedMakers.length !== 1 ? "s" : ""} saved
+                </span>
             </div>
             <div style={{ animation: "fadeIn 0.15s ease" }}>
-                <div style={{ padding: "14px 16px 14px" }}>
-                    <p
-                        style={{
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: 14,
-                            color: theme.textMuted,
-                            margin: 0,
-                        }}
-                    >
-                        {savedMakers.length} maker{savedMakers.length !== 1 ? "s" : ""} saved
-                    </p>
-                </div>
-
                 {makersLoading ? (
                     <div style={{ padding: "60px 40px", textAlign: "center" }}>
                         <div
@@ -103,7 +102,7 @@ export default function SavedScreen({
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth={1.5}
+                                strokeWidth={1}
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >
@@ -120,7 +119,7 @@ export default function SavedScreen({
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth={1.5}
+                                strokeWidth={1}
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >
@@ -147,7 +146,7 @@ export default function SavedScreen({
                                 color: theme.bg,
                                 background: theme.text,
                                 border: "none",
-                                borderRadius: 100,
+                                borderRadius: 0,
                                 padding: "10px 24px",
                                 cursor: "pointer",
                             }}
@@ -164,7 +163,7 @@ export default function SavedScreen({
                                 viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth={1.5}
+                                strokeWidth={1}
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                             >
@@ -173,40 +172,295 @@ export default function SavedScreen({
                         </div>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 15,
+                                fontFamily: "'Syne', sans-serif",
+                                fontSize: 14,
+                                fontWeight: 700,
+                                letterSpacing: "0.06em",
+                                textTransform: "uppercase",
                                 color: theme.textMuted,
-                                lineHeight: 1.6,
                             }}
                         >
-                            No saved makers yet.
-                            <br />
+                            NO SAVES YET
+                        </p>
+                        <p
+                            style={{
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontSize: 13,
+                                color: theme.textMuted,
+                                lineHeight: 1.6,
+                                marginTop: 8,
+                            }}
+                        >
                             Tap the heart on any maker to save them here.
                         </p>
                     </div>
                 ) : (
-                    <div
-                        style={{
-                            padding: "0 4px",
-                            display: breakpoint !== "mobile" ? "grid" : "flex",
-                            ...(breakpoint !== "mobile"
-                                ? { gridTemplateColumns: "1fr 1fr", gap: 8 }
-                                : { flexDirection: "column" as const, gap: 4 }),
-                        }}
-                    >
-                        {savedMakers.map((maker, i) => (
-                            <MakerListItem
-                                key={maker.id}
-                                maker={maker}
-                                index={i}
-                                isSaved={true}
-                                onTap={onMakerTap}
-                                onToggleSave={onToggleSave}
-                                showHours={false}
-                                stagger={false}
-                                eager
-                            />
-                        ))}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3, padding: "0 3px" }}>
+                        {buildRows(savedMakers).map((row, ri) => {
+                            if (row.type === "full") {
+                                const maker = row.makers[0]
+                                const heroUrl = maker.gallery_urls?.[0]
+                                return (
+                                    <div
+                                        key={maker.id}
+                                        onClick={() => onMakerTap(maker)}
+                                        style={{
+                                            height: 200,
+                                            position: "relative",
+                                            overflow: "hidden",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {heroUrl ? (
+                                            <img
+                                                src={optimizeImageUrl(heroUrl, 600) ?? undefined}
+                                                srcSet={imageSrcSet(heroUrl, 400)}
+                                                alt={maker.name}
+                                                loading="lazy"
+                                                decoding="async"
+                                                onLoad={(e) => {
+                                                    ;(e.target as HTMLImageElement).style.opacity = "1"
+                                                }}
+                                                style={{
+                                                    position: "absolute",
+                                                    inset: 0,
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover",
+                                                    opacity: 0,
+                                                    transition: "opacity 0.3s ease",
+                                                }}
+                                            />
+                                        ) : (
+                                            <div
+                                                style={{
+                                                    position: "absolute",
+                                                    inset: 0,
+                                                    background: maker.hero_color || theme.surface,
+                                                }}
+                                            />
+                                        )}
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                height: "55%",
+                                                background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))",
+                                                pointerEvents: "none",
+                                            }}
+                                        />
+                                        <div
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                padding: "0 16px 14px",
+                                                zIndex: 5,
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 8.5,
+                                                    fontWeight: 500,
+                                                    letterSpacing: "0.14em",
+                                                    textTransform: "uppercase",
+                                                    color: "rgba(255,255,255,0.35)",
+                                                    marginBottom: 4,
+                                                }}
+                                            >
+                                                {maker.category}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontFamily: "'Syne', sans-serif",
+                                                    fontSize: 20,
+                                                    fontWeight: 800,
+                                                    letterSpacing: "0.03em",
+                                                    textTransform: "uppercase",
+                                                    color: "#fff",
+                                                    margin: "0 0 4px",
+                                                    lineHeight: 1.15,
+                                                }}
+                                            >
+                                                {maker.name}
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontSize: 10.5,
+                                                    color: "rgba(255,255,255,0.35)",
+                                                }}
+                                            >
+                                                {formatLocation(maker)}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                onToggleSave(maker.id)
+                                            }}
+                                            aria-label={`Unsave ${maker.name}`}
+                                            style={{
+                                                position: "absolute",
+                                                top: 12,
+                                                right: 14,
+                                                background: "none",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                padding: 4,
+                                                zIndex: 5,
+                                                color: "#fc8181",
+                                            }}
+                                        >
+                                            <svg
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="currentColor"
+                                                stroke="currentColor"
+                                                strokeWidth="1.5"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                )
+                            }
+                            // Pair row
+                            return (
+                                <div key={`pair-${ri}`} style={{ display: "flex", gap: 3 }}>
+                                    {row.makers.map((maker) => {
+                                        const heroUrl = maker.gallery_urls?.[0]
+                                        return (
+                                            <div
+                                                key={maker.id}
+                                                onClick={() => onMakerTap(maker)}
+                                                style={{
+                                                    flex: 1,
+                                                    height: 220,
+                                                    position: "relative",
+                                                    overflow: "hidden",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                {heroUrl ? (
+                                                    <img
+                                                        src={optimizeImageUrl(heroUrl, 400) ?? undefined}
+                                                        srcSet={imageSrcSet(heroUrl, 400)}
+                                                        alt={maker.name}
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                        onLoad={(e) => {
+                                                            ;(e.target as HTMLImageElement).style.opacity = "1"
+                                                        }}
+                                                        style={{
+                                                            position: "absolute",
+                                                            inset: 0,
+                                                            width: "100%",
+                                                            height: "100%",
+                                                            objectFit: "cover",
+                                                            opacity: 0,
+                                                            transition: "opacity 0.3s ease",
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        style={{
+                                                            position: "absolute",
+                                                            inset: 0,
+                                                            background: maker.hero_color || theme.surface,
+                                                        }}
+                                                    />
+                                                )}
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        bottom: 0,
+                                                        left: 0,
+                                                        right: 0,
+                                                        height: "50%",
+                                                        background:
+                                                            "linear-gradient(to bottom, transparent, rgba(0,0,0,0.55))",
+                                                        pointerEvents: "none",
+                                                    }}
+                                                />
+                                                <div
+                                                    style={{
+                                                        position: "absolute",
+                                                        bottom: 0,
+                                                        left: 0,
+                                                        right: 0,
+                                                        padding: "0 12px 12px",
+                                                        zIndex: 5,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontFamily: "'Syne', sans-serif",
+                                                            fontSize: 14,
+                                                            fontWeight: 800,
+                                                            letterSpacing: "0.03em",
+                                                            textTransform: "uppercase",
+                                                            color: "#fff",
+                                                            margin: "0 0 3px",
+                                                            lineHeight: 1.15,
+                                                        }}
+                                                    >
+                                                        {maker.name}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            fontFamily: "'DM Sans', sans-serif",
+                                                            fontSize: 9.5,
+                                                            color: "rgba(255,255,255,0.3)",
+                                                        }}
+                                                    >
+                                                        {formatLocation(maker)}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        onToggleSave(maker.id)
+                                                    }}
+                                                    aria-label={`Unsave ${maker.name}`}
+                                                    style={{
+                                                        position: "absolute",
+                                                        top: 8,
+                                                        right: 10,
+                                                        background: "none",
+                                                        border: "none",
+                                                        cursor: "pointer",
+                                                        padding: 4,
+                                                        zIndex: 5,
+                                                        color: "#fc8181",
+                                                    }}
+                                                >
+                                                    <svg
+                                                        width="12"
+                                                        height="12"
+                                                        viewBox="0 0 24 24"
+                                                        fill="currentColor"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.5"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    >
+                                                        <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )
+                        })}
                     </div>
                 )}
             </div>

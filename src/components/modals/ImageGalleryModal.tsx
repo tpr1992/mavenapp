@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react"
+import { createPortal } from "react-dom"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import useSpringSwipe from "../../hooks/useSpringSwipe"
 
@@ -16,6 +17,11 @@ export default memo(function ImageGalleryModal({
     scrollContainerRef,
 }: ImageGalleryModalProps) {
     const [index, setIndex] = useState(initialIndex)
+    const [closing, setClosing] = useState(false)
+    const doClose = useCallback(() => {
+        setClosing(true)
+        setTimeout(onClose, 150)
+    }, [onClose])
     const total = images.length
 
     // Cache viewport dimensions to avoid layout thrashing during gestures
@@ -248,21 +254,26 @@ export default memo(function ImageGalleryModal({
             } else {
                 lastTapTime.current = now
                 lastTapPos.current = { x: tapX, y: tapY }
+                // Single tap on dark area — close immediately
+                const target = e.target as HTMLElement
+                if (target.tagName !== "IMG" && scale.current <= 1) {
+                    doClose()
+                }
             }
         },
-        [onClose, clampTranslate, applySlideTransform, swipe.hasMoved],
+        [doClose, clampTranslate, applySlideTransform, swipe.hasMoved],
     )
 
     // Keyboard navigation
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose()
+            if (e.key === "Escape") doClose()
             if (e.key === "ArrowLeft") swipe.goTo(index - 1)
             if (e.key === "ArrowRight") swipe.goTo(index + 1)
         }
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
-    }, [index, total, onClose])
+    }, [index, total, doClose])
 
     // Clean up on unmount
     useEffect(() => {
@@ -272,7 +283,7 @@ export default memo(function ImageGalleryModal({
         }
     }, [swipe])
 
-    return (
+    return createPortal(
         <div
             role="dialog"
             aria-modal="true"
@@ -280,9 +291,11 @@ export default memo(function ImageGalleryModal({
             style={{
                 position: "fixed",
                 inset: 0,
-                zIndex: 200,
+                zIndex: 9999,
                 background: "rgba(0,0,0,0.95)",
-                animation: "fadeIn 0.2s ease",
+                animation: closing ? "none" : "fadeIn 0.2s ease",
+                opacity: closing ? 0 : 1,
+                transition: closing ? "opacity 0.15s ease-out" : "none",
                 touchAction: "none",
                 overflow: "hidden",
             }}
@@ -307,7 +320,7 @@ export default memo(function ImageGalleryModal({
 
             {/* Close button */}
             <button
-                onClick={onClose}
+                onClick={doClose}
                 aria-label="Close"
                 style={{
                     position: "absolute",
@@ -475,6 +488,7 @@ export default memo(function ImageGalleryModal({
                     )
                 })}
             </div>
-        </div>
+        </div>,
+        document.body,
     )
 })

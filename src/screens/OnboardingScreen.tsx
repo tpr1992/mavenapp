@@ -124,7 +124,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
         >
             <h1
                 style={{
-                    fontFamily: "'Playfair Display', serif",
+                    fontFamily: "'Space Grotesk', sans-serif",
                     fontSize: 40,
                     fontWeight: 700,
                     color: theme.text,
