@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async"
 import { optimizeImageUrl, imageSrcSet } from "../utils/image"
 import CategoryIcon from "../components/ui/CategoryIcon"
 import { isOpenNow, getTodayHours } from "../utils/time"
+import { getDistance } from "../utils/distance"
 
 import { useTheme } from "../contexts/ThemeContext"
 import { safeOpen } from "../utils/safeOpen"
@@ -51,30 +52,115 @@ function getVisibleTabs(maker: Maker): TabItem[] {
 
 // ─── Info Section (inline, compact) ──────────────────
 function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
-    const [bioExpanded, setBioExpanded] = useState(false)
     const todayStatus = isOpenNow(maker.opening_hours)
     const todayText = getTodayHours(maker.opening_hours)
-    const bioIsLong = maker.bio && maker.bio.length > 120
 
     return (
-        <div style={{ padding: "16px 20px 0" }}>
-            {/* Compact info row */}
+        <div style={{ padding: "0 20px" }}>
             <div
                 style={{
                     display: "flex",
-                    gap: 16,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 11.5,
-                    color: theme.textSecondary,
-                    marginTop: 2,
+                    borderTop: `1px solid ${theme.border}`,
+                    borderBottom: `1px solid ${theme.border}`,
+                    marginTop: 14,
                 }}
             >
-                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <span style={{ color: todayStatus ? "#4ade80" : theme.textMuted, fontSize: 7 }}>{"\u25CF"}</span>
-                    {todayText}
-                </span>
-                <span>{maker.category}</span>
-                {maker.years_active && <span>{maker.years_active} years active</span>}
+                {/* Column 1: Open status */}
+                <div
+                    style={{
+                        flex: 1,
+                        padding: "10px 0",
+                        textAlign: "center",
+                        borderRight: `1px solid ${theme.border}`,
+                    }}
+                >
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: theme.text,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 5,
+                        }}
+                    >
+                        <span style={{ color: todayStatus ? "#4ade80" : theme.textMuted, fontSize: 6 }}>
+                            {"\u25CF"}
+                        </span>
+                        {todayStatus ? "OPEN" : "CLOSED"}
+                    </div>
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 9,
+                            color: theme.textMuted,
+                            letterSpacing: "0.04em",
+                            marginTop: 2,
+                        }}
+                    >
+                        {todayText}
+                    </div>
+                </div>
+
+                {/* Column 2: Category */}
+                <div
+                    style={{
+                        flex: 1,
+                        padding: "10px 0",
+                        textAlign: "center",
+                        borderRight: `1px solid ${theme.border}`,
+                    }}
+                >
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: theme.text,
+                            textTransform: "uppercase",
+                        }}
+                    >
+                        {maker.category.toUpperCase()}
+                    </div>
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 9,
+                            color: theme.textMuted,
+                            letterSpacing: "0.04em",
+                            marginTop: 2,
+                        }}
+                    >
+                        Category
+                    </div>
+                </div>
+
+                {/* Column 3: Years active */}
+                <div style={{ flex: 1, padding: "10px 0", textAlign: "center" }}>
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: theme.text,
+                        }}
+                    >
+                        {maker.years_active} YRS
+                    </div>
+                    <div
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 9,
+                            color: theme.textMuted,
+                            letterSpacing: "0.04em",
+                            marginTop: 2,
+                        }}
+                    >
+                        Active
+                    </div>
+                </div>
             </div>
         </div>
     )
@@ -137,93 +223,125 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const todayStatus = isOpenNow(maker.opening_hours)
     const todayText = getTodayHours(maker.opening_hours)
 
+    // Split bio at first sentence for editorial treatment
+    const dotIndex = maker.bio.indexOf(". ")
+    const firstSentence = dotIndex > -1 ? maker.bio.slice(0, dotIndex + 1) : maker.bio
+    const restOfBio = dotIndex > -1 ? maker.bio.slice(dotIndex + 2).trim() : ""
+
+    const detailRows: { label: string; value: string; status?: string; statusColor?: string }[] = [
+        {
+            label: "LOCATION",
+            value: `${maker.address}${maker.city ? `, ${maker.city}` : ""}`,
+        },
+        {
+            label: "HOURS",
+            value: todayText,
+            status: todayStatus ? "Open now" : "Closed now",
+            statusColor: todayStatus ? "#4ade80" : theme.textMuted,
+        },
+        {
+            label: "CATEGORY",
+            value: maker.category.charAt(0).toUpperCase() + maker.category.slice(1),
+        },
+        {
+            label: "ACTIVE",
+            value: `${maker.years_active} year${maker.years_active !== 1 ? "s" : ""}`,
+        },
+        ...(maker.made_in_ireland ? [{ label: "MADE IN", value: "Ireland" }] : []),
+    ]
+
     return (
-        <div style={{ padding: "16px 16px 0" }}>
-            {/* Full bio */}
-            {maker.bio && (
+        <div>
+            {/* Bio — editorial split */}
+            <div style={{ padding: "22px 20px 0" }}>
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 14,
-                        color: theme.textSecondary,
-                        lineHeight: 1.6,
-                        margin: "0 0 16px",
+                        fontFamily: "'Instrument Serif', serif",
+                        fontSize: 17,
+                        fontStyle: "italic",
+                        color: theme.text,
+                        lineHeight: 1.55,
+                        margin: "0 0 14px",
+                        letterSpacing: "-0.01em",
                     }}
                 >
-                    {maker.bio}
+                    {firstSentence}
                 </p>
-            )}
+                {restOfBio && (
+                    <p
+                        style={{
+                            fontFamily: "'DM Sans', sans-serif",
+                            fontSize: 13.5,
+                            color: theme.textSecondary,
+                            lineHeight: 1.6,
+                            margin: 0,
+                        }}
+                    >
+                        {restOfBio}
+                    </p>
+                )}
+            </div>
 
-            {/* Details */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {maker.city && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke={theme.textMuted}
-                            strokeWidth="2"
-                        >
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
-                            {maker.address || maker.city}
-                        </span>
-                    </div>
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontSize: 14, width: 14, textAlign: "center", color: theme.textMuted }}>
-                        {"\u25CF"}
-                    </span>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
-                        {todayStatus ? "Open" : "Closed"} {"\u00B7"} {todayText}
-                    </span>
-                </div>
-                {maker.years_active && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ fontSize: 14, width: 14, textAlign: "center", color: theme.textMuted }}>
-                            {"\u2726"}
-                        </span>
-                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: theme.textSecondary }}>
-                            {maker.years_active} years active
-                        </span>
-                    </div>
-                )}
-                {maker.website_url && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke={theme.textMuted}
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
-                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                            <polyline points="15 3 21 3 21 9" />
-                            <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                        <a
-                            href={maker.website_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+            {/* Structured detail rows */}
+            <div
+                style={{
+                    marginTop: 22,
+                    borderTop: `1px solid ${theme.border}`,
+                    borderBottom: `1px solid ${theme.border}`,
+                }}
+            >
+                {detailRows.map((item, i) => (
+                    <div
+                        key={item.label}
+                        style={{
+                            padding: "12px 20px",
+                            borderBottom: i < detailRows.length - 1 ? `1px solid ${theme.border}` : "none",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                        }}
+                    >
+                        <span
                             style={{
                                 fontFamily: "'DM Sans', sans-serif",
-                                fontSize: 13,
-                                color: theme.textSecondary,
-                                textDecoration: "underline",
-                                textUnderlineOffset: 2,
+                                fontSize: 9.5,
+                                fontWeight: 500,
+                                letterSpacing: "0.12em",
+                                textTransform: "uppercase",
+                                color: theme.textMuted,
+                                width: 90,
+                                flexShrink: 0,
+                                paddingTop: 2,
                             }}
                         >
-                            {maker.website_url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                        </a>
+                            {item.label}
+                        </span>
+                        <div style={{ textAlign: "right" }}>
+                            <span
+                                style={{
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                    color: theme.text,
+                                }}
+                            >
+                                {item.value}
+                            </span>
+                            {item.status && (
+                                <div
+                                    style={{
+                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontSize: 11,
+                                        color: item.statusColor,
+                                        marginTop: 2,
+                                    }}
+                                >
+                                    {item.status}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
+                ))}
             </div>
         </div>
     )
@@ -350,9 +468,7 @@ function WorkTab({
                 {maker.spotlight_quote && (
                     <div
                         style={{
-                            padding: "32px 28px",
-                            borderTop: `1px solid ${theme.border}`,
-                            borderBottom: `1px solid ${theme.border}`,
+                            padding: "24px 28px",
                             margin: "3px 0",
                         }}
                     >
@@ -948,9 +1064,26 @@ export default function MakerProfile({
     const shareUrl = window.location.origin + "/?maker=" + maker.slug
     const visibleTabs = getVisibleTabs(maker)
 
-    // Related makers: same category first, then nearest — full list for infinite scroll
+    // IDs shown in the nearby carousel — exclude from Keep Exploring to avoid duplication
+    const nearbyExcludeIds = useMemo(() => {
+        const nearby = (makers || [])
+            .filter((m) => m.id !== maker.id)
+            .filter((m) => {
+                const d = getDistance(maker.lat, maker.lng, m.lat, m.lng)
+                return d <= 30
+            })
+            .sort(
+                (a, b) =>
+                    getDistance(maker.lat, maker.lng, a.lat, a.lng) - getDistance(maker.lat, maker.lng, b.lat, b.lng),
+            )
+            .slice(0, 5)
+            .map((m) => m.id)
+        return new Set(nearby)
+    }, [makers, maker.id, maker.lat, maker.lng])
+
+    // Related makers: same category first, then nearest — excluding nearby carousel makers
     const relatedMakers = useMemo(() => {
-        const others = makers.filter((m) => m.id !== maker.id)
+        const others = makers.filter((m) => m.id !== maker.id && !nearbyExcludeIds.has(m.id))
         const sameCategory = others
             .filter((m) => m.category === maker.category)
             .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
@@ -958,7 +1091,7 @@ export default function MakerProfile({
             .filter((m) => m.category !== maker.category)
             .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
         return [...sameCategory, ...different]
-    }, [makers, maker.id, maker.category])
+    }, [makers, maker.id, maker.category, nearbyExcludeIds])
 
     useEffect(() => {
         const hero = heroRef.current

@@ -31,7 +31,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                         margin: 0,
                     }}
                 >
-                    Discover more
+                    Keep exploring
                 </h3>
             </div>
 
