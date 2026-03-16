@@ -434,7 +434,7 @@ export default function ChatView({
                     marginLeft: -18,
                     width: 36,
                     height: 36,
-                    borderRadius: "50%",
+                    borderRadius: 0,
                     background: theme.card,
                     border: `1px solid ${theme.border}`,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
@@ -511,7 +511,7 @@ export default function ChatView({
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             background: theme.card,
-                            borderRadius: 20,
+                            borderRadius: 0,
                             padding: "28px 24px",
                             maxWidth: 320,
                             width: "100%",
@@ -536,7 +536,7 @@ export default function ChatView({
                                     onClick={() => setReportReason(reason)}
                                     style={{
                                         padding: "10px 16px",
-                                        borderRadius: 12,
+                                        borderRadius: 0,
                                         border: `1px solid ${reportReason === reason ? theme.btnBg : theme.border}`,
                                         background: reportReason === reason ? theme.btnBg : "transparent",
                                         color: reportReason === reason ? theme.btnText : theme.text,
@@ -561,7 +561,7 @@ export default function ChatView({
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
@@ -578,7 +578,7 @@ export default function ChatView({
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: "none",
                                     background: reportReason ? theme.btnBg : theme.border,
                                     color: reportReason ? theme.btnText : theme.textMuted,

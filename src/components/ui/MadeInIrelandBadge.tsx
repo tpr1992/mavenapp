@@ -7,7 +7,7 @@ interface IrishFlagProps {
 }
 
 const IrishFlag = ({ width = 14, height = 10 }: IrishFlagProps) => (
-    <svg width={width} height={height} viewBox="0 0 20 14" style={{ borderRadius: 1, flexShrink: 0 }}>
+    <svg width={width} height={height} viewBox="0 0 20 14" style={{ borderRadius: 0, flexShrink: 0 }}>
         <rect x="0" y="0" width="7" height="14" fill="#169B62" />
         <rect x="7" y="0" width="6" height="14" fill="#fff" />
         <rect x="13" y="0" width="7" height="14" fill="#FF883E" />
@@ -34,7 +34,7 @@ export default function MadeInIrelandBadge({ variant = "card" }: MadeInIrelandBa
                     alignItems: "center",
                     gap: 5,
                     padding: "3px 10px",
-                    borderRadius: 100,
+                    borderRadius: 0,
                     background: GLASS.overlay.background,
                     backdropFilter: GLASS.overlay.backdropFilter,
                     WebkitBackdropFilter: GLASS.overlay.WebkitBackdropFilter,
@@ -60,7 +60,7 @@ export default function MadeInIrelandBadge({ variant = "card" }: MadeInIrelandBa
                 alignItems: "center",
                 gap: 5,
                 padding: "4px 10px",
-                borderRadius: 100,
+                borderRadius: 0,
                 background: theme.pill,
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 11,

@@ -19,7 +19,7 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
                 position: "relative",
                 width: size,
                 height: size,
-                borderRadius: size / 2,
+                borderRadius: 0,
                 background: maker.hero_color ?? "#6b7280",
                 display: "flex",
                 alignItems: "center",
@@ -48,7 +48,7 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
                         display: "block",
                         width: size,
                         height: size,
-                        borderRadius: size / 2,
+                        borderRadius: 0,
                         objectFit: "cover",
                     }}
                 />

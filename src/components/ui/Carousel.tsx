@@ -316,7 +316,7 @@ const Carousel = memo(function Carousel({
                             style={{
                                 width: 5,
                                 height: 2,
-                                borderRadius: 1,
+                                borderRadius: 0,
                                 background: "#fff",
                                 opacity: i === 0 ? 1 : 0.5,
                                 transition: "opacity 0.15s ease",
@@ -343,7 +343,7 @@ const Carousel = memo(function Carousel({
                             style={{
                                 width: activeIndex === i ? 18 : 5,
                                 height: 2,
-                                borderRadius: 1,
+                                borderRadius: 0,
                                 background: activeIndex === i ? theme.text : theme.border,
                                 cursor: "pointer",
                                 transition: "width 0.3s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s ease",

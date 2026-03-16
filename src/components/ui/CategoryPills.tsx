@@ -95,7 +95,7 @@ export default function CategoryPills({
                         style={{
                             display: "flex",
                             background: theme.pill,
-                            borderRadius: 8,
+                            borderRadius: 0,
                             padding: 2,
                             gap: 2,
                         }}
@@ -107,7 +107,7 @@ export default function CategoryPills({
                             style={{
                                 width: 28,
                                 height: 24,
-                                borderRadius: 6,
+                                borderRadius: 0,
                                 border: "none",
                                 background: feedLayout === "grid" ? theme.card : "transparent",
                                 cursor: "pointer",
@@ -145,7 +145,7 @@ export default function CategoryPills({
                             style={{
                                 width: 28,
                                 height: 24,
-                                borderRadius: 6,
+                                borderRadius: 0,
                                 border: "none",
                                 background: feedLayout === "single" ? theme.card : "transparent",
                                 cursor: "pointer",

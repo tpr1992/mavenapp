@@ -157,7 +157,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     maxWidth: 320,
                     marginTop: 20,
                     padding: "16px 24px",
-                    borderRadius: 100,
+                    borderRadius: 0,
                     border: "none",
                     background: theme.btnBg,
                     color: theme.btnText,
@@ -239,7 +239,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     width: "100%",
                     maxWidth: 320,
                     padding: "16px 24px",
-                    borderRadius: 100,
+                    borderRadius: 0,
                     border: "none",
                     background: theme.btnBg,
                     color: theme.btnText,
@@ -342,7 +342,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                         style={{
                             width: step === i ? 20 : 8,
                             height: 8,
-                            borderRadius: 100,
+                            borderRadius: 0,
                             background: step === i ? theme.text : theme.border,
                             transition:
                                 "width 0.3s cubic-bezier(0.32, 0.72, 0, 1), background 0.3s cubic-bezier(0.32, 0.72, 0, 1)",

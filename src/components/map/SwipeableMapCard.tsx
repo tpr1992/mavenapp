@@ -331,7 +331,7 @@ export default memo(function SwipeableMapCard({
                 backdropFilter: g.backdropFilter,
                 WebkitBackdropFilter: g.WebkitBackdropFilter,
                 paddingBottom: "env(safe-area-inset-bottom, 0px)",
-                borderRadius: "18px 18px 0 0",
+                borderRadius: 0,
                 boxShadow: g.boxShadow,
                 borderTop: g.border,
                 zIndex: 1002,
@@ -354,7 +354,7 @@ export default memo(function SwipeableMapCard({
                 }}
             >
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                    <div style={{ width: 36, height: 4, borderRadius: 2, background: theme.border }} />
+                    <div style={{ width: 36, height: 4, borderRadius: 0, background: theme.border }} />
                 </div>
             </div>
 
@@ -368,7 +368,7 @@ export default memo(function SwipeableMapCard({
                             fontSize: 10,
                             fontFamily: "monospace",
                             padding: "2px 6px",
-                            borderRadius: 6,
+                            borderRadius: 0,
                         }}
                     >
                         #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
@@ -475,7 +475,7 @@ export default memo(function SwipeableMapCard({
                             style={{
                                 width: 56,
                                 height: 56,
-                                borderRadius: 10,
+                                borderRadius: 0,
                                 overflow: "hidden",
                                 flexShrink: 0,
                                 border: `1px solid ${theme.border}`,
@@ -500,7 +500,7 @@ export default memo(function SwipeableMapCard({
                         style={{
                             width: 36,
                             height: 36,
-                            borderRadius: "50%",
+                            borderRadius: 0,
                             border: `1px solid ${theme.border}`,
                             background: theme.card,
                             cursor: "pointer",
@@ -534,7 +534,7 @@ export default memo(function SwipeableMapCard({
                         <div
                             style={{
                                 marginTop: 14,
-                                borderRadius: 14,
+                                borderRadius: 0,
                                 overflow: "hidden",
                                 border: `1px solid ${theme.border}`,
                             }}
@@ -590,7 +590,7 @@ export default memo(function SwipeableMapCard({
                                     style={{
                                         width: 88,
                                         height: 88,
-                                        borderRadius: 10,
+                                        borderRadius: 0,
                                         overflow: "hidden",
                                         flexShrink: 0,
                                         border: `1px solid ${theme.border}`,
@@ -637,7 +637,7 @@ export default memo(function SwipeableMapCard({
                                 alignItems: "center",
                                 gap: 6,
                                 padding: "8px 14px",
-                                borderRadius: 100,
+                                borderRadius: 0,
                                 border: `1px solid ${theme.border}`,
                                 background: "transparent",
                                 color: theme.text,
@@ -674,7 +674,7 @@ export default memo(function SwipeableMapCard({
                                     alignItems: "center",
                                     gap: 6,
                                     padding: "8px 14px",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: `1px solid ${theme.border}`,
                                     background: "transparent",
                                     color: theme.text,
@@ -713,7 +713,7 @@ export default memo(function SwipeableMapCard({
                                 alignItems: "center",
                                 gap: 6,
                                 padding: "8px 14px",
-                                borderRadius: 100,
+                                borderRadius: 0,
                                 border: `1px solid ${theme.border}`,
                                 background: "transparent",
                                 color: theme.text,

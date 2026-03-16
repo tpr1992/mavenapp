@@ -31,7 +31,7 @@ export default memo(function NearbyMakerCard({ maker, onTap }: NearbyMakerCardPr
             style={{
                 minWidth: 180,
                 background: "transparent",
-                borderRadius: 6,
+                borderRadius: 0,
                 padding: 12,
                 cursor: "pointer",
                 transition: "transform 0.15s ease, box-shadow 0.15s ease",

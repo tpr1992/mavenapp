@@ -388,7 +388,7 @@ export default memo(function MakerProfileHeader({
                                     background: isCompact ? theme.card : GLASS.dark.background,
                                     backdropFilter: isCompact ? "none" : GLASS.dark.backdropFilter,
                                     WebkitBackdropFilter: isCompact ? "none" : GLASS.dark.WebkitBackdropFilter,
-                                    borderRadius: 14,
+                                    borderRadius: 0,
                                     border: isCompact ? `1px solid ${theme.border}` : GLASS.dark.border,
                                     boxShadow: isCompact
                                         ? "0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)"

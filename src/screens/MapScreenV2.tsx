@@ -67,7 +67,7 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
         background: ${bg};
         color: ${color};
         padding: 6px 10px;
-        border-radius: 10px;
+        border-radius: 0px;
         font-family: 'DM Sans', sans-serif;
         font-size: 11px;
         font-weight: 600;
@@ -119,7 +119,7 @@ function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
         el.style.opacity = "1"
     })
     el.innerHTML = `<div style="
-    width:${sz}px;height:${sz}px;border-radius:50%;
+    width:${sz}px;height:${sz}px;border-radius:0;
     background:${bg};color:${color};border:${border};
     -webkit-backdrop-filter:${backdrop};backdrop-filter:${backdrop};
     display:flex;align-items:center;justify-content:center;
@@ -498,7 +498,7 @@ export default function MapScreenV2({
                                 right: 0,
                                 marginTop: 6,
                                 background: theme.card,
-                                borderRadius: 12,
+                                borderRadius: 0,
                                 boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
                                 border: `1px solid ${theme.border}`,
                                 overflow: "hidden",

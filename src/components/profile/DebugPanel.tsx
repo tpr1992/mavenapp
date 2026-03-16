@@ -103,7 +103,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                             style={{
                                 flex: 1,
                                 padding: "9px 0",
-                                borderRadius: 10,
+                                borderRadius: 0,
                                 border: `1px solid ${theme.border}`,
                                 background: theme.card,
                                 cursor: simRunning ? "default" : "pointer",
@@ -127,7 +127,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                         width: "100%",
                         marginTop: 10,
                         padding: "9px 0",
-                        borderRadius: 10,
+                        borderRadius: 0,
                         border: "none",
                         background: "rgba(229,62,62,0.1)",
                         color: "#e53e3e",
@@ -174,7 +174,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             background: theme.card,
-                            borderRadius: 20,
+                            borderRadius: 0,
                             padding: "28px 24px",
                             maxWidth: 320,
                             width: "100%",
@@ -211,7 +211,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
@@ -228,7 +228,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: "none",
                                     background: confirmAction.isReset ? "#c53030" : theme.btnBg,
                                     color: confirmAction.isReset ? "#fff" : theme.btnText,

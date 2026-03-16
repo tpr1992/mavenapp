@@ -29,7 +29,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                     alignItems: "center",
                     gap: 10,
                     background: g ? g.background : theme.inputBg,
-                    borderRadius: 14,
+                    borderRadius: 0,
                     padding: "10px 16px",
                     border: g ? g.border : `1px solid ${theme.border}`,
                     backdropFilter: g ? g.backdropFilter : undefined,
@@ -71,7 +71,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                         style={{
                             width: 22,
                             height: 22,
-                            borderRadius: "50%",
+                            borderRadius: 0,
                             background: theme.border,
                             border: "none",
                             cursor: "pointer",

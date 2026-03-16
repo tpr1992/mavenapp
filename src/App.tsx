@@ -54,8 +54,8 @@ function buildURL(tab: string, makerSlug?: string | null, conversation?: string 
 function ScreenPlaceholder({ theme }: { theme: Theme }) {
     return (
         <div style={{ padding: "20px 16px", animation: "fadeIn 0.2s ease" }}>
-            <div style={{ width: 100, height: 28, borderRadius: 8, background: theme.surface, marginBottom: 8 }} />
-            <div style={{ width: 180, height: 14, borderRadius: 6, background: theme.surface }} />
+            <div style={{ width: 100, height: 28, borderRadius: 0, background: theme.surface, marginBottom: 8 }} />
+            <div style={{ width: 180, height: 14, borderRadius: 0, background: theme.surface }} />
         </div>
     )
 }
@@ -526,7 +526,7 @@ export default function App() {
                         background: theme.btnBg,
                         color: theme.btnText,
                         padding: "12px 20px",
-                        borderRadius: 14,
+                        borderRadius: 0,
                         fontFamily: "'DM Sans', sans-serif",
                         fontSize: 13.5,
                         fontWeight: 500,
