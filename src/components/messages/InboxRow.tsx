@@ -297,7 +297,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                         onClick={(e) => e.stopPropagation()}
                         style={{
                             background: theme.card,
-                            borderRadius: 20,
+                            borderRadius: 0,
                             padding: "28px 24px",
                             maxWidth: 320,
                             width: "100%",
@@ -334,7 +334,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
@@ -355,7 +355,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                                 style={{
                                     flex: 1,
                                     padding: "12px 0",
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: "none",
                                     background: "#c53030",
                                     color: "#fff",

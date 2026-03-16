@@ -109,7 +109,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
         <div
             style={{
                 background: theme.surface,
-                borderRadius: 18,
+                borderRadius: 0,
                 padding: "28px 24px",
                 marginBottom: 20,
             }}
@@ -138,7 +138,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                         style={{
                             width: "100%",
                             padding: "12px 16px",
-                            borderRadius: 12,
+                            borderRadius: 0,
                             border: `1px solid ${theme.border}`,
                             background: theme.inputBg,
                             fontFamily: "'DM Sans', sans-serif",
@@ -159,7 +159,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                     style={{
                         width: "100%",
                         padding: "12px 16px",
-                        borderRadius: 12,
+                        borderRadius: 0,
                         border: `1px solid ${theme.border}`,
                         background: theme.inputBg,
                         fontFamily: "'DM Sans', sans-serif",
@@ -180,7 +180,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                     style={{
                         width: "100%",
                         padding: "12px 16px",
-                        borderRadius: 12,
+                        borderRadius: 0,
                         border: `1px solid ${theme.border}`,
                         background: theme.inputBg,
                         fontFamily: "'DM Sans', sans-serif",
@@ -212,7 +212,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                     style={{
                         width: "100%",
                         padding: "12px 28px",
-                        borderRadius: 100,
+                        borderRadius: 0,
                         border: "none",
                         background: theme.btnBg,
                         color: theme.btnText,

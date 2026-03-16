@@ -574,7 +574,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                         height: 32,
                         background: theme.surface,
                         border: `1px solid ${theme.border}`,
-                        borderRadius: 10,
+                        borderRadius: 0,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -631,7 +631,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                         color: theme.textMuted,
                         border: `1px solid ${theme.border}`,
                         padding: "5px 10px",
-                        borderRadius: 100,
+                        borderRadius: 0,
                         textDecoration: "none",
                     }}
                 >
@@ -646,7 +646,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                             key={i}
                             style={{
                                 aspectRatio: "1",
-                                borderRadius: 6,
+                                borderRadius: 0,
                                 overflow: "hidden",
                                 background: theme.surface,
                                 animation: `fadeSlideIn 0.35s ease ${i * 0.04}s both`,
@@ -699,7 +699,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                     gap: 6,
                     margin: "12px 16px 0",
                     border: `1px solid ${theme.border}`,
-                    borderRadius: 10,
+                    borderRadius: 0,
                     padding: 14,
                     fontFamily: "'DM Sans', sans-serif",
                     fontSize: 11,
@@ -791,7 +791,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                             style={{
                                 background: theme.surface,
                                 border: `1px solid ${theme.border}`,
-                                borderRadius: 14,
+                                borderRadius: 0,
                                 overflow: "hidden",
                                 display: "flex",
                                 cursor: event.url ? "pointer" : "default",

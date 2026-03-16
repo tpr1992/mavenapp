@@ -99,7 +99,7 @@ export default function ProfileScreen({
                     style={{
                         background: theme.surface,
                         border: `1px solid ${theme.border}`,
-                        borderRadius: 14,
+                        borderRadius: 0,
                         padding: "12px 16px",
                         display: "flex",
                         alignItems: "center",
@@ -110,7 +110,7 @@ export default function ProfileScreen({
                         style={{
                             width: 26,
                             height: 26,
-                            borderRadius: "50%",
+                            borderRadius: 0,
                             background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
                             display: "flex",
                             alignItems: "center",
@@ -140,7 +140,7 @@ export default function ProfileScreen({
                         style={{
                             width: 44,
                             height: 44,
-                            borderRadius: "50%",
+                            borderRadius: 0,
                             background: theme.surface,
                         }}
                     />
@@ -669,7 +669,7 @@ export default function ProfileScreen({
                                 style={{
                                     width: 48,
                                     height: 28,
-                                    borderRadius: 100,
+                                    borderRadius: 0,
                                     border: "none",
                                     background: isDebug ? theme.text : theme.border,
                                     cursor: "pointer",
@@ -683,7 +683,7 @@ export default function ProfileScreen({
                                     style={{
                                         width: 22,
                                         height: 22,
-                                        borderRadius: "50%",
+                                        borderRadius: 0,
                                         background: isDebug ? theme.bg : "#fff",
                                         position: "absolute",
                                         top: 3,
@@ -745,7 +745,7 @@ export default function ProfileScreen({
                             maxHeight: 380,
                             overflowY: "auto",
                             background: theme.card,
-                            borderRadius: 14,
+                            borderRadius: 0,
                             boxShadow: isDark
                                 ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
                                 : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",

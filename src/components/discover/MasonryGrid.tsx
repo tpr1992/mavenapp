@@ -128,7 +128,7 @@ const S = {
         fontSize: 10,
         fontFamily: "monospace",
         padding: "2px 6px",
-        borderRadius: 6,
+        borderRadius: 0,
         zIndex: 5,
         pointerEvents: "none",
     } as const,

@@ -28,7 +28,7 @@ function Toggle({ on, onToggle, theme }: { on: boolean; onToggle: () => void; th
             style={{
                 width: 48,
                 height: 28,
-                borderRadius: 100,
+                borderRadius: 0,
                 border: "none",
                 background: on ? theme.text : theme.border,
                 cursor: "pointer",
@@ -42,7 +42,7 @@ function Toggle({ on, onToggle, theme }: { on: boolean; onToggle: () => void; th
                 style={{
                     width: 22,
                     height: 22,
-                    borderRadius: "50%",
+                    borderRadius: 0,
                     background: on ? theme.bg : "#fff",
                     position: "absolute",
                     top: 3,
@@ -72,7 +72,7 @@ function SegmentedControl({
             style={{
                 display: "flex",
                 background: theme.pill || theme.border,
-                borderRadius: 8,
+                borderRadius: 0,
                 padding: 2,
                 gap: 2,
                 flexShrink: 0,
@@ -84,7 +84,7 @@ function SegmentedControl({
                     onClick={() => onChange(opt.value)}
                     style={{
                         padding: "5px 12px",
-                        borderRadius: 6,
+                        borderRadius: 0,
                         border: "none",
                         background: value === opt.value ? theme.card : "transparent",
                         cursor: "pointer",

@@ -110,7 +110,7 @@ export default function MessageBubble({
                     onTouchCancel={handleTouchEnd}
                     style={{
                         padding: "10px 14px",
-                        borderRadius: 18,
+                        borderRadius: 0,
                         borderBottomRightRadius: isMine ? 4 : 18,
                         borderBottomLeftRadius: isMine ? 18 : 4,
                         background: isMine ? theme.btnBg : theme.surface,
@@ -153,7 +153,7 @@ export default function MessageBubble({
                             alignItems: "center",
                             gap: 2,
                             background: theme.bg,
-                            borderRadius: 100,
+                            borderRadius: 0,
                             padding: "2px 4px",
                             border: `1px solid ${theme.border}`,
                             animation: animating ? "heartPop 0.4s ease" : "none",
@@ -221,7 +221,7 @@ export default function MessageBubble({
                             ...(isMine ? { right: 0 } : { left: 0 }),
                             marginBottom: 4,
                             background: theme.card,
-                            borderRadius: 12,
+                            borderRadius: 0,
                             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
                             border: `1px solid ${theme.border}`,
                             overflow: "hidden",

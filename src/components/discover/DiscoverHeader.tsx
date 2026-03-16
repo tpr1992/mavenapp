@@ -235,7 +235,7 @@ export default function DiscoverHeader({
                                             top: isCompact ? -3 : undefined,
                                             margin: 0,
                                             lineHeight: isCompact ? 1 : 0.75,
-                                            letterSpacing: isCompact ? "-0.02em" : "-0.03em",
+                                            letterSpacing: "-0.03em",
                                             cursor: "pointer",
                                             flexShrink: 0,
                                             textRendering: "optimizeLegibility",
@@ -353,7 +353,7 @@ export default function DiscoverHeader({
                                                         }}
                                                         style={{
                                                             padding: "4px 10px",
-                                                            borderRadius: 100,
+                                                            borderRadius: 0,
                                                             border: openNow ? "none" : `1.5px solid ${theme.border}`,
                                                             background: openNow ? "#22543d" : "transparent",
                                                             color: openNow ? "#fff" : theme.textSecondary,
@@ -379,7 +379,7 @@ export default function DiscoverHeader({
                                                             }}
                                                             style={{
                                                                 padding: "4px 10px",
-                                                                borderRadius: 100,
+                                                                borderRadius: 0,
                                                                 border:
                                                                     category === cat
                                                                         ? "none"

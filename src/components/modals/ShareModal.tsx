@@ -56,7 +56,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     background: theme.card,
-                    borderRadius: "20px 20px 0 0",
+                    borderRadius: 0,
                     padding: "28px 24px 36px",
                     maxWidth: breakpoint === "mobile" ? 430 : 560,
                     width: "100%",
@@ -64,7 +64,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                 }}
             >
                 <div
-                    style={{ width: 36, height: 4, borderRadius: 100, background: theme.border, margin: "0 auto 20px" }}
+                    style={{ width: 36, height: 4, borderRadius: 0, background: theme.border, margin: "0 auto 20px" }}
                 />
 
                 {/* Directions — native <a> with Universal Link for iOS, Google Maps for others */}
@@ -80,7 +80,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         alignItems: "center",
                         gap: 12,
                         padding: "14px 16px",
-                        borderRadius: 14,
+                        borderRadius: 0,
                         border: `1px solid ${theme.border}`,
                         background: theme.surface,
                         cursor: "pointer",
@@ -92,7 +92,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         style={{
                             width: 36,
                             height: 36,
-                            borderRadius: 10,
+                            borderRadius: 0,
                             background: theme.card,
                             border: `1px solid ${theme.border}`,
                             display: "flex",
@@ -179,7 +179,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         alignItems: "center",
                         gap: 10,
                         background: theme.surface,
-                        borderRadius: 12,
+                        borderRadius: 0,
                         padding: "4px 4px 4px 16px",
                         marginBottom: 20,
                     }}
@@ -203,7 +203,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         aria-label={copied ? "Link copied" : "Copy share link"}
                         style={{
                             padding: "10px 18px",
-                            borderRadius: 10,
+                            borderRadius: 0,
                             border: "none",
                             background: copied ? "#22543d" : theme.btnBg,
                             color: copied ? "#fff" : theme.btnText,
@@ -264,7 +264,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                                 alignItems: "center",
                                 gap: 8,
                                 padding: "16px 8px",
-                                borderRadius: 14,
+                                borderRadius: 0,
                                 border: `1px solid ${theme.border}`,
                                 background: theme.card,
                                 cursor: "pointer",

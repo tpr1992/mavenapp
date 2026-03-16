@@ -78,7 +78,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                             fontSize: 10,
                             fontFamily: "monospace",
                             padding: "2px 6px",
-                            borderRadius: 6,
+                            borderRadius: 0,
                             zIndex: 5,
                         }}
                     >
@@ -93,7 +93,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         right: -30,
                         width: 150,
                         height: 150,
-                        borderRadius: "50%",
+                        borderRadius: 0,
                         background: "rgba(255,255,255,0.06)",
                     }}
                 />
@@ -104,7 +104,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                         left: -20,
                         width: 120,
                         height: 120,
-                        borderRadius: "50%",
+                        borderRadius: 0,
                         background: "rgba(255,255,255,0.04)",
                     }}
                 />

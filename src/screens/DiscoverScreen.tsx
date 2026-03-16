@@ -350,27 +350,27 @@ export default function DiscoverScreen({
         return (
             <div style={{ paddingBottom: 100 }}>
                 <div style={{ padding: "16px 16px 14px" }}>
-                    <div style={{ ...shimmerBg, width: 80, height: 30, borderRadius: 8, marginBottom: 10 }} />
-                    <div style={{ ...shimmerBg, width: 200, height: 14, borderRadius: 6, marginBottom: 16 }} />
+                    <div style={{ ...shimmerBg, width: 80, height: 30, borderRadius: 0, marginBottom: 10 }} />
+                    <div style={{ ...shimmerBg, width: 200, height: 14, borderRadius: 0, marginBottom: 16 }} />
                     <div style={{ display: "flex", gap: 8 }}>
                         {[60, 70, 80, 65, 75].map((w, i) => (
-                            <div key={i} style={{ ...shimmerBg, width: w, height: 32, borderRadius: 100 }} />
+                            <div key={i} style={{ ...shimmerBg, width: w, height: 32, borderRadius: 0 }} />
                         ))}
                     </div>
                 </div>
                 {/* Featured skeleton */}
                 <div style={{ padding: "0 16px", marginBottom: 24 }}>
-                    <div style={{ ...shimmerBg, height: 160, borderRadius: 20 }} />
+                    <div style={{ ...shimmerBg, height: 160, borderRadius: 0 }} />
                 </div>
                 {/* All makers skeleton */}
                 <div style={{ padding: "0 16px", marginTop: 28, marginBottom: 14 }}>
-                    <div style={{ ...shimmerBg, width: 100, height: 18, borderRadius: 6 }} />
+                    <div style={{ ...shimmerBg, width: 100, height: 18, borderRadius: 0 }} />
                 </div>
                 <div style={{ display: "flex", gap: 4, padding: "0 4px" }}>
                     {[0, 1].map((col) => (
                         <div key={col} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
                             {[180, 220, 160].map((h, i) => (
-                                <div key={i} style={{ ...shimmerBg, height: h, borderRadius: 6 }} />
+                                <div key={i} style={{ ...shimmerBg, height: h, borderRadius: 0 }} />
                             ))}
                         </div>
                     ))}
@@ -396,7 +396,7 @@ export default function DiscoverScreen({
                         textAlign: "center",
                         padding: "40px 24px",
                         background: theme.card,
-                        borderRadius: 20,
+                        borderRadius: 0,
                         margin: "0 20px",
                         border: `1px solid ${theme.border}`,
                     }}
@@ -428,7 +428,7 @@ export default function DiscoverScreen({
                         onClick={onRetry}
                         style={{
                             padding: "12px 28px",
-                            borderRadius: 100,
+                            borderRadius: 0,
                             border: "none",
                             background: theme.btnBg,
                             color: theme.btnText,
@@ -470,7 +470,7 @@ export default function DiscoverScreen({
                     marginLeft: -16,
                     width: 32,
                     height: 32,
-                    borderRadius: "50%",
+                    borderRadius: 0,
                     background: theme.card,
                     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                     display: "flex",
@@ -521,7 +521,7 @@ export default function DiscoverScreen({
                         margin: "0 16px 8px",
                         padding: "6px 10px",
                         background: "rgba(0,0,0,0.75)",
-                        borderRadius: 8,
+                        borderRadius: 0,
                         fontFamily: "monospace",
                         fontSize: 10,
                         color: "#fff",

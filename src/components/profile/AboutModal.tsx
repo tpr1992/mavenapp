@@ -27,7 +27,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     background: theme.card,
-                    borderRadius: 20,
+                    borderRadius: 0,
                     padding: "32px 28px",
                     maxWidth: 340,
                     width: "100%",
@@ -72,7 +72,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                     onClick={onClose}
                     style={{
                         padding: "12px 32px",
-                        borderRadius: 100,
+                        borderRadius: 0,
                         border: "none",
                         background: theme.btnBg,
                         color: theme.btnText,

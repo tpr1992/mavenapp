@@ -107,7 +107,7 @@ export default function LocationPicker({
                 onClick={(e) => e.stopPropagation()}
                 style={{
                     background: theme.card,
-                    borderRadius: 16,
+                    borderRadius: 0,
                     maxWidth: breakpoint === "mobile" ? 380 : 480,
                     width: "100%",
                     animation: "fadeSlideIn 0.2s ease",
@@ -126,7 +126,7 @@ export default function LocationPicker({
                         style={{
                             width: "100%",
                             padding: "16px 20px",
-                            borderRadius: 16,
+                            borderRadius: 0,
                             border: "none",
                             background: "transparent",
                             fontFamily: "'DM Sans', sans-serif",

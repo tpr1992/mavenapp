@@ -42,7 +42,7 @@ export default memo(function MakerListItem({
                 gap: 12,
                 padding: "10px 12px",
                 background: "transparent",
-                borderRadius: 6,
+                borderRadius: 0,
                 cursor: "pointer",
                 transition: "transform 0.15s ease",
                 animation: stagger ? `fadeSlideIn 0.3s ease ${Math.min(index, 10) * 0.05}s both` : undefined,
@@ -61,7 +61,7 @@ export default memo(function MakerListItem({
                                 fontSize: 9,
                                 fontFamily: "monospace",
                                 padding: "1px 5px",
-                                borderRadius: 4,
+                                borderRadius: 0,
                                 flexShrink: 0,
                             }}
                         >

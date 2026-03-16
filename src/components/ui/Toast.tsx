@@ -13,7 +13,7 @@ export default function Toast({ message }: ToastProps) {
                 background: "#1a1a1a",
                 color: "#fff",
                 padding: "10px 20px",
-                borderRadius: 100,
+                borderRadius: 0,
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 13,
                 fontWeight: 500,

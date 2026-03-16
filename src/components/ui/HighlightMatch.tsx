@@ -19,7 +19,7 @@ export default function HighlightMatch({ text, query }: HighlightMatchProps) {
                 style={{
                     background: isDark ? "rgba(251,191,36,0.25)" : "#fef3c7",
                     color: theme.text,
-                    borderRadius: 2,
+                    borderRadius: 0,
                     padding: "0 1px",
                 }}
             >

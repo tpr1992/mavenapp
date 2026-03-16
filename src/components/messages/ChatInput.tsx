@@ -52,7 +52,7 @@ export default function ChatInput({ onSend, theme, isDark }: ChatInputProps) {
                     flex: 1,
                     minWidth: 0,
                     padding: "10px 16px",
-                    borderRadius: 100,
+                    borderRadius: 0,
                     border: `1px solid ${theme.border}`,
                     background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
                     fontFamily: "'DM Sans', sans-serif",
@@ -68,7 +68,7 @@ export default function ChatInput({ onSend, theme, isDark }: ChatInputProps) {
                 style={{
                     width: 38,
                     height: 38,
-                    borderRadius: "50%",
+                    borderRadius: 0,
                     border: "none",
                     background: canSend ? theme.btnBg : theme.border,
                     color: canSend ? theme.btnText : theme.textMuted,
