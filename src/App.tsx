@@ -12,6 +12,7 @@ import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
 import useBreakpoint from "./hooks/useBreakpoint"
+import useRecentlyViewed from "./hooks/useRecentlyViewed"
 import { optimizeImageUrl, IMG_QUALITY } from "./utils/image"
 import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
@@ -101,6 +102,7 @@ export default function App() {
     const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
+    const { recentIds, recordView } = useRecentlyViewed()
     const [profileSubView, setProfileSubView] = useState<"saved" | "messages" | null>(initialURL.current.view)
     const [discoverCategory, setDiscoverCategory] = useState("All")
     const [discoverOpenNow, setDiscoverOpenNow] = useState(false)
@@ -111,6 +113,7 @@ export default function App() {
 
     const handleMakerTap = useCallback(
         (maker: Maker) => {
+            recordView(maker.id)
             // Preload hero, avatar, and first gallery images so they're cached before MakerProfile renders
             const heroUrl = maker.gallery_urls?.[0]
             if (heroUrl) {
@@ -379,6 +382,9 @@ export default function App() {
                         unreadMessages={totalUnread}
                         inboxItems={inboxItems}
                         userId={user?.id ?? ""}
+                        savedCount={savedIds.size}
+                        recentlyViewedIds={recentIds}
+                        onMakerTap={handleMakerTap}
                         onSavedTap={() => {
                             history.pushState(
                                 { tab: "profile", subView: "saved" },
