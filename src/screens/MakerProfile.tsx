@@ -1081,17 +1081,16 @@ export default function MakerProfile({
         return new Set(nearby)
     }, [makers, maker.id, maker.lat, maker.lng])
 
-    // Related makers: same category first, then nearest — excluding nearby carousel makers
+    // Related makers: same category first, then nearest to current maker — excluding nearby carousel
     const relatedMakers = useMemo(() => {
+        const distFrom = (m: Maker) => getDistance(maker.lat, maker.lng, m.lat, m.lng)
         const others = makers.filter((m) => m.id !== maker.id && !nearbyExcludeIds.has(m.id))
         const sameCategory = others
             .filter((m) => m.category === maker.category)
-            .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-        const different = others
-            .filter((m) => m.category !== maker.category)
-            .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+            .sort((a, b) => distFrom(a) - distFrom(b))
+        const different = others.filter((m) => m.category !== maker.category).sort((a, b) => distFrom(a) - distFrom(b))
         return [...sameCategory, ...different]
-    }, [makers, maker.id, maker.category, nearbyExcludeIds])
+    }, [makers, maker.id, maker.category, maker.lat, maker.lng, nearbyExcludeIds])
 
     useEffect(() => {
         const hero = heroRef.current

@@ -254,10 +254,17 @@ export default memo(function ImageGalleryModal({
             } else {
                 lastTapTime.current = now
                 lastTapPos.current = { x: tapX, y: tapY }
-                // Single tap on dark area — close immediately
-                const target = e.target as HTMLElement
-                if (target.tagName !== "IMG" && scale.current <= 1) {
-                    doClose()
+                // Single tap on dark area — close; tapping on the image itself does nothing
+                if (scale.current <= 1) {
+                    const img = slideRef.current?.querySelector("img")
+                    if (img) {
+                        const rect = img.getBoundingClientRect()
+                        const onImage =
+                            tapX >= rect.left && tapX <= rect.right && tapY >= rect.top && tapY <= rect.bottom
+                        if (!onImage) doClose()
+                    } else {
+                        doClose()
+                    }
                 }
             }
         },
