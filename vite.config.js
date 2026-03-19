@@ -38,7 +38,7 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom"],
           supabase: ["@supabase/supabase-js"],
-          maplibre: ["maplibre-gl"],
+          maplibre: ["maplibre-gl", "supercluster"],
         },
       },
     },

@@ -21,17 +21,17 @@ import ErrorBoundary from "./components/ui/ErrorBoundary"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfile from "./screens/MakerProfile"
-import MessagesScreen from "./screens/MessagesScreen"
-import ChatView from "./components/messages/ChatView"
 import type { Maker, Theme } from "./types"
 import type { MapState } from "./screens/MapScreenV2"
 
-import SavedScreen from "./screens/SavedScreen"
 import ProfileScreen from "./screens/ProfileScreen"
 
 const mapImport = () => import("./screens/MapScreenV2")
 const MapScreen = lazy(mapImport)
 const OnboardingScreen = lazy(() => import("./screens/OnboardingScreen"))
+const SavedScreen = lazy(() => import("./screens/SavedScreen"))
+const MessagesScreen = lazy(() => import("./screens/MessagesScreen"))
+const ChatView = lazy(() => import("./components/messages/ChatView"))
 
 function getStateFromURL() {
     const params = new URLSearchParams(window.location.search)
@@ -349,31 +349,35 @@ export default function App() {
             case "profile":
                 if (profileSubView === "saved") {
                     return (
-                        <SavedScreen
-                            makers={makers}
-                            makersLoading={makersLoading}
-                            onMakerTap={handleMakerTap}
-                            savedIds={savedIds}
-                            onToggleSave={handleToggleSave}
-                            onTabChange={handleTabChange}
-                            onLogoTap={handleLogoTap}
-                            breakpoint={breakpoint}
-                        />
+                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                            <SavedScreen
+                                makers={makers}
+                                makersLoading={makersLoading}
+                                onMakerTap={handleMakerTap}
+                                savedIds={savedIds}
+                                onToggleSave={handleToggleSave}
+                                onTabChange={handleTabChange}
+                                onLogoTap={handleLogoTap}
+                                breakpoint={breakpoint}
+                            />
+                        </Suspense>
                     )
                 }
                 if (profileSubView === "messages") {
                     return (
-                        <MessagesScreen
-                            items={inboxItems}
-                            loading={inboxLoading}
-                            isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
-                            userId={user?.id ?? ""}
-                            onConversationTap={(conversationId, makerId) =>
-                                handleConversationOpen(conversationId, makerId)
-                            }
-                            onDelete={deleteConversation}
-                            onLogoTap={handleLogoTap}
-                        />
+                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                            <MessagesScreen
+                                items={inboxItems}
+                                loading={inboxLoading}
+                                isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
+                                userId={user?.id ?? ""}
+                                onConversationTap={(conversationId, makerId) =>
+                                    handleConversationOpen(conversationId, makerId)
+                                }
+                                onDelete={deleteConversation}
+                                onLogoTap={handleLogoTap}
+                            />
+                        </Suspense>
                     )
                 }
                 return (
@@ -493,22 +497,24 @@ export default function App() {
                     const maker = makers.find((m) => m.id === selectedConversation.makerId)
                     if (!maker) return null
                     return (
-                        <ChatView
-                            conversationId={selectedConversation.id}
-                            makerId={selectedConversation.makerId}
-                            maker={maker}
-                            userId={user.id}
-                            onBack={handleConversationBack}
-                            onMakerTap={(m) => {
-                                setSelectedConversation(null)
-                                handleMakerTap(m)
-                            }}
-                            onRead={clearUnread}
-                            onConversationCreated={(cid) => {
-                                setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
-                                refetchInbox()
-                            }}
-                        />
+                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                            <ChatView
+                                conversationId={selectedConversation.id}
+                                makerId={selectedConversation.makerId}
+                                maker={maker}
+                                userId={user.id}
+                                onBack={handleConversationBack}
+                                onMakerTap={(m) => {
+                                    setSelectedConversation(null)
+                                    handleMakerTap(m)
+                                }}
+                                onRead={clearUnread}
+                                onConversationCreated={(cid) => {
+                                    setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
+                                    refetchInbox()
+                                }}
+                            />
+                        </Suspense>
                     )
                 })()}
 
