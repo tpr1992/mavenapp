@@ -14,6 +14,7 @@ interface CategoryPillsProps {
     feedLayout?: FeedLayout
     onFeedLayoutChange?: (layout: FeedLayout) => void
     compact?: boolean
+    subdued?: boolean
 }
 
 export default function CategoryPills({
@@ -26,6 +27,7 @@ export default function CategoryPills({
     feedLayout,
     onFeedLayoutChange,
     compact = false,
+    subdued = false,
 }: CategoryPillsProps) {
     const { theme, isDark } = useTheme()
 
@@ -53,14 +55,14 @@ export default function CategoryPills({
     })
 
     return (
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", height: 36 }}>
             <div
                 style={{
                     flex: 1,
                     display: "flex",
                     gap: 20,
                     overflowX: "auto",
-                    padding: showToggle ? `0 ${compact ? 8 : 12}px 8px ${compact ? 16 : 20}px` : "0 20px 8px",
+                    padding: showToggle ? `0 ${compact ? 8 : 12}px 0 ${compact ? 16 : 20}px` : "0 20px",
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
                 }}
@@ -90,7 +92,7 @@ export default function CategoryPills({
                 ))}
             </div>
             {showToggle && (
-                <div style={{ flexShrink: 0, paddingRight: compact ? 12 : 16, paddingBottom: 8 }}>
+                <div style={{ flexShrink: 0, paddingRight: compact ? 12 : 16, opacity: subdued ? 0.4 : 1 }}>
                     <div
                         style={{
                             display: "flex",

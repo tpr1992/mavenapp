@@ -10,6 +10,7 @@ import CategoryPills from "../components/ui/CategoryPills"
 import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
+import NearbyMakersStrip from "../components/discover/NearbyMakersStrip"
 import MasonryGrid from "../components/discover/MasonryGrid"
 import DiscoverHeader from "../components/discover/DiscoverHeader"
 import OverscrollLogo from "../components/ui/OverscrollLogo"
@@ -97,6 +98,7 @@ export default function DiscoverScreen({
 
     const { theme } = useTheme()
     const feedRef = useRef<HTMLDivElement>(null)
+    const mainFiltersRef = useRef<HTMLDivElement>(null)
 
     // Reset all carousels (trending + card galleries) on logo/discover tap
     const initialRefreshKey = useRef(refreshKey)
@@ -500,19 +502,28 @@ export default function DiscoverScreen({
                 scrollContainerRef={scrollContainerRef}
                 searchQuery={searchQuery}
                 onSearchQueryChange={setSearchQuery}
-                category={category}
-                onCategoryChange={onCategoryChange}
-                openNow={openNow}
-                onOpenNowChange={onOpenNowChange}
                 locationLabel={locationLabel}
                 locationSource={locationSource}
                 onLocationPickerOpen={() => setShowLocationPicker(true)}
-                onScrollToTop={onScrollToTop}
                 onReset={onReset}
                 onMakerTap={onMakerTap}
                 makerSuggestions={makerSuggestions}
                 isHidden={isHidden}
                 refreshKey={refreshKey}
+                mainFiltersRef={mainFiltersRef}
+                filterSlot={
+                    <CategoryPills
+                        selected={category}
+                        onSelect={onCategoryChange}
+                        showOpenNow
+                        openNowActive={openNow}
+                        onToggleOpenNow={() => onOpenNowChange(!openNow)}
+                        feedLayout={feedLayout}
+                        onFeedLayoutChange={setFeedLayout}
+                        compact={breakpoint === "mobile"}
+                        subdued
+                    />
+                }
             />
 
             {/* Debug scoring summary bar */}
@@ -547,8 +558,11 @@ export default function DiscoverScreen({
                 />
             )}
 
+            {/* Nearby makers — location-aware users only, hidden during search */}
+            {!q && <NearbyMakersStrip makers={makers} onMakerTap={onMakerTap} userLocation={userLocation} />}
+
             {/* Category filter pills */}
-            <div style={{ marginTop: 12 }}>
+            <div ref={mainFiltersRef} style={{ marginTop: 12 }}>
                 <CategoryPills
                     selected={category}
                     onSelect={onCategoryChange}
@@ -560,6 +574,23 @@ export default function DiscoverScreen({
                     compact={breakpoint === "mobile"}
                 />
             </div>
+
+            {!q && visibleMakers.length > 0 && (
+                <div style={{ padding: "20px 20px 0" }}>
+                    <div
+                        style={{
+                            fontFamily: "'Syne', sans-serif",
+                            fontSize: 16,
+                            fontWeight: 700,
+                            letterSpacing: "0.05em",
+                            textTransform: "uppercase",
+                            color: theme.text,
+                        }}
+                    >
+                        Explore makers
+                    </div>
+                </div>
+            )}
 
             <div style={{ marginTop: 8 }}>
                 {visibleMakers.length === 0 && !makersLoading ? (
