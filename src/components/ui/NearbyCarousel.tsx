@@ -14,6 +14,7 @@ interface NearbyCarouselProps {
     excludeIds?: Set<string>
     /** Top padding — maker pages use 32px, discover uses 20px */
     topPadding?: number
+    isDebug?: boolean
 }
 
 type MakerWithDist = Maker & { _dist: number }
@@ -25,6 +26,7 @@ export default memo(function NearbyCarousel({
     userLocation,
     excludeIds,
     topPadding = 20,
+    isDebug,
 }: NearbyCarouselProps) {
     const { theme } = useTheme()
 
@@ -175,6 +177,26 @@ export default memo(function NearbyCarousel({
                                         background: maker.hero_color || (theme.surface as string),
                                     }}
                                 />
+                            )}
+
+                            {isDebug && (
+                                <span
+                                    style={{
+                                        position: "absolute",
+                                        top: 6,
+                                        left: 6,
+                                        background: "rgba(0,0,0,0.7)",
+                                        color: "#fff",
+                                        fontSize: 9,
+                                        fontFamily: "monospace",
+                                        padding: "2px 5px",
+                                        borderRadius: 0,
+                                        zIndex: 5,
+                                    }}
+                                >
+                                    #{maker.rank} {"\u00B7"} {(maker.score ?? 0).toFixed(2)} {"\u00B7"}{" "}
+                                    {maker._dist.toFixed(1)}km
+                                </span>
                             )}
 
                             {/* Bottom gradient */}
