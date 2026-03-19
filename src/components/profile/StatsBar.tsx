@@ -1,4 +1,5 @@
 import { useTheme } from "../../contexts/ThemeContext"
+import { font } from "../../styles/tokens"
 
 interface StatsBarProps {
     savedCount: number
@@ -27,7 +28,7 @@ export default function StatsBar({ savedCount, discoveredCount, messagesCount }:
                 >
                     <div
                         style={{
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: font.heading,
                             fontSize: 22,
                             fontWeight: 800,
                             color: theme.text,
@@ -38,7 +39,7 @@ export default function StatsBar({ savedCount, discoveredCount, messagesCount }:
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 8.5,
                             fontWeight: 500,
                             letterSpacing: "0.14em",

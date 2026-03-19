@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import { safeOpen } from "../../utils/safeOpen"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const events = maker.events || []
@@ -29,7 +30,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
             >
                 <span
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 16,
                         fontWeight: 800,
                         color: theme.text,
@@ -39,7 +40,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                 </span>
                 <span
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11,
                         fontWeight: 600,
                         letterSpacing: "0.06em",
@@ -84,7 +85,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                             >
                                 <div
                                     style={{
-                                        fontFamily: "'Syne', sans-serif",
+                                        fontFamily: font.heading,
                                         fontSize: 22,
                                         fontWeight: 800,
                                         color: theme.text,
@@ -95,7 +96,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                 </div>
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 9,
                                         fontWeight: 600,
                                         letterSpacing: "0.1em",
@@ -112,7 +113,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                 {event.tag && (
                                     <div
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 9,
                                             fontWeight: 600,
                                             letterSpacing: "0.1em",
@@ -126,7 +127,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                 )}
                                 <div
                                     style={{
-                                        fontFamily: "'Syne', sans-serif",
+                                        fontFamily: font.heading,
                                         fontSize: 14,
                                         fontWeight: 800,
                                         color: theme.text,
@@ -138,7 +139,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                 </div>
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 11,
                                         color: theme.textMuted,
                                         lineHeight: 1.55,
@@ -158,7 +159,7 @@ function EventsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                                             display: "inline-flex",
                                             alignItems: "center",
                                             gap: 4,
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 10,
                                             fontWeight: 600,
                                             letterSpacing: "0.06em",

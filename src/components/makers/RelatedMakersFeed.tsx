@@ -3,6 +3,7 @@ import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import { formatLocation } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface RelatedMakersFeedProps {
     makers: Maker[]
@@ -22,7 +23,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
             <div style={{ padding: "32px 20px 12px" }}>
                 <h3
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 16,
                         fontWeight: 700,
                         textTransform: "uppercase",
@@ -94,7 +95,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                                 >
                                                     <span
                                                         style={{
-                                                            fontFamily: "'DM Sans', sans-serif",
+                                                            fontFamily: font.body,
                                                             fontSize: 12,
                                                             color: theme.textMuted,
                                                         }}
@@ -108,7 +109,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                         <div style={{ padding: "8px 8px 10px" }}>
                                             <div
                                                 style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontFamily: font.body,
                                                     fontSize: 12,
                                                     fontWeight: 500,
                                                     color: theme.text,
@@ -122,7 +123,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
                                             </div>
                                             <div
                                                 style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontFamily: font.body,
                                                     fontSize: 10.5,
                                                     color: theme.textMuted,
                                                     marginTop: 1,
@@ -144,7 +145,7 @@ export default memo(function RelatedMakersFeed({ makers, onMakerTap, columnCount
             <div style={{ textAlign: "center", padding: "24px 0 16px" }}>
                 <span
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11,
                         color: theme.textMuted,
                         letterSpacing: "0.06em",

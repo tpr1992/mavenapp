@@ -5,6 +5,7 @@ import { formatLocationName } from "../../utils/distance"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import Carousel from "../ui/Carousel"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface TrendingCardProps {
     maker: Maker
@@ -119,7 +120,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                 >
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 8.5,
                             fontWeight: 600,
                             color: "rgba(255,255,255,0.3)",
@@ -132,7 +133,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                 </div>
                 <h2
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 28,
                         fontWeight: 800,
                         textTransform: "uppercase",
@@ -147,7 +148,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                 </h2>
                 {/* <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 13.5,
                         color: "rgba(255,255,255,0.8)",
                         margin: 0,
@@ -165,7 +166,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 6, position: "relative" }}>
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             lineHeight: 1,
                             color: "rgba(255,255,255,0.6)",
@@ -175,7 +176,7 @@ function TrendingCard({ maker, onTap, showOpenStatus, isDark, isDebug, imageWidt
                     </span>
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             lineHeight: 1,
                             color: showOpenStatus

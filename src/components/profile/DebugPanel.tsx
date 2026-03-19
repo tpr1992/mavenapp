@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { resetClicks, simulateScenario } from "../../utils/simulateClicks"
 import type { Scenario } from "../../utils/simulateClicks"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface DebugPanelProps {
     isDebug: boolean
@@ -78,7 +79,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
             >
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11,
                         fontWeight: 600,
                         color: theme.textMuted,
@@ -107,7 +108,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                                 border: `1px solid ${theme.border}`,
                                 background: theme.card,
                                 cursor: simRunning ? "default" : "pointer",
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 fontWeight: 600,
                                 color: theme.text,
@@ -131,7 +132,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                         border: "none",
                         background: "rgba(229,62,62,0.1)",
                         color: "#e53e3e",
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 12,
                         fontWeight: 600,
                         cursor: simRunning ? "default" : "pointer",
@@ -144,7 +145,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                 {simStatus && (
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 11.5,
                             color: simStatus.startsWith("Error") ? "#e53e3e" : theme.textSecondary,
                             margin: "10px 0 0",
@@ -183,7 +184,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                     >
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 15,
                                 fontWeight: 600,
                                 color: theme.text,
@@ -194,7 +195,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                         </p>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13.5,
                                 color: theme.textSecondary,
                                 lineHeight: 1.5,
@@ -215,7 +216,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: "pointer",
@@ -232,7 +233,7 @@ export default function DebugPanel({ isDebug, makers, refetch, theme }: DebugPan
                                     border: "none",
                                     background: confirmAction.isReset ? "#c53030" : theme.btnBg,
                                     color: confirmAction.isReset ? "#fff" : theme.btnText,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: "pointer",

@@ -5,6 +5,7 @@ import MessageBubble from "./MessageBubble"
 import ChatInput from "./ChatInput"
 import MakerAvatar from "../ui/MakerAvatar"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface ChatViewProps {
     conversationId?: string | null
@@ -349,7 +350,7 @@ export default function ChatView({
                     <MakerAvatar maker={maker} size={32} />
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 15,
                             fontWeight: 600,
                             color: theme.text,
@@ -477,7 +478,7 @@ export default function ChatView({
                 >
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             color: theme.textSecondary,
                         }}
@@ -520,7 +521,7 @@ export default function ChatView({
                     >
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 15,
                                 fontWeight: 600,
                                 color: theme.text,
@@ -540,7 +541,7 @@ export default function ChatView({
                                         border: `1px solid ${reportReason === reason ? theme.btnBg : theme.border}`,
                                         background: reportReason === reason ? theme.btnBg : "transparent",
                                         color: reportReason === reason ? theme.btnText : theme.text,
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 14,
                                         fontWeight: 500,
                                         cursor: "pointer",
@@ -565,7 +566,7 @@ export default function ChatView({
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: "pointer",
@@ -582,7 +583,7 @@ export default function ChatView({
                                     border: "none",
                                     background: reportReason ? theme.btnBg : theme.border,
                                     color: reportReason ? theme.btnText : theme.textMuted,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: reportReason ? "pointer" : "default",

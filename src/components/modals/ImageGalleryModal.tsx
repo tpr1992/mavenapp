@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, memo } from "react"
 import { createPortal } from "react-dom"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import useSpringSwipe from "../../hooks/useSpringSwipe"
+import { font } from "../../styles/tokens"
 
 interface ImageGalleryModalProps {
     images: string[]
@@ -314,7 +315,7 @@ export default memo(function ImageGalleryModal({
                     top: 16,
                     left: "50%",
                     transform: "translateX(-50%)",
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 13,
                     fontWeight: 500,
                     color: "rgba(255,255,255,0.7)",

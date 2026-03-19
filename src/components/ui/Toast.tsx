@@ -1,3 +1,5 @@
+import { font } from "../../styles/tokens"
+
 interface ToastProps {
     message: string
 }
@@ -14,7 +16,7 @@ export default function Toast({ message }: ToastProps) {
                 color: "#fff",
                 padding: "10px 20px",
                 borderRadius: 0,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: font.body,
                 fontSize: 13,
                 fontWeight: 500,
                 zIndex: 100,

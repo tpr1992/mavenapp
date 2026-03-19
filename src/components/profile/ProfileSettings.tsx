@@ -1,6 +1,7 @@
 import DebugPanel from "./DebugPanel"
 import type { Maker } from "../../types"
 import type { Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface SettingsItem {
     label: string
@@ -88,7 +89,7 @@ function SegmentedControl({
                         border: "none",
                         background: value === opt.value ? theme.card : "transparent",
                         cursor: "pointer",
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 12.5,
                         fontWeight: value === opt.value ? 600 : 400,
                         color: value === opt.value ? theme.text : theme.textMuted,
@@ -115,7 +116,7 @@ function SettingsRow({ label, children, theme }: { label: string; children: Reac
         >
             <span
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 14.5,
                     color: theme.text,
                     flex: 1,
@@ -187,7 +188,7 @@ export default function ProfileSettings({
                     <div style={{ flex: 1 }}>
                         <span
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 14.5,
                                 color: theme.text,
                                 display: "block",
@@ -198,7 +199,7 @@ export default function ProfileSettings({
                         {item.subtitle && (
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 12.5,
                                     color: theme.textMuted,
                                     display: "block",

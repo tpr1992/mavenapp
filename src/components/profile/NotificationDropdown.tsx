@@ -1,5 +1,6 @@
 import { useTheme } from "../../contexts/ThemeContext"
 import type { InboxItem } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface NotificationDropdownProps {
     show: boolean
@@ -42,7 +43,7 @@ export default function NotificationDropdown({
                 <div style={{ padding: "14px 16px 6px" }}>
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 11,
                             fontWeight: 600,
                             color: theme.textMuted,
@@ -110,7 +111,7 @@ export default function NotificationDropdown({
                             >
                                 <span
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 13,
                                         color: theme.textMuted,
                                     }}
@@ -148,7 +149,7 @@ export default function NotificationDropdown({
                                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 13.5,
                                             color: theme.text,
                                             flex: 1,
@@ -159,7 +160,7 @@ export default function NotificationDropdown({
                                     </span>
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 11,
                                             color: theme.textMuted,
                                             flexShrink: 0,
@@ -171,7 +172,7 @@ export default function NotificationDropdown({
                                 {n.preview && (
                                     <p
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 12.5,
                                             color: theme.textMuted,
                                             margin: "3px 0 0",

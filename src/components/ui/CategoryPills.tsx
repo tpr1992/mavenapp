@@ -1,6 +1,7 @@
 import { CATEGORIES } from "../../constants/categories"
 import { useTheme } from "../../contexts/ThemeContext"
 import { glassStyle } from "../../utils/glass"
+import { font } from "../../styles/tokens"
 
 type FeedLayout = "grid" | "single"
 
@@ -44,7 +45,7 @@ export default function CategoryPills({
         border: "none",
         background: "none",
         color: active ? theme.text : theme.textMuted,
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         fontSize: 11.5,
         fontWeight: active ? 600 : 400,
         cursor: "pointer",

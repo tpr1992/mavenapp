@@ -1,6 +1,7 @@
 import { useState, memo } from "react"
 import useBreakpoint from "../../hooks/useBreakpoint"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface ShareModalProps {
     maker: Maker
@@ -117,7 +118,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                     <div style={{ flex: 1, textAlign: "left" }}>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 14,
                                 fontWeight: 600,
                                 color: theme.text,
@@ -127,7 +128,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                         </div>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 11,
                                 color: theme.textMuted,
                                 marginTop: 1,
@@ -152,7 +153,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
 
                 <h3
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 20,
                         fontWeight: 800,
                         textTransform: "uppercase",
@@ -164,7 +165,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                 </h3>
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 13,
                         color: theme.textMuted,
                         margin: "0 0 20px",
@@ -186,7 +187,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                 >
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             color: theme.textSecondary,
                             flex: 1,
@@ -207,7 +208,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                             border: "none",
                             background: copied ? "#22543d" : theme.btnBg,
                             color: copied ? "#fff" : theme.btnText,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -280,7 +281,7 @@ export default memo(function ShareModal({ maker, theme, shareUrl, onClose }: Sha
                             <span style={{ fontSize: 22, lineHeight: 1 }}>{opt.icon}</span>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 12,
                                     fontWeight: 500,
                                     color: theme.textSecondary,

@@ -6,6 +6,7 @@ import SearchBar from "../ui/SearchBar"
 import SearchOverlay from "./SearchOverlay"
 import type { Maker } from "../../types"
 import { storageGet, storageSet, storageRemove } from "../../utils/storage"
+import { font } from "../../styles/tokens"
 
 const RECENT_KEY = "maven-recent-searches" as const
 const MAX_RECENT = 5
@@ -195,7 +196,7 @@ export default function DiscoverHeader({
                                     <h1
                                         onClick={handleLogoTap}
                                         style={{
-                                            fontFamily: "'Space Grotesk', sans-serif",
+                                            fontFamily: font.wordmark,
                                             fontSize: isCompact ? 20 : 30,
                                             fontWeight: 700,
                                             color: theme.text,
@@ -252,7 +253,7 @@ export default function DiscoverHeader({
                                             )}
                                             <span
                                                 style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontFamily: font.body,
                                                     fontSize: 13.5,
                                                     fontWeight: 500,
                                                     color: theme.textSecondary,
@@ -293,7 +294,7 @@ export default function DiscoverHeader({
                                             border: "none",
                                             cursor: "pointer",
                                             padding: 0,
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 13,
                                             fontWeight: 500,
                                             color: theme.textSecondary,

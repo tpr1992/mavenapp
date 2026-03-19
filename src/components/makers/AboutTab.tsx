@@ -1,5 +1,6 @@
 import { isOpenNow, getTodayHours } from "../../utils/time"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const todayStatus = isOpenNow(maker.opening_hours)
@@ -38,7 +39,7 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
             <div style={{ padding: "22px 20px 0" }}>
                 <p
                     style={{
-                        fontFamily: "'Instrument Serif', serif",
+                        fontFamily: font.serif,
                         fontSize: 17,
                         fontStyle: "italic",
                         color: theme.text,
@@ -52,7 +53,7 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                 {restOfBio && (
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13.5,
                             color: theme.textSecondary,
                             lineHeight: 1.6,
@@ -85,7 +86,7 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                     >
                         <span
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 9.5,
                                 fontWeight: 500,
                                 letterSpacing: "0.12em",
@@ -101,7 +102,7 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                         <div style={{ textAlign: "right" }}>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: theme.text,
@@ -112,7 +113,7 @@ function AboutTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                             {item.status && (
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 11,
                                         color: item.statusColor,
                                         marginTop: 2,

@@ -5,6 +5,7 @@ import { safeOpen } from "../../utils/safeOpen"
 import Carousel from "../ui/Carousel"
 import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import type { Maker, Theme, SponsoredPost } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface CardGalleryProps {
     urls: string[]
@@ -94,7 +95,7 @@ const S = {
     } as const,
     nameRow: { display: "flex", alignItems: "center", gap: 4 } as const,
     nameText: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         fontWeight: 500,
         lineHeight: 1.2,
         whiteSpace: "nowrap",
@@ -114,7 +115,7 @@ const S = {
         alignItems: "center",
     } as const,
     locationText: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
@@ -139,7 +140,7 @@ const S = {
         display: "block",
     } as const,
     adBrandText: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         fontSize: 12.5,
         fontWeight: 600,
         lineHeight: 1.2,
@@ -150,13 +151,13 @@ const S = {
         flex: 1,
     } as const,
     adSponsoredLabel: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         fontSize: 9.5,
         flexShrink: 0,
         opacity: 0.7,
     } as const,
     adTagline: {
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: font.body,
         fontSize: 10.5,
         marginTop: 1,
         whiteSpace: "nowrap",

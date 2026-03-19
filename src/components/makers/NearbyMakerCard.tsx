@@ -3,6 +3,7 @@ import MakerAvatar from "../ui/MakerAvatar"
 import { useTheme } from "../../contexts/ThemeContext"
 import { formatLocation } from "../../utils/distance"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface NearbyMakerCardProps {
     maker: Maker
@@ -42,7 +43,7 @@ export default memo(function NearbyMakerCard({ maker, onTap }: NearbyMakerCardPr
                 <div style={{ minWidth: 0 }}>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             fontWeight: 600,
                             color: theme.text,
@@ -55,7 +56,7 @@ export default memo(function NearbyMakerCard({ maker, onTap }: NearbyMakerCardPr
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 11,
                             color: theme.textMuted,
                         }}

@@ -4,6 +4,7 @@ import useBreakpoint from "../../hooks/useBreakpoint"
 import { getNearestTown } from "../../utils/distance"
 import type { Town } from "../../utils/distance"
 import { TOWNS } from "../../data/towns"
+import { font } from "../../styles/tokens"
 
 interface LocationPickerProps {
     userLocation: { lat: number; lng: number } | null
@@ -129,7 +130,7 @@ export default function LocationPicker({
                             borderRadius: 0,
                             border: "none",
                             background: "transparent",
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 15,
                             fontWeight: 500,
                             color: theme.text,
@@ -197,7 +198,7 @@ export default function LocationPicker({
                             </svg>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: isGps ? 600 : 500,
                                     color: isGps ? theme.text : theme.textSecondary,
@@ -227,7 +228,7 @@ export default function LocationPicker({
                             <div
                                 style={{
                                     padding: "8px 20px 12px",
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 12,
                                     color: "#9b2c2c",
                                     lineHeight: 1.4,
@@ -258,7 +259,7 @@ export default function LocationPicker({
                                 >
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 14,
                                             fontWeight: 600,
                                             color: theme.text,
@@ -268,7 +269,7 @@ export default function LocationPicker({
                                     </span>
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 12,
                                             color: theme.textMuted,
                                         }}

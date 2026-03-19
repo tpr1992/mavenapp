@@ -1,5 +1,6 @@
 import { isOpenNow, getTodayHours } from "../../utils/time"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
     const todayStatus = isOpenNow(maker.opening_hours)
@@ -26,7 +27,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                 >
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             fontWeight: 600,
                             color: theme.text,
@@ -43,7 +44,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 9,
                             color: theme.textMuted,
                             letterSpacing: "0.04em",
@@ -65,7 +66,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                 >
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             fontWeight: 600,
                             color: theme.text,
@@ -76,7 +77,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 9,
                             color: theme.textMuted,
                             letterSpacing: "0.04em",
@@ -91,7 +92,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                 <div style={{ flex: 1, padding: "10px 0", textAlign: "center" }}>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             fontWeight: 600,
                             color: theme.text,
@@ -101,7 +102,7 @@ function InfoSection({ maker, theme }: { maker: Maker; theme: Theme }) {
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 9,
                             color: theme.textMuted,
                             letterSpacing: "0.04em",

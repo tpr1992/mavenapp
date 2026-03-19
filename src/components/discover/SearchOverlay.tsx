@@ -3,6 +3,7 @@ import MakerAvatar from "../ui/MakerAvatar"
 import HighlightMatch from "../ui/HighlightMatch"
 import { formatLocation } from "../../utils/distance"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface SearchOverlayProps {
     searchQuery: string
@@ -61,7 +62,7 @@ export default function SearchOverlay({
                                 >
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 10,
                                             fontWeight: 600,
                                             letterSpacing: "0.08em",
@@ -74,7 +75,7 @@ export default function SearchOverlay({
                                     <button
                                         onClick={onClearRecents}
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 11,
                                             color: theme.textMuted,
                                             background: "none",
@@ -118,7 +119,7 @@ export default function SearchOverlay({
                                         </svg>
                                         <span
                                             style={{
-                                                fontFamily: "'DM Sans', sans-serif",
+                                                fontFamily: font.body,
                                                 fontSize: 13,
                                                 fontWeight: 500,
                                                 color: theme.text,
@@ -159,7 +160,7 @@ export default function SearchOverlay({
                             <div style={{ minWidth: 0, flex: 1 }}>
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 13,
                                         fontWeight: 600,
                                         color: theme.text,
@@ -169,7 +170,7 @@ export default function SearchOverlay({
                                 </div>
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 11,
                                         color: theme.textMuted,
                                         marginTop: 1,
@@ -186,7 +187,7 @@ export default function SearchOverlay({
                     <div style={{ padding: "24px 14px", textAlign: "center" }}>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13,
                                 fontWeight: 500,
                                 color: theme.textSecondary,
@@ -197,7 +198,7 @@ export default function SearchOverlay({
                         </div>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 color: theme.textMuted,
                             }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, memo } from "react"
 import { GLASS, glassBarStyle } from "../../utils/glass"
 import { safeOpen } from "../../utils/safeOpen"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface MakerProfileHeaderProps {
     maker: Maker
@@ -255,7 +256,7 @@ export default memo(function MakerProfileHeader({
                     <span
                         onClick={onLogoTap}
                         style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontFamily: font.wordmark,
                             fontSize: isCompact ? 19 : 22,
                             fontWeight: 700,
                             color: isCompact ? theme.text : "rgba(255,255,255,0.9)",
@@ -287,7 +288,7 @@ export default memo(function MakerProfileHeader({
                     <span
                         onClick={() => scrollContainerRef?.current?.scrollTo({ top: 0, behavior: "smooth" })}
                         style={{
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: font.heading,
                             fontSize: 13.5,
                             fontWeight: 800,
                             color: theme.textSecondary,
@@ -420,7 +421,7 @@ export default memo(function MakerProfileHeader({
                                             border: "none",
                                             background: "transparent",
                                             cursor: "pointer",
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 14,
                                             fontWeight: 500,
                                             color: isCompact ? theme.text : "rgba(255,255,255,0.9)",

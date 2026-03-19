@@ -17,6 +17,7 @@ import InfoSection from "../components/makers/InfoSection"
 import ProfileTabs, { getVisibleTabs } from "../components/makers/ProfileTabs"
 import type { Maker } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
+import { font } from "../styles/tokens"
 
 interface MakerProfileProps {
     maker: Maker
@@ -167,7 +168,7 @@ export default function MakerProfile({
                             border: "1px solid rgba(255,255,255,0.2)",
                             background: "transparent",
                             color: theme.text,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",

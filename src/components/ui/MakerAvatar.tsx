@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { Maker } from "../../types"
 import { getInitials } from "../../utils/time"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
+import { font } from "../../styles/tokens"
 
 interface MakerAvatarProps {
     maker: Pick<Maker, "name" | "avatar_url"> & { hero_color?: string }
@@ -25,7 +26,7 @@ export default function MakerAvatar({ maker, size = 48, eager = false }: MakerAv
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#fff",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: font.body,
                 fontWeight: 700,
                 fontSize: size * 0.32,
                 letterSpacing: "0.02em",

@@ -14,6 +14,7 @@ import SwipeableMapCard from "../components/map/SwipeableMapCard"
 import SearchBar from "../components/ui/SearchBar"
 import type { Maker } from "../types"
 import type { UserLocation } from "../hooks/useUserLocation"
+import { font } from "../styles/tokens"
 
 // ── CARTO vector tile styles (free, no API key) ──
 const STYLES = {
@@ -76,7 +77,7 @@ function createPinElement(maker: Maker, isSelected: boolean, isDark: boolean): H
         color: ${color};
         padding: 6px 10px;
         border-radius: 0px;
-        font-family: 'DM Sans', sans-serif;
+        font-family: ${font.body};
         font-size: 11px;
         font-weight: 600;
         white-space: nowrap;
@@ -131,7 +132,7 @@ function createClusterElement(count: number, isDark: boolean): HTMLDivElement {
     background:${bg};color:${color};border:${border};
     -webkit-backdrop-filter:${backdrop};backdrop-filter:${backdrop};
     display:flex;align-items:center;justify-content:center;
-    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;
+    font-family:${font.body};font-size:13px;font-weight:700;
     box-shadow:${shadow};
   ">${count}</div>`
     return el
@@ -560,7 +561,7 @@ export default function MapScreenV2({
                                 >
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 13.5,
                                             fontWeight: 600,
                                             color: theme.text,
@@ -570,7 +571,7 @@ export default function MapScreenV2({
                                     </span>
                                     <span
                                         style={{
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 11.5,
                                             color: theme.textMuted,
                                         }}
@@ -611,7 +612,7 @@ export default function MapScreenV2({
                     bottom: 4,
                     right: 6,
                     zIndex: 1,
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 9,
                     color: isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)",
                     pointerEvents: "auto",

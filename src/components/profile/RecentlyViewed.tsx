@@ -1,6 +1,7 @@
 import { useTheme } from "../../contexts/ThemeContext"
 import { optimizeImageUrl } from "../../utils/image"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface RecentlyViewedProps {
     recentlyViewedIds: string[]
@@ -18,7 +19,7 @@ export default function RecentlyViewed({ recentlyViewedIds, makers, onMakerTap }
             <div
                 style={{
                     padding: "20px 20px 12px",
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 9,
                     fontWeight: 500,
                     letterSpacing: "0.16em",
@@ -102,7 +103,7 @@ export default function RecentlyViewed({ recentlyViewedIds, makers, onMakerTap }
                                             bottom: 8,
                                             left: 8,
                                             right: 8,
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 10,
                                             fontWeight: 500,
                                             color: "#fff",
