@@ -748,9 +748,7 @@ export default function ProfileScreen({
                             overflowY: "auto",
                             background: theme.card,
                             borderRadius: 0,
-                            boxShadow: isDark
-                                ? "0 8px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.06) inset"
-                                : "0 8px 30px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset",
+                            boxShadow: isDark ? "0 8px 30px rgba(0,0,0,0.5)" : "0 8px 30px rgba(0,0,0,0.12)",
                             border: `1px solid ${theme.border}`,
                             zIndex: 200,
                             animation: "fadeSlideIn 0.15s ease",
