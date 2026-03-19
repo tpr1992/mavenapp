@@ -1,4 +1,5 @@
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 export interface TabItem {
     id: string
@@ -49,7 +50,7 @@ function ProfileTabs({
                     onClick={() => onTabChange(tab.id)}
                     style={{
                         flexShrink: 0,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11,
                         fontWeight: 600,
                         letterSpacing: "0.08em",

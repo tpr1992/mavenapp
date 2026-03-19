@@ -2,6 +2,7 @@ import React from "react"
 import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import CategoryIcon from "../ui/CategoryIcon"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 function WorkTab({
     maker,
@@ -22,7 +23,7 @@ function WorkTab({
                 <CategoryIcon category={maker.category} size={32} style={{ marginBottom: 12, opacity: 0.5 }} />
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 14,
                         color: theme.textMuted,
                         lineHeight: 1.6,
@@ -87,7 +88,7 @@ function WorkTab({
                             position: "absolute",
                             bottom: 12,
                             right: 14,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 9.5,
                             color: "rgba(255,255,255,0.3)",
                             letterSpacing: "0.04em",
@@ -129,7 +130,7 @@ function WorkTab({
                     >
                         <p
                             style={{
-                                fontFamily: "'Instrument Serif', serif",
+                                fontFamily: font.serif,
                                 fontSize: 22,
                                 fontStyle: "italic",
                                 color: theme.text,
@@ -142,7 +143,7 @@ function WorkTab({
                         </p>
                         <span
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 10,
                                 fontWeight: 500,
                                 letterSpacing: "0.14em",
@@ -181,7 +182,7 @@ function WorkTab({
                             position: "absolute",
                             bottom: 12,
                             right: 14,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 9.5,
                             color: "rgba(255,255,255,0.3)",
                             letterSpacing: "0.04em",

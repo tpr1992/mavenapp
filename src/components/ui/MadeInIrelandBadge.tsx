@@ -1,5 +1,6 @@
 import { useTheme } from "../../contexts/ThemeContext"
 import { GLASS } from "../../utils/glass"
+import { font } from "../../styles/tokens"
 
 interface IrishFlagProps {
     width?: number
@@ -39,7 +40,7 @@ export default function MadeInIrelandBadge({ variant = "card" }: MadeInIrelandBa
                     backdropFilter: GLASS.overlay.backdropFilter,
                     WebkitBackdropFilter: GLASS.overlay.WebkitBackdropFilter,
                     border: GLASS.overlay.border,
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 10.5,
                     fontWeight: 600,
                     color: "rgba(255,255,255,0.85)",
@@ -62,7 +63,7 @@ export default function MadeInIrelandBadge({ variant = "card" }: MadeInIrelandBa
                 padding: "4px 10px",
                 borderRadius: 0,
                 background: theme.pill,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: font.body,
                 fontSize: 11,
                 fontWeight: 500,
                 color: theme.textSecondary,

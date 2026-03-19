@@ -2,6 +2,7 @@ import React, { memo } from "react"
 import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import { formatDistance } from "../../utils/distance"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface MakerHeroProps {
     maker: Maker
@@ -89,7 +90,7 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
             >
                 <h1
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 24,
                         fontWeight: 800,
                         textTransform: "uppercase",
@@ -108,7 +109,7 @@ export default memo(function MakerHero({ maker, heroRef, isDark, minHeroHeight =
                         display: "flex",
                         alignItems: "center",
                         gap: 6,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11.5,
                         color: "rgba(255,255,255,0.55)",
                     }}

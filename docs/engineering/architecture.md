@@ -53,21 +53,19 @@ Data hooks run at the provider level so data is ready before screens mount (prev
 
 ```tsx
 import { useTheme } from "../contexts/ThemeContext"
+import { font } from "../styles/tokens"
 import type { Maker } from "../types"
 
 interface ExampleScreenProps {
-    makers: Maker[]
-    scrollContainerRef: React.RefObject<HTMLDivElement | null>
-    isHidden: boolean
     onMakerTap: (maker: Maker) => void
 }
 
-export default function ExampleScreen({ makers, scrollContainerRef, isHidden, onMakerTap }: ExampleScreenProps) {
+export default function ExampleScreen({ onMakerTap }: ExampleScreenProps) {
     const { theme, isDark } = useTheme()
 
     return (
         <div style={{ padding: 16 }}>
-            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: theme.text }}>
+            <h2 style={{ fontFamily: font.heading, fontSize: 16, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: theme.text }}>
                 Title
             </h2>
         </div>
@@ -79,6 +77,7 @@ export default function ExampleScreen({ makers, scrollContainerRef, isHidden, on
 
 ```tsx
 import { useTheme } from "../../contexts/ThemeContext"
+import { font } from "../../styles/tokens"
 
 interface ExampleCardProps {
     title: string
@@ -99,7 +98,7 @@ export default function ExampleCard({ title, onTap }: ExampleCardProps) {
                 cursor: "pointer",
             }}
         >
-            <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: theme.text }}>
+            <h3 style={{ fontFamily: font.body, fontSize: 15, fontWeight: 600, color: theme.text }}>
                 {title}
             </h3>
         </div>

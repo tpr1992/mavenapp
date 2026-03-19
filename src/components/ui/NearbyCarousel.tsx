@@ -3,6 +3,7 @@ import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import { getDistance, formatDistance } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface NearbyCarouselProps {
     makers: Maker[]
@@ -108,7 +109,7 @@ export default memo(function NearbyCarousel({
             <div style={{ padding: "0 20px 12px" }}>
                 <div
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 16,
                         fontWeight: 700,
                         letterSpacing: "0.05em",
@@ -225,7 +226,7 @@ export default memo(function NearbyCarousel({
                             >
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 12,
                                         fontWeight: 500,
                                         color: "#fff",
@@ -237,7 +238,7 @@ export default memo(function NearbyCarousel({
                                 </div>
                                 <div
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 9.5,
                                         color: "rgba(255,255,255,0.35)",
                                     }}

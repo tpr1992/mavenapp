@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { useMakersContext } from "../contexts/MakersContext"
 import type { Maker } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
+import { font } from "../styles/tokens"
 
 interface SavedScreenProps {
     onMakerTap: (maker: Maker) => void
@@ -60,7 +61,7 @@ export default function SavedScreen({
             <div style={{ padding: "0 20px 16px" }}>
                 <h2
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 22,
                         fontWeight: 800,
                         letterSpacing: "0.04em",
@@ -73,7 +74,7 @@ export default function SavedScreen({
                 </h2>
                 <span
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 12,
                         color: theme.textMuted,
                     }}
@@ -124,7 +125,7 @@ export default function SavedScreen({
                         </div>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 15,
                                 color: theme.textMuted,
                                 lineHeight: 1.6,
@@ -136,7 +137,7 @@ export default function SavedScreen({
                             onClick={() => onTabChange("profile")}
                             style={{
                                 marginTop: 16,
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 14,
                                 fontWeight: 600,
                                 color: theme.bg,
@@ -168,7 +169,7 @@ export default function SavedScreen({
                         </div>
                         <p
                             style={{
-                                fontFamily: "'Syne', sans-serif",
+                                fontFamily: font.heading,
                                 fontSize: 14,
                                 fontWeight: 700,
                                 letterSpacing: "0.06em",
@@ -180,7 +181,7 @@ export default function SavedScreen({
                         </p>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13,
                                 color: theme.textMuted,
                                 lineHeight: 1.6,
@@ -259,7 +260,7 @@ export default function SavedScreen({
                                         >
                                             <div
                                                 style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontFamily: font.body,
                                                     fontSize: 8.5,
                                                     fontWeight: 500,
                                                     letterSpacing: "0.14em",
@@ -272,7 +273,7 @@ export default function SavedScreen({
                                             </div>
                                             <div
                                                 style={{
-                                                    fontFamily: "'Syne', sans-serif",
+                                                    fontFamily: font.heading,
                                                     fontSize: 20,
                                                     fontWeight: 800,
                                                     letterSpacing: "0.03em",
@@ -286,7 +287,7 @@ export default function SavedScreen({
                                             </div>
                                             <div
                                                 style={{
-                                                    fontFamily: "'DM Sans', sans-serif",
+                                                    fontFamily: font.body,
                                                     fontSize: 10.5,
                                                     color: "rgba(255,255,255,0.35)",
                                                 }}
@@ -398,7 +399,7 @@ export default function SavedScreen({
                                                 >
                                                     <div
                                                         style={{
-                                                            fontFamily: "'Syne', sans-serif",
+                                                            fontFamily: font.heading,
                                                             fontSize: 14,
                                                             fontWeight: 800,
                                                             letterSpacing: "0.03em",
@@ -412,7 +413,7 @@ export default function SavedScreen({
                                                     </div>
                                                     <div
                                                         style={{
-                                                            fontFamily: "'DM Sans', sans-serif",
+                                                            fontFamily: font.body,
                                                             fontSize: 9.5,
                                                             color: "rgba(255,255,255,0.3)",
                                                         }}

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react"
 import { useTheme } from "../contexts/ThemeContext"
 import { getNearestTown } from "../utils/distance"
 import { TOWNS } from "../data/towns"
+import { font } from "../styles/tokens"
 
 interface UserLocation {
     lat: number
@@ -124,7 +125,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
         >
             <h1
                 style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: font.wordmark,
                     fontSize: 40,
                     fontWeight: 700,
                     color: theme.text,
@@ -137,7 +138,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </h1>
             <p
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 16,
                     color: theme.textSecondary,
                     margin: 0,
@@ -161,7 +162,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     border: "none",
                     background: theme.btnBg,
                     color: theme.btnText,
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 16,
                     fontWeight: 600,
                     cursor: "pointer",
@@ -209,7 +210,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </div>
             <h2
                 style={{
-                    fontFamily: "'Syne', sans-serif",
+                    fontFamily: font.heading,
                     fontSize: 24,
                     fontWeight: 800,
                     color: theme.text,
@@ -221,7 +222,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
             </h2>
             <p
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 14,
                     color: theme.textSecondary,
                     margin: "0 0 32px",
@@ -243,7 +244,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     border: "none",
                     background: theme.btnBg,
                     color: theme.btnText,
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 16,
                     fontWeight: 600,
                     cursor: "pointer",
@@ -273,7 +274,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                     padding: "8px 16px",
                     border: "none",
                     background: "transparent",
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 14,
                     fontWeight: 500,
                     color: theme.textMuted,
@@ -304,7 +305,7 @@ export default function OnboardingScreen({ onComplete, setLocation }: Onboarding
                 margin: "0 auto",
                 height: "100vh",
                 background: theme.bg,
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: font.body,
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",

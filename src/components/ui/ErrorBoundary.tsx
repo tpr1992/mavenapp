@@ -1,5 +1,6 @@
 import { Component } from "react"
 import type { ReactNode, ErrorInfo } from "react"
+import { font } from "../../styles/tokens"
 
 interface Props {
     children: ReactNode
@@ -37,7 +38,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                     style={{
                         padding: 32,
                         textAlign: "center",
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         color: isDark ? "#e8e6e3" : "#1a1a1a",
                     }}
                 >
@@ -59,7 +60,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                             border: "none",
                             background: isDark ? "#e8e6e3" : "#1a1a1a",
                             color: isDark ? "#0e0e0e" : "#fff",
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 14,
                             fontWeight: 600,
                             cursor: "pointer",

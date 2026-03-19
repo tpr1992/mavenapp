@@ -1,5 +1,6 @@
 import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
     const handle = maker.instagram_handle || ""
@@ -40,7 +41,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                 <div style={{ flex: 1 }}>
                     <div
                         style={{
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: font.heading,
                             fontSize: 16,
                             fontWeight: 800,
                             color: theme.text,
@@ -50,7 +51,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                     </div>
                     <div
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 11,
                             color: theme.textMuted,
                             letterSpacing: "0.04em",
@@ -64,7 +65,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 10,
                         fontWeight: 600,
                         letterSpacing: "0.06em",
@@ -118,7 +119,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                 <div style={{ padding: "32px 20px", textAlign: "center" }}>
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             color: theme.textMuted,
                             lineHeight: 1.6,
@@ -142,7 +143,7 @@ function SocialsTab({ maker, theme }: { maker: Maker; theme: Theme }) {
                     border: `1px solid ${theme.border}`,
                     borderRadius: 0,
                     padding: 14,
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 11,
                     fontWeight: 600,
                     letterSpacing: "0.06em",

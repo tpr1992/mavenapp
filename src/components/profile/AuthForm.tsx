@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext"
 import { useTheme } from "../../contexts/ThemeContext"
 import { supabase } from "../../lib/supabase"
 import { getGreeting } from "../../utils/greeting"
+import { font } from "../../styles/tokens"
 
 interface AuthFormProps {
     onWelcomeToast: (message: string) => void
@@ -116,7 +117,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
         >
             <p
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 14,
                     color: theme.textMuted,
                     margin: "0 0 20px",
@@ -141,7 +142,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                             borderRadius: 0,
                             border: `1px solid ${theme.border}`,
                             background: theme.inputBg,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 16,
                             color: theme.text,
                             outline: "none",
@@ -162,7 +163,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                         borderRadius: 0,
                         border: `1px solid ${theme.border}`,
                         background: theme.inputBg,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 16,
                         color: theme.text,
                         outline: "none",
@@ -183,7 +184,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                         borderRadius: 0,
                         border: `1px solid ${theme.border}`,
                         background: theme.inputBg,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 16,
                         color: theme.text,
                         outline: "none",
@@ -195,7 +196,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                 {error && (
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             color: "#9b2c2c",
                             margin: "0 0 12px",
@@ -216,7 +217,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
                         border: "none",
                         background: theme.btnBg,
                         color: theme.btnText,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 14,
                         fontWeight: 600,
                         cursor: submitting ? "default" : "pointer",
@@ -230,7 +231,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
             {mode === "signin" && (
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 13,
                         color: resetSent ? "#22543d" : theme.textMuted,
                         margin: "12px 0 0",
@@ -256,7 +257,7 @@ export default function AuthForm({ onWelcomeToast }: AuthFormProps) {
 
             <p
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 13,
                     color: theme.textMuted,
                     margin: "16px 0 0",

@@ -1,5 +1,6 @@
 import { useRef, useCallback, useState } from "react"
 import type { Message, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface MessageBubbleProps {
     message: Message
@@ -115,7 +116,7 @@ export default function MessageBubble({
                         borderBottomLeftRadius: isMine ? 18 : 4,
                         background: isMine ? theme.btnBg : theme.surface,
                         color: isMine ? theme.btnText : theme.text,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 14,
                         lineHeight: 1.45,
                         wordBreak: "break-word",
@@ -131,7 +132,7 @@ export default function MessageBubble({
                     {message.failed && (
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 11,
                                 color: "#e53e3e",
                                 marginTop: 4,
@@ -175,7 +176,7 @@ export default function MessageBubble({
                         {likeCount > 1 && (
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 9,
                                     fontWeight: 600,
                                     color: "#fc8181",
@@ -192,7 +193,7 @@ export default function MessageBubble({
             {isMine && showStatus && !message.failed && (
                 <span
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 10,
                         color: theme.textMuted,
                         marginTop: 2,
@@ -244,7 +245,7 @@ export default function MessageBubble({
                                     gap: 10,
                                     cursor: "pointer",
                                     borderBottom: `1px solid ${theme.border}`,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     color: theme.text,
                                 }}
@@ -275,7 +276,7 @@ export default function MessageBubble({
                                 alignItems: "center",
                                 gap: 10,
                                 cursor: "pointer",
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 14,
                                 color: "#e53e3e",
                             }}

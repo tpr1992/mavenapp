@@ -24,6 +24,7 @@ import type { Maker, Theme } from "./types"
 import type { MapState } from "./screens/MapScreenV2"
 
 import ProfileScreen from "./screens/ProfileScreen"
+import { font } from "./styles/tokens"
 
 const mapImport = () => import("./screens/MapScreenV2")
 const MapScreen = lazy(mapImport)
@@ -340,7 +341,7 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                     <div style={{ padding: "60px 20px", textAlign: "center" }}>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 15,
                                 color: theme.textSecondary,
                             }}
@@ -428,7 +429,7 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                 background: theme.bg,
                 position: "relative",
                 overflow: "hidden",
-                fontFamily: "'DM Sans', sans-serif",
+                fontFamily: font.body,
                 borderLeft: "var(--app-border)",
                 borderRight: "var(--app-border)",
             }}
@@ -524,7 +525,7 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                         color: theme.btnText,
                         padding: "12px 20px",
                         borderRadius: 0,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 13.5,
                         fontWeight: 500,
                         cursor: "pointer",

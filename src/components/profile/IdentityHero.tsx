@@ -1,4 +1,5 @@
 import { useTheme } from "../../contexts/ThemeContext"
+import { font } from "../../styles/tokens"
 
 interface IdentityHeroProps {
     profileName: string
@@ -132,7 +133,7 @@ export default function IdentityHero({
             >
                 <div
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 9,
                         fontWeight: 500,
                         letterSpacing: "0.18em",
@@ -145,7 +146,7 @@ export default function IdentityHero({
                 </div>
                 <div
                     style={{
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: font.heading,
                         fontSize: 24,
                         fontWeight: 800,
                         letterSpacing: "0.03em",
@@ -159,7 +160,7 @@ export default function IdentityHero({
                 </div>
                 <div
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 11,
                         color: "rgba(255,255,255,0.4)",
                     }}

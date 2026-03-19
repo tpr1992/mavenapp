@@ -1,5 +1,6 @@
 import { useState, useRef } from "react"
 import type { Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface ChatInputProps {
     onSend: (body: string) => void
@@ -55,7 +56,7 @@ export default function ChatInput({ onSend, theme, isDark }: ChatInputProps) {
                     borderRadius: 0,
                     border: `1px solid ${theme.border}`,
                     background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 16,
                     color: theme.text,
                     outline: "none",

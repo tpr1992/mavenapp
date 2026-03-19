@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react"
 import { useTheme } from "../../contexts/ThemeContext"
 import { glassStyle } from "../../utils/glass"
+import { font } from "../../styles/tokens"
 
 interface SearchBarProps {
     value: string
@@ -59,7 +60,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(function SearchBa
                         border: "none",
                         outline: "none",
                         background: "transparent",
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 16,
                         color: theme.text,
                     }}

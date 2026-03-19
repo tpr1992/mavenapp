@@ -1,4 +1,5 @@
 import type { Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface AboutModalProps {
     show: boolean
@@ -36,7 +37,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
             >
                 <h2
                     style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontFamily: font.wordmark,
                         fontSize: 28,
                         fontWeight: 700,
                         color: theme.text,
@@ -48,7 +49,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                 </h2>
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 13,
                         color: theme.textMuted,
                         margin: "0 0 16px",
@@ -58,7 +59,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                 </p>
                 <p
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 14,
                         color: theme.textSecondary,
                         lineHeight: 1.6,
@@ -76,7 +77,7 @@ export default function AboutModal({ show, onClose, theme }: AboutModalProps) {
                         border: "none",
                         background: theme.btnBg,
                         color: theme.btnText,
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 14,
                         fontWeight: 600,
                         cursor: "pointer",

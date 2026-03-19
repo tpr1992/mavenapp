@@ -17,6 +17,7 @@ import DiscoverHeader from "../components/discover/DiscoverHeader"
 import OverscrollLogo from "../components/ui/OverscrollLogo"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
+import { font } from "../styles/tokens"
 
 interface DiscoverScreenProps {
     onMakerTap: (maker: Maker) => void
@@ -389,7 +390,7 @@ export default function DiscoverScreen({
                     <div style={{ fontSize: 36, marginBottom: 12 }}>{"\u26A0\uFE0F"}</div>
                     <h2
                         style={{
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: font.heading,
                             fontSize: 18,
                             fontWeight: 800,
                             color: theme.text,
@@ -400,7 +401,7 @@ export default function DiscoverScreen({
                     </h2>
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13,
                             color: theme.textMuted,
                             margin: "0 0 20px",
@@ -417,7 +418,7 @@ export default function DiscoverScreen({
                             border: "none",
                             background: theme.btnBg,
                             color: theme.btnText,
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 14,
                             fontWeight: 600,
                             cursor: "pointer",
@@ -563,7 +564,7 @@ export default function DiscoverScreen({
                 <div style={{ padding: "20px 20px 0" }}>
                     <div
                         style={{
-                            fontFamily: "'Syne', sans-serif",
+                            fontFamily: font.heading,
                             fontSize: 16,
                             fontWeight: 700,
                             letterSpacing: "0.05em",
@@ -587,7 +588,7 @@ export default function DiscoverScreen({
                         <div style={{ fontSize: 36, marginBottom: 12 }}>{"\uD83D\uDD0D"}</div>
                         <h3
                             style={{
-                                fontFamily: "'Syne', sans-serif",
+                                fontFamily: font.heading,
                                 fontSize: 18,
                                 fontWeight: 800,
                                 color: theme.text,
@@ -598,7 +599,7 @@ export default function DiscoverScreen({
                         </h3>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13,
                                 color: theme.textMuted,
                                 margin: 0,

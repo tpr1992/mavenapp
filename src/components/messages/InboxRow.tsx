@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from "react"
 import MakerAvatar from "../ui/MakerAvatar"
 import type { InboxItem, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface InboxRowProps {
     item: InboxItem
@@ -225,7 +226,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14.5,
                                     fontWeight: hasUnread ? 700 : 500,
                                     color: theme.text,
@@ -239,7 +240,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                             </span>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 12,
                                     color: theme.textMuted,
                                     flexShrink: 0,
@@ -251,7 +252,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     color: hasUnread ? theme.textSecondary : theme.textMuted,
                                     fontWeight: hasUnread ? 500 : 400,
@@ -306,7 +307,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                     >
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 15,
                                 fontWeight: 600,
                                 color: theme.text,
@@ -317,7 +318,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                         </p>
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13.5,
                                 color: theme.textSecondary,
                                 lineHeight: 1.5,
@@ -338,7 +339,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                                     border: `1px solid ${theme.border}`,
                                     background: theme.card,
                                     color: theme.text,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: "pointer",
@@ -359,7 +360,7 @@ export default function InboxRow({ item, userId, theme, onTap, onDelete }: Inbox
                                     border: "none",
                                     background: "#c53030",
                                     color: "#fff",
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 14,
                                     fontWeight: 600,
                                     cursor: "pointer",

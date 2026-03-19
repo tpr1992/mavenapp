@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async"
 import { useTheme } from "../contexts/ThemeContext"
 import InboxRow from "../components/messages/InboxRow"
 import type { InboxItem } from "../types"
+import { font } from "../styles/tokens"
 
 interface MessagesScreenProps {
     items: InboxItem[]
@@ -47,7 +48,7 @@ export default function MessagesScreen({
                 <h1
                     onClick={onLogoTap}
                     style={{
-                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontFamily: font.wordmark,
                         fontSize: 30,
                         fontWeight: 700,
                         color: theme.text,
@@ -64,7 +65,7 @@ export default function MessagesScreen({
             <div style={{ padding: "4px 16px 12px" }}>
                 <h2
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 22,
                         fontWeight: 700,
                         color: theme.text,
@@ -93,7 +94,7 @@ export default function MessagesScreen({
                 <div style={{ padding: "60px 20px", textAlign: "center" }}>
                     <p
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 15,
                             color: theme.textSecondary,
                             lineHeight: 1.5,

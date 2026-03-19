@@ -5,6 +5,7 @@ import { optimizeImageUrl, imageSrcSet, IMG_QUALITY } from "../../utils/image"
 import { glassStyle } from "../../utils/glass"
 import MakerAvatar from "../ui/MakerAvatar"
 import type { Maker, Theme } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface SwipeableMapCardProps {
     maker: Maker
@@ -413,7 +414,7 @@ export default memo(function SwipeableMapCard({
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 15,
                                     fontWeight: 700,
                                     color: theme.text,
@@ -427,7 +428,7 @@ export default memo(function SwipeableMapCard({
                         </div>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 color: theme.textSecondary,
                                 marginTop: 2,
@@ -437,7 +438,7 @@ export default memo(function SwipeableMapCard({
                         </div>
                         <div
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 marginTop: 3,
                                 display: "flex",
@@ -531,7 +532,7 @@ export default memo(function SwipeableMapCard({
                     {maker.bio && (
                         <p
                             style={{
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 13.5,
                                 lineHeight: 1.6,
                                 color: theme.textSecondary,
@@ -613,7 +614,7 @@ export default memo(function SwipeableMapCard({
                                 border: `1px solid ${theme.border}`,
                                 background: "transparent",
                                 color: theme.text,
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 fontWeight: 600,
                                 textDecoration: "none",
@@ -650,7 +651,7 @@ export default memo(function SwipeableMapCard({
                                     border: `1px solid ${theme.border}`,
                                     background: "transparent",
                                     color: theme.text,
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 12,
                                     fontWeight: 600,
                                     textDecoration: "none",
@@ -689,7 +690,7 @@ export default memo(function SwipeableMapCard({
                                 border: `1px solid ${theme.border}`,
                                 background: "transparent",
                                 color: theme.text,
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 12,
                                 fontWeight: 600,
                                 cursor: "pointer",

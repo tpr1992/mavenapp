@@ -1,4 +1,5 @@
 import { useRef, useEffect, memo } from "react"
+import { font } from "../../styles/tokens"
 
 interface OverscrollLogoProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
@@ -206,7 +207,7 @@ export default memo(function OverscrollLogo({ scrollContainerRef }: OverscrollLo
                             letterRefs.current[i] = el
                         }}
                         style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontFamily: font.wordmark,
                             fontSize: 28,
                             fontWeight: 700,
                             color: "rgba(255,255,255,0.15)",
@@ -222,7 +223,7 @@ export default memo(function OverscrollLogo({ scrollContainerRef }: OverscrollLo
             <div
                 ref={taglineRef}
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 10,
                     fontWeight: 400,
                     letterSpacing: "0.18em",
@@ -238,7 +239,7 @@ export default memo(function OverscrollLogo({ scrollContainerRef }: OverscrollLo
             <div
                 ref={subtitleRef}
                 style={{
-                    fontFamily: "'DM Sans', sans-serif",
+                    fontFamily: font.body,
                     fontSize: 9,
                     fontWeight: 400,
                     letterSpacing: "0.12em",

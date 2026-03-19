@@ -11,6 +11,7 @@ import StatsBar from "../components/profile/StatsBar"
 import RecentlyViewed from "../components/profile/RecentlyViewed"
 import NotificationDropdown from "../components/profile/NotificationDropdown"
 import type { Maker, InboxItem } from "../types"
+import { font } from "../styles/tokens"
 
 interface ProfileScreenProps {
     isDebug: boolean
@@ -126,7 +127,7 @@ export default function ProfileScreen({
                     </span>
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 13.5,
                             fontWeight: 500,
                             color: theme.text,
@@ -194,7 +195,7 @@ export default function ProfileScreen({
                         >
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: theme.text,
@@ -229,7 +230,7 @@ export default function ProfileScreen({
                             <span style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
                                 <span
                                     style={{
-                                        fontFamily: "'DM Sans', sans-serif",
+                                        fontFamily: font.body,
                                         fontSize: 13,
                                         fontWeight: 500,
                                         color: theme.text,
@@ -268,7 +269,7 @@ export default function ProfileScreen({
                         <div
                             style={{
                                 padding: "20px 20px 0",
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 9,
                                 fontWeight: 500,
                                 letterSpacing: "0.16em",
@@ -290,7 +291,7 @@ export default function ProfileScreen({
                         >
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: theme.text,
@@ -308,7 +309,7 @@ export default function ProfileScreen({
                                             border: "none",
                                             borderRadius: 0,
                                             background: (opt === "Dark" ? isDark : !isDark) ? "#1e1e1e" : "transparent",
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 10,
                                             fontWeight: 500,
                                             letterSpacing: "0.04em",
@@ -334,7 +335,7 @@ export default function ProfileScreen({
                         >
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: theme.text,
@@ -352,7 +353,7 @@ export default function ProfileScreen({
                                             border: "none",
                                             borderRadius: 0,
                                             background: feedLayout === opt ? "#1e1e1e" : "transparent",
-                                            fontFamily: "'DM Sans', sans-serif",
+                                            fontFamily: font.body,
                                             fontSize: 10,
                                             fontWeight: 500,
                                             letterSpacing: "0.04em",
@@ -378,7 +379,7 @@ export default function ProfileScreen({
                         >
                             <span
                                 style={{
-                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontFamily: font.body,
                                     fontSize: 13,
                                     fontWeight: 500,
                                     color: theme.text,
@@ -432,7 +433,7 @@ export default function ProfileScreen({
                                 borderRadius: 0,
                                 border: "1px solid rgba(255,255,255,0.12)",
                                 background: "transparent",
-                                fontFamily: "'DM Sans', sans-serif",
+                                fontFamily: font.body,
                                 fontSize: 11,
                                 fontWeight: 600,
                                 letterSpacing: "0.06em",

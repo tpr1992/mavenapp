@@ -5,6 +5,7 @@ import { getTodayHours } from "../../utils/time"
 import { formatLocation } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
+import { font } from "../../styles/tokens"
 
 interface MakerListItemProps {
     maker: Maker
@@ -71,7 +72,7 @@ export default memo(function MakerListItem({
                     )}
                     <span
                         style={{
-                            fontFamily: "'DM Sans', sans-serif",
+                            fontFamily: font.body,
                             fontSize: 14.5,
                             fontWeight: 600,
                             color: theme.text,
@@ -87,7 +88,7 @@ export default memo(function MakerListItem({
                 </div>
                 <div
                     style={{
-                        fontFamily: "'DM Sans', sans-serif",
+                        fontFamily: font.body,
                         fontSize: 12,
                         color: theme.textMuted,
                         marginTop: 2,
