@@ -306,6 +306,7 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                     key={selectedMaker.id}
                     maker={selectedMaker}
                     onBack={handleBack}
+                    onToggleSave={handleToggleSave}
                     onMakerTap={handleMakerTap}
                     scrollContainerRef={containerRef}
                     onLogoTap={handleLogoTap}

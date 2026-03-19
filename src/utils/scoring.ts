@@ -26,7 +26,8 @@ export const WEIGHTS_LOW_DATA = { proximity: 0.25, engagement: 0.3, freshness: 0
  */
 export function proximityScore(distanceKm: number | null | undefined): number {
     if (distanceKm == null) return 0
-    return 1 / (1 + (distanceKm / 15) ** 2)
+    const d = Math.max(0, distanceKm)
+    return 1 / (1 + (d / 15) ** 2)
 }
 
 /**

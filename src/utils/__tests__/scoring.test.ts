@@ -45,6 +45,12 @@ describe("proximityScore", () => {
             expect(s).toBeLessThanOrEqual(1)
         }
     })
+
+    it("clamps to 1.0 for negative distances", () => {
+        expect(proximityScore(-5)).toBeLessThanOrEqual(1)
+        expect(proximityScore(-100)).toBeLessThanOrEqual(1)
+        expect(proximityScore(-5)).toBe(1) // negative treated as 0 → score is 1.0
+    })
 })
 
 describe("freshnessBoost", () => {
@@ -171,6 +177,11 @@ describe("compositeScore", () => {
         const normal = compositeScore({ ...base, createdAt: fresh, isLowData: false })
         const lowData = compositeScore({ ...base, createdAt: fresh, isLowData: true })
         expect(lowData).not.toBe(normal)
+    })
+
+    it("handles p95Engagement of 0 without NaN", () => {
+        const score = compositeScore({ ...base, p95Engagement: 0 })
+        expect(Number.isFinite(score)).toBe(true)
     })
 
     it("caps engagement contribution at 1.0 even with very high scores", () => {
