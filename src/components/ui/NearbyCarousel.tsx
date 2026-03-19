@@ -4,75 +4,106 @@ import { getDistance, formatDistance } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
 
-interface NearbyMakersCarouselProps {
-    currentMaker: Maker
+interface NearbyCarouselProps {
     makers: Maker[]
     onMakerTap: (maker: Maker) => void
+    /** Anchor maker — distances computed from this maker's location. Used on maker profile pages. */
+    anchor?: Maker
+    /** User location — uses pre-computed maker.distance. Used on the discover page. */
+    userLocation?: { lat: number; lng: number } | null
     excludeIds?: Set<string>
+    /** Top padding — maker pages use 32px, discover uses 20px */
+    topPadding?: number
 }
 
-type MakerWithDistance = Maker & { distanceFromMaker: number }
+type MakerWithDist = Maker & { _dist: number }
 
-export default memo(function NearbyMakersCarousel({
-    currentMaker,
+export default memo(function NearbyCarousel({
     makers,
     onMakerTap,
+    anchor,
+    userLocation,
     excludeIds,
-}: NearbyMakersCarouselProps) {
+    topPadding = 20,
+}: NearbyCarouselProps) {
     const { theme } = useTheme()
 
     const nearbyMakers = useMemo(() => {
-        const candidates = makers
-            .filter((m) => m.id !== currentMaker.id)
-            .filter((m) => !excludeIds?.has(m.id))
-            .map(
-                (m) =>
-                    ({
-                        ...m,
-                        distanceFromMaker: getDistance(currentMaker.lat, currentMaker.lng, m.lat, m.lng),
-                    }) as MakerWithDistance,
-            )
-            .sort((a, b) => a.distanceFromMaker - b.distanceFromMaker)
+        if (anchor) {
+            // Maker page mode: compute distances from anchor, dynamic radius expansion
+            const candidates = makers
+                .filter((m) => m.id !== anchor.id)
+                .filter((m) => !excludeIds?.has(m.id))
+                .map(
+                    (m) =>
+                        ({
+                            ...m,
+                            _dist: getDistance(anchor.lat, anchor.lng, m.lat, m.lng),
+                        }) as MakerWithDist,
+                )
+                .sort((a, b) => a._dist - b._dist)
 
-        // Dynamic radius: find the natural "cluster" of nearby makers
-        // Start tight (2km), expand only if we don't have enough
-        let radius = 2
-        let result = candidates.filter((m) => m.distanceFromMaker <= radius)
-
-        // If fewer than 3 within 2km, expand to 10km
-        if (result.length < 3) {
-            radius = 10
-            result = candidates.filter((m) => m.distanceFromMaker <= radius)
+            let radius = 2
+            let result = candidates.filter((m) => m._dist <= radius)
+            if (result.length < 3) {
+                radius = 10
+                result = candidates.filter((m) => m._dist <= radius)
+            }
+            if (result.length < 3) {
+                radius = 30
+                result = candidates.filter((m) => m._dist <= radius)
+            }
+            return result.slice(0, 5)
         }
 
-        // If still fewer than 3, expand to 30km (but no further)
-        if (result.length < 3) {
-            radius = 30
-            result = candidates.filter((m) => m.distanceFromMaker <= radius)
+        if (userLocation) {
+            // Discover page mode: use pre-computed maker.distance
+            return makers
+                .filter((m) => !excludeIds?.has(m.id))
+                .filter((m) => m.distance != null && m.distance <= 50)
+                .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+                .slice(0, 8)
+                .map((m) => ({ ...m, _dist: m.distance ?? 0 }) as MakerWithDist)
         }
 
-        // Cap at 5 — this is a hint, not a directory
-        return result.slice(0, 5)
-    }, [makers, currentMaker.id, currentMaker.lat, currentMaker.lng, excludeIds])
+        return []
+    }, [makers, anchor, userLocation, excludeIds])
 
-    if (nearbyMakers.length < 2) return null
+    const minCount = anchor ? 2 : 3
+    if (nearbyMakers.length < minCount) return null
 
-    const farthest = nearbyMakers[nearbyMakers.length - 1]?.distanceFromMaker ?? 0
+    // Smart heading
+    const farthest = nearbyMakers[nearbyMakers.length - 1]?._dist ?? 0
     const nearbyCities = new Set(nearbyMakers.map((m) => m.city))
-    const allSameCity = nearbyCities.size === 1 && nearbyMakers[0]?.city === currentMaker.city
+    const closestCity = nearbyMakers[0]?.city ?? ""
+    const closestCounty = nearbyMakers[0]?.county ?? ""
 
-    const headingText =
-        allSameCity && farthest <= 2
-            ? "AROUND THE CORNER"
-            : allSameCity
-              ? `NEARBY IN ${currentMaker.city.toUpperCase()}`
-              : farthest <= 15
-                ? "A SHORT DRIVE"
-                : `MORE IN ${(currentMaker.county || "THE AREA").toUpperCase()}`
+    let headingText: string
+    if (anchor) {
+        const allSameCity = nearbyCities.size === 1 && closestCity === anchor.city
+        headingText =
+            allSameCity && farthest <= 2
+                ? "AROUND THE CORNER"
+                : allSameCity
+                  ? `NEARBY IN ${anchor.city.toUpperCase()}`
+                  : farthest <= 15
+                    ? "A SHORT DRIVE"
+                    : `MORE IN ${(anchor.county || "THE AREA").toUpperCase()}`
+    } else {
+        const allSameCity = nearbyCities.size === 1
+        headingText =
+            allSameCity && farthest <= 2
+                ? "AROUND THE CORNER"
+                : allSameCity
+                  ? `MAKERS IN ${closestCity.toUpperCase()}`
+                  : farthest <= 15
+                    ? "MAKERS NEAR YOU"
+                    : `MAKERS IN ${closestCounty.toUpperCase()}`
+    }
 
     return (
-        <div style={{ padding: "32px 0 0" }}>
-            <div style={{ padding: "0 20px 14px" }}>
+        <div style={{ padding: `${topPadding}px 0 0` }}>
+            <div style={{ padding: "0 20px 12px" }}>
                 <div
                     style={{
                         fontFamily: "'Syne', sans-serif",
@@ -189,7 +220,7 @@ export default memo(function NearbyMakersCarousel({
                                         color: "rgba(255,255,255,0.35)",
                                     }}
                                 >
-                                    {formatDistance(maker.distanceFromMaker)}
+                                    {formatDistance(maker._dist)}
                                 </div>
                             </div>
                         </div>
