@@ -2,14 +2,14 @@
 
 ## Data Fetching
 
-- **Prefetch data in App.tsx, not in screen components.** Screens mount after tab navigation, so hooks inside them fire late — causing a visible flash of stale or missing content. By fetching in App.tsx and passing as props, the data is ready before the screen renders.
-- **Never fetch inside a lazy-loaded screen** if the data can be fetched earlier. The screen should receive ready-to-render data as props.
-- Hooks that run in App.tsx: `useProfileName`, `useMakers`, `useSavedMakers`, `useSponsoredPosts`.
+- **Prefetch data at the provider level, not in screen components.** Screens mount after tab navigation, so hooks inside them fire late — causing a visible flash of stale or missing content. By fetching in MakersProvider (mounted in App) and consuming via context, the data is ready before screens render.
+- **Never fetch inside a lazy-loaded screen** if the data can be fetched earlier. Screens should consume ready-to-render data via context.
+- Data hooks: `useMakers` and `useSavedMakers` run inside `MakersProvider`. `useProfileName` and `useSponsoredPosts` run in `AppContent`.
 
 ## Lazy Loading
 
-- **Only lazy-load screens with heavy dependencies.** `React.lazy()` + `Suspense` introduces a flash on first visit. Acceptable for MapScreen (~150KB Leaflet) but not for lightweight screens like SavedScreen (2KB) or ProfileScreen (5KB).
-- **Rule**: If the screen's unique chunk is under ~20KB gzipped, import it directly.
+- **Lazy-load screens not visited on every session.** `React.lazy()` + `Suspense` for MapScreen, SavedScreen, MessagesScreen, ChatView, OnboardingScreen.
+- **Direct import** for DiscoverScreen (always visible), MakerProfile (frequent), ProfileScreen (lightweight).
 - **Preload lazy chunks on app mount**: For lazy screens (MapScreen), preload the chunk after a short delay (`setTimeout(mapImport, 1000)`) in a `useEffect`. Use an extracted import function shared between `lazy()` and the preload call.
 
 ## Image Prefetching
@@ -32,7 +32,7 @@
 
 Prefer native browser animations over JS-driven alternatives for higher frame rates:
 
-- **`scrollTo({ behavior: "smooth" })`** runs on compositor thread at native refresh rate (120Hz ProMotion). Used for carousel autoplay, dot navigation, and reset animations. Replaces framer-motion's `motionAnimate` which runs on main thread (~60fps).
+- **`scrollTo({ behavior: "smooth" })`** runs on compositor thread at native refresh rate (120Hz ProMotion). Used for carousel autoplay, dot navigation, and reset animations. Preferred over JS animation libraries which run on main thread (~60fps).
 - **`transform: translateX()`** for position animations instead of `left` (which triggers reflow). Used for toggle switches in ProfileScreen.
 - **Scope `transition` to specific properties** — never use `transition: "all ..."`. It catches layout properties (width, height, margin) and prevents compositor optimization. Always list properties explicitly: `"background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease"`.
 - **`height` animation** (e.g., SwipeableMapCard) is inherently main-thread and cannot be moved to compositor.

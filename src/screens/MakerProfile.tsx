@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { getDistance } from "../utils/distance"
 import { useTheme } from "../contexts/ThemeContext"
-import { useMakersContext, useSavedContext } from "../contexts/MakersContext"
+import { useMakersContext } from "../contexts/MakersContext"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
 import NearbyCarousel from "../components/ui/NearbyCarousel"
 import ShareModal from "../components/modals/ShareModal"
@@ -21,6 +21,7 @@ import type { Breakpoint } from "../hooks/useBreakpoint"
 interface MakerProfileProps {
     maker: Maker
     onBack: () => void
+    onToggleSave: (id: string) => void
     onMakerTap: (maker: Maker) => void
     scrollContainerRef?: React.RefObject<HTMLDivElement | null>
     onLogoTap: () => void
@@ -32,6 +33,7 @@ interface MakerProfileProps {
 export default function MakerProfile({
     maker,
     onBack,
+    onToggleSave,
     onMakerTap,
     scrollContainerRef,
     onLogoTap,
@@ -39,8 +41,7 @@ export default function MakerProfile({
     userId,
     onMessage,
 }: MakerProfileProps) {
-    const { makers } = useMakersContext()
-    const { savedIds, toggleSave } = useSavedContext()
+    const { makers, savedIds } = useMakersContext()
     const isSaved = savedIds.has(maker.id)
     const [showShare, setShowShare] = useState(false)
     const [showCompact, setShowCompact] = useState(false)
@@ -137,7 +138,7 @@ export default function MakerProfile({
                 theme={theme}
                 onBack={onBack}
                 onLogoTap={onLogoTap}
-                onToggleSave={toggleSave}
+                onToggleSave={onToggleSave}
                 onShare={() => setShowShare(true)}
                 scrollContainerRef={scrollContainerRef}
             />

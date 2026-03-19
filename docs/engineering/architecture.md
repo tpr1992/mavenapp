@@ -16,16 +16,22 @@ No router. Navigation is state-driven via `activeTab` + `selectedMaker` in `App.
 
 ## State Ownership
 
-All shared state lives in `App.tsx` and flows down as props:
+State is split between App.tsx (navigation/UI) and MakersContext (data):
 
-- `activeTab` — current tab
-- `selectedMaker` — maker profile overlay
-- `makers` — fetched via `useMakers` hook
-- `savedIds` — via `useSavedMakers` hook
-- `sponsoredPosts` — via `useSponsoredPosts` hook
+**MakersContext** (`src/contexts/MakersContext.tsx`) — wraps the app, provides:
+- `makers` — fetched via `useMakers` hook, scored and sorted
+- `savedIds` / `toggleSave` — via `useSavedMakers` hook
+- `loading`, `error`, `refetch` — fetch state
+- Debug metadata: `p95Engagement`, `isLowData`, `makersWithClicks`, `totalMakers`
+- Convenience hooks: `useMakersContext()`, `useSavedContext()`, `useDebugMeta()`
+
+**App.tsx** (`AppContent`) — navigation and UI state:
+- `activeTab`, `selectedMaker`, `selectedConversation`, `profileSubView`
 - `userLocation` — via `useUserLocation` hook
+- `sponsoredPosts` — via `useSponsoredPosts` hook
+- Auth-gated `handleToggleSave` wrapper (shows toast for unauthenticated users)
 
-Hooks run in App.tsx so data is ready before screens mount (prevents flash on tab switch).
+Data hooks run at the provider level so data is ready before screens mount (prevents flash on tab switch). Screens consume makers data via context, not props.
 
 ## Data Layer
 
