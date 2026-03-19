@@ -559,7 +559,9 @@ export default function DiscoverScreen({
             )}
 
             {/* Nearby makers — location-aware users only, hidden during search */}
-            {!q && <NearbyCarousel makers={makers} onMakerTap={onMakerTap} userLocation={userLocation} />}
+            {!q && (
+                <NearbyCarousel makers={makers} onMakerTap={onMakerTap} userLocation={userLocation} isDebug={isDebug} />
+            )}
 
             {/* Category filter pills */}
             <div ref={mainFiltersRef} style={{ marginTop: 12 }}>
