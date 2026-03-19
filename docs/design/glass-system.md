@@ -28,7 +28,7 @@ Always use object spread. The helpers return objects with `background`, `border`
 import { glassStyle, glassBarStyle, GLASS } from "../../utils/glass"
 
 // Standard glass (floating element)
-<div style={{ ...glassStyle(isDark), borderRadius: 14 }}>
+<div style={{ ...glassStyle(isDark), borderRadius: 0 }}>
 
 // Bar glass (navigation)
 <div style={{ ...glassBarStyle(isDark) }}>
