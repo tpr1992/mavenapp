@@ -42,6 +42,7 @@ export interface Maker {
     user_id?: string | null
     events?: MakerEvent[] | null
     created_at?: string
+    /** Distance from user's current location in km. Computed at runtime by useMakers — never stored in DB. */
     distance?: number | null
     score?: number
     velocity?: number
