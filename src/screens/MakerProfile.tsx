@@ -8,7 +8,7 @@ import { getDistance } from "../utils/distance"
 import { useTheme } from "../contexts/ThemeContext"
 import { safeOpen } from "../utils/safeOpen"
 import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
-import NearbyMakersCarousel from "../components/makers/NearbyMakersCarousel"
+import NearbyCarousel from "../components/ui/NearbyCarousel"
 import ShareModal from "../components/modals/ShareModal"
 import ImageGalleryModal from "../components/modals/ImageGalleryModal"
 import MakerHero from "../components/makers/MakerHero"
@@ -1227,7 +1227,7 @@ export default function MakerProfile({
                 </>
             )}
 
-            <NearbyMakersCarousel currentMaker={maker} makers={makers || []} onMakerTap={onMakerTap} />
+            <NearbyCarousel anchor={maker} makers={makers || []} onMakerTap={onMakerTap} topPadding={32} />
 
             <RelatedMakersFeed
                 makers={relatedMakers}

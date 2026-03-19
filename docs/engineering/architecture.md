@@ -101,6 +101,24 @@ export default function ExampleCard({ title, onTap }: ExampleCardProps) {
 }
 ```
 
+## Discover Page Structure
+
+The discover feed (`DiscoverScreen.tsx`) flows top-to-bottom:
+
+1. **DiscoverHeader** — sticky header with logo, location picker (expanded) or logo + search (compact). When compact, a `filterSlot` renders CategoryPills inside the header bar, synced via `filtersInHeader` state driven by scroll position.
+2. **TrendingCarousel** — top 5 makers by engagement score. Minimum 3 results required.
+3. **NearbyCarousel** (`src/components/ui/NearbyCarousel.tsx`, `userLocation` mode) — horizontal carousel of up to 8 makers within 50km of user location. Only renders for location-aware users with 3+ nearby makers. Smart headings: "AROUND THE CORNER" / "MAKERS IN {CITY}" / "MAKERS NEAR YOU" / "MAKERS IN {COUNTY}".
+4. **CategoryPills** — filter row (Clothing/Objects/Art + layout toggle). Sits in natural position, also injected into compact header when scrolled past.
+5. **"EXPLORE MAKERS" heading** — section label for the main grid.
+6. **MasonryGrid** — scored maker cards, interleaved by category. Infinite scroll via IntersectionObserver sentinel.
+
+### Maker Profile Page Structure
+
+Below the hero/tabs content:
+
+1. **NearbyCarousel** (`src/components/ui/NearbyCarousel.tsx`, `anchor` mode) — up to 5 makers within 30km of the current maker (dynamic radius: 2km → 10km → 30km). Smart headings based on geography. Distance shown is maker-to-maker.
+2. **RelatedMakersFeed** ("KEEP EXPLORING") — masonry grid of related makers, same category first, sorted by distance from current maker. Excludes nearby carousel makers.
+
 ## Sponsored Posts
 
 Geo-targeted ad tiles in the discovery feed masonry grid. Visually similar to maker cards with a "Sponsored" label.

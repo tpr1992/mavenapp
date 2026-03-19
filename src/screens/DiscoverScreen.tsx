@@ -10,7 +10,7 @@ import CategoryPills from "../components/ui/CategoryPills"
 import type { FeedLayout } from "../hooks/useFeedLayout"
 import LocationPicker from "../components/ui/LocationPicker"
 import TrendingCarousel from "../components/discover/TrendingCarousel"
-import NearbyMakersStrip from "../components/discover/NearbyMakersStrip"
+import NearbyCarousel from "../components/ui/NearbyCarousel"
 import MasonryGrid from "../components/discover/MasonryGrid"
 import DiscoverHeader from "../components/discover/DiscoverHeader"
 import OverscrollLogo from "../components/ui/OverscrollLogo"
@@ -184,18 +184,6 @@ export default function DiscoverScreen({
 
     const countyMatch = useMemo(() => getCountyCenter(q, TOWNS), [q])
 
-    // IDs shown in the nearby carousel — exclude from main grid to avoid duplication
-    const carouselMakerIds = useMemo(() => {
-        if (!makers?.length || !userLocation) return new Set<string>()
-        return new Set(
-            [...makers]
-                .filter((m) => m.distance != null && m.distance <= 50)
-                .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
-                .slice(0, 8)
-                .map((m) => m.id),
-        )
-    }, [makers, userLocation])
-
     const prevFilteredRef = useRef<Maker[]>([])
     const allFiltered = useMemo(() => {
         if (isHidden) return prevFilteredRef.current
@@ -205,7 +193,7 @@ export default function DiscoverScreen({
 
         let result: Maker[]
         if (!q) {
-            result = base.filter((m) => !carouselMakerIds.has(m.id))
+            result = base
         } else if (searchHits.length > 0) {
             // Use RPC search results when available (full-text + fuzzy + synonyms)
             const hitMap = new Map(searchHits.map((h) => [h.id, h.search_rank]))
@@ -247,7 +235,7 @@ export default function DiscoverScreen({
         }
         prevFilteredRef.current = result
         return result
-    }, [makers, category, openNow, q, countyMatch, searchHits, isHidden, carouselMakerIds])
+    }, [makers, category, openNow, q, countyMatch, searchHits, isHidden])
 
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
     const hasMore = visibleCount < allFiltered.length
@@ -571,7 +559,7 @@ export default function DiscoverScreen({
             )}
 
             {/* Nearby makers — location-aware users only, hidden during search */}
-            {!q && <NearbyMakersStrip makers={makers} onMakerTap={onMakerTap} userLocation={userLocation} />}
+            {!q && <NearbyCarousel makers={makers} onMakerTap={onMakerTap} userLocation={userLocation} />}
 
             {/* Category filter pills */}
             <div ref={mainFiltersRef} style={{ marginTop: 12 }}>
