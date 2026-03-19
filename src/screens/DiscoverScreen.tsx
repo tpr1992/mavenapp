@@ -540,7 +540,7 @@ export default function DiscoverScreen({
                         lineHeight: 1.5,
                     }}
                 >
-                    {debugMeta.isLowData ? "LOW-DATA (55% prox)" : "NORMAL (40% prox)"} {"\u00B7"} p95eng:{" "}
+                    {debugMeta.isLowData ? "LOW-DATA (25% prox)" : "NORMAL (15% prox)"} {"\u00B7"} p95eng:{" "}
                     {debugMeta.p95Engagement.toFixed(1)} {"\u00B7"} {debugMeta.makersWithClicks}/{debugMeta.totalMakers}{" "}
                     makers w/ ≥10 clicks
                 </div>
