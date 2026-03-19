@@ -1,78 +1,54 @@
 import { memo, useMemo } from "react"
 import { optimizeImageUrl, imageSrcSet } from "../../utils/image"
-import { getDistance, formatDistance } from "../../utils/distance"
+import { formatDistance } from "../../utils/distance"
 import { useTheme } from "../../contexts/ThemeContext"
 import type { Maker } from "../../types"
 
-interface NearbyMakersCarouselProps {
-    currentMaker: Maker
+interface NearbyMakersStripProps {
     makers: Maker[]
     onMakerTap: (maker: Maker) => void
+    userLocation: { lat: number; lng: number } | null
     excludeIds?: Set<string>
 }
 
-type MakerWithDistance = Maker & { distanceFromMaker: number }
-
-export default memo(function NearbyMakersCarousel({
-    currentMaker,
+export default memo(function NearbyMakersStrip({
     makers,
     onMakerTap,
+    userLocation,
     excludeIds,
-}: NearbyMakersCarouselProps) {
+}: NearbyMakersStripProps) {
     const { theme } = useTheme()
 
     const nearbyMakers = useMemo(() => {
-        const candidates = makers
-            .filter((m) => m.id !== currentMaker.id)
+        if (!userLocation) return []
+
+        return makers
             .filter((m) => !excludeIds?.has(m.id))
-            .map(
-                (m) =>
-                    ({
-                        ...m,
-                        distanceFromMaker: getDistance(currentMaker.lat, currentMaker.lng, m.lat, m.lng),
-                    }) as MakerWithDistance,
-            )
-            .sort((a, b) => a.distanceFromMaker - b.distanceFromMaker)
+            .filter((m) => m.distance != null && m.distance <= 50)
+            .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+            .slice(0, 8)
+    }, [makers, userLocation, excludeIds])
 
-        // Dynamic radius: find the natural "cluster" of nearby makers
-        // Start tight (2km), expand only if we don't have enough
-        let radius = 2
-        let result = candidates.filter((m) => m.distanceFromMaker <= radius)
+    if (!userLocation || nearbyMakers.length < 3) return null
 
-        // If fewer than 3 within 2km, expand to 10km
-        if (result.length < 3) {
-            radius = 10
-            result = candidates.filter((m) => m.distanceFromMaker <= radius)
-        }
-
-        // If still fewer than 3, expand to 30km (but no further)
-        if (result.length < 3) {
-            radius = 30
-            result = candidates.filter((m) => m.distanceFromMaker <= radius)
-        }
-
-        // Cap at 5 — this is a hint, not a directory
-        return result.slice(0, 5)
-    }, [makers, currentMaker.id, currentMaker.lat, currentMaker.lng, excludeIds])
-
-    if (nearbyMakers.length < 2) return null
-
-    const farthest = nearbyMakers[nearbyMakers.length - 1]?.distanceFromMaker ?? 0
+    const farthest = nearbyMakers[nearbyMakers.length - 1]?.distance ?? 0
     const nearbyCities = new Set(nearbyMakers.map((m) => m.city))
-    const allSameCity = nearbyCities.size === 1 && nearbyMakers[0]?.city === currentMaker.city
+    const closestCity = nearbyMakers[0]?.city ?? ""
+    const closestCounty = nearbyMakers[0]?.county ?? ""
+    const allSameCity = nearbyCities.size === 1
 
     const headingText =
         allSameCity && farthest <= 2
             ? "AROUND THE CORNER"
             : allSameCity
-              ? `NEARBY IN ${currentMaker.city.toUpperCase()}`
+              ? `MAKERS IN ${closestCity.toUpperCase()}`
               : farthest <= 15
-                ? "A SHORT DRIVE"
-                : `MORE IN ${(currentMaker.county || "THE AREA").toUpperCase()}`
+                ? "MAKERS NEAR YOU"
+                : `MAKERS IN ${closestCounty.toUpperCase()}`
 
     return (
-        <div style={{ padding: "32px 0 0" }}>
-            <div style={{ padding: "0 20px 14px" }}>
+        <div style={{ padding: "20px 0 0" }}>
+            <div style={{ padding: "0 20px 12px" }}>
                 <div
                     style={{
                         fontFamily: "'Syne', sans-serif",
@@ -189,7 +165,7 @@ export default memo(function NearbyMakersCarousel({
                                         color: "rgba(255,255,255,0.35)",
                                     }}
                                 >
-                                    {formatDistance(maker.distanceFromMaker)}
+                                    {maker.distance != null ? formatDistance(maker.distance) : maker.city}
                                 </div>
                             </div>
                         </div>

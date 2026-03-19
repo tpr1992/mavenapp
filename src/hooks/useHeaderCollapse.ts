@@ -7,6 +7,7 @@ interface UseHeaderCollapseOptions {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
     barRef: React.RefObject<HTMLDivElement | null>
     searchInputRef: React.RefObject<HTMLInputElement | null>
+    mainFiltersRef?: React.RefObject<HTMLDivElement | null>
     isDark: boolean
     searchOpen: boolean
     searchQuery: string
@@ -21,6 +22,7 @@ export function useHeaderCollapse({
     scrollContainerRef,
     barRef,
     searchInputRef,
+    mainFiltersRef,
     isDark,
     searchOpen,
     searchQuery,
@@ -33,6 +35,8 @@ export function useHeaderCollapse({
     const [isCompact, setIsCompact] = useState(false)
     const [topRowHidden, setTopRowHidden] = useState(false)
     const [spacerH, setSpacerH] = useState(56)
+    const [filtersInHeader, setFiltersInHeader] = useState(false)
+    const filtersInHeaderRef = useRef(false)
 
     const expandedHeight = useRef(0)
 
@@ -180,6 +184,7 @@ export function useHeaderCollapse({
             bar.style.pointerEvents = "none"
             bar.style.transition = "transform 0.22s cubic-bezier(0.32, 0, 0.67, 0)"
             bar.style.transform = "translateY(-100%)"
+
             setTimeout(() => {
                 bar.style.transition = ""
                 restoreFrost(bar)
@@ -375,6 +380,19 @@ export function useHeaderCollapse({
                 }
             }
 
+            // Check if main filters have scrolled behind the compact header
+            // Skip during animations/drags to prevent filters unmounting mid-slide
+            const filtersEl = mainFiltersRef?.current
+            if (filtersEl && !rbAnimating.current && rbOffset.current <= 0) {
+                const COMPACT_BAR_H = 40
+                const filtersVisualTop = filtersEl.offsetTop - st
+                const shouldBeInHeader = filtersVisualTop < COMPACT_BAR_H
+                if (shouldBeInHeader !== filtersInHeaderRef.current) {
+                    filtersInHeaderRef.current = shouldBeInHeader
+                    setFiltersInHeader(shouldBeInHeader)
+                }
+            }
+
             lastScrollTop.current = st
             lastTime.current = now
         }
@@ -397,7 +415,9 @@ export function useHeaderCollapse({
         barShown.current = false
         wasCompactRef.current = false
         isCompactRef.current = false
+        filtersInHeaderRef.current = false
         setIsCompact(false)
+        setFiltersInHeader(false)
         const bar = barRef.current
         if (bar) {
             bar.style.transition = "none"
@@ -406,5 +426,5 @@ export function useHeaderCollapse({
         }
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    return { isCompact, topRowHidden, spacerH, handleLogoTap }
+    return { isCompact, topRowHidden, spacerH, handleLogoTap, filtersInHeader }
 }

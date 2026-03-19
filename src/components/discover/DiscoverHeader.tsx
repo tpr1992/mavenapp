@@ -34,38 +34,32 @@ interface DiscoverHeaderProps {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>
     searchQuery: string
     onSearchQueryChange: (query: string) => void
-    category: string
-    onCategoryChange: (cat: string) => void
-    openNow: boolean
-    onOpenNowChange: (val: boolean) => void
     locationLabel: string | null
     locationSource: string | null
     onLocationPickerOpen: () => void
-    onScrollToTop: () => void
     onReset: () => void
     onMakerTap: (maker: Maker) => void
     makerSuggestions: Maker[]
     isHidden: boolean
     refreshKey?: number
+    filterSlot?: React.ReactNode
+    mainFiltersRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export default function DiscoverHeader({
     scrollContainerRef,
     searchQuery,
     onSearchQueryChange,
-    category,
-    onCategoryChange,
-    openNow,
-    onOpenNowChange,
     locationLabel,
     locationSource,
     onLocationPickerOpen,
-    onScrollToTop,
     onReset,
     onMakerTap,
     makerSuggestions,
     isHidden,
     refreshKey,
+    filterSlot,
+    mainFiltersRef,
 }: DiscoverHeaderProps) {
     const { theme, isDark } = useTheme()
     const gBar = glassBarStyle(isDark)
@@ -80,8 +74,6 @@ export default function DiscoverHeader({
     const barRef = useRef<HTMLDivElement>(null)
     const searchInputRef = useRef<HTMLInputElement>(null)
     const searchGridRef = useRef<HTMLDivElement>(null)
-    const compactPillsRef = useRef<HTMLDivElement>(null)
-    const pillsContainerRef = useRef<HTMLDivElement>(null)
 
     // --- Scroll collapse hook ---
     const {
@@ -89,10 +81,12 @@ export default function DiscoverHeader({
         topRowHidden,
         spacerH,
         handleLogoTap: hookLogoTap,
+        filtersInHeader,
     } = useHeaderCollapse({
         scrollContainerRef,
         barRef,
         searchInputRef,
+        mainFiltersRef,
         isDark,
         searchOpen,
         searchQuery,
@@ -111,32 +105,6 @@ export default function DiscoverHeader({
             return () => clearTimeout(timer)
         }
     }, [searchFocused, searchOpen, searchQuery])
-
-    // --- Pills fade edge masks (direct DOM — avoids re-renders during scroll) ---
-    useEffect(() => {
-        const el = compactPillsRef.current
-        const container = pillsContainerRef.current
-        if (!el || !container) return
-        const update = () => {
-            const atLeft = el.scrollLeft <= 2
-            const atRight = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
-            const l = !atLeft ? "transparent 0%, black 16px" : "black 0%"
-            const r = !atRight ? "black calc(100% - 16px), transparent 100%" : "black 100%"
-            const mask = `linear-gradient(to right, ${l}, ${r})`
-            container.style.maskImage = mask
-            ;(container.style as CSSStyleDeclaration & Record<string, string>).webkitMaskImage = mask
-        }
-        requestAnimationFrame(update)
-        el.addEventListener("scroll", update, { passive: true })
-        el.addEventListener("touchmove", update, { passive: true })
-        const ro = new ResizeObserver(update)
-        ro.observe(el)
-        return () => {
-            el.removeEventListener("scroll", update)
-            el.removeEventListener("touchmove", update)
-            ro.disconnect()
-        }
-    }, [isCompact, category])
 
     // --- Logo tap (shared between expanded and compact) ---
     const handleLogoTap = useCallback(() => {
@@ -208,13 +176,13 @@ export default function DiscoverHeader({
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
-                                    height: 50,
+                                    height: isCompact ? 40 : 50,
                                     boxSizing: "border-box",
-                                    padding: "10px 16px 10px 20px",
+                                    padding: isCompact ? "8px 16px 6px 20px" : "10px 16px 10px 20px",
                                     gap: 10,
+                                    transition: "height 0.3s ease, padding 0.3s ease",
                                 }}
                             >
-                                {/* Logo + middle area — baseline aligned in expanded */}
                                 <div
                                     style={{
                                         display: "flex",
@@ -228,39 +196,32 @@ export default function DiscoverHeader({
                                         onClick={handleLogoTap}
                                         style={{
                                             fontFamily: "'Space Grotesk', sans-serif",
-                                            fontSize: isCompact ? 22 : 30,
+                                            fontSize: isCompact ? 20 : 30,
                                             fontWeight: 700,
                                             color: theme.text,
-                                            position: isCompact ? "relative" : undefined,
-                                            top: isCompact ? -3 : undefined,
                                             margin: 0,
-                                            lineHeight: isCompact ? 1 : 0.75,
+                                            lineHeight: 1,
                                             letterSpacing: "-0.03em",
                                             cursor: "pointer",
                                             flexShrink: 0,
                                             textRendering: "optimizeLegibility",
-                                            transition:
-                                                "font-size 0.4s ease, margin 0.4s ease, line-height 0.4s ease, letter-spacing 0.4s ease",
+                                            transition: "font-size 0.3s ease",
                                         }}
                                     >
                                         maven
                                     </h1>
 
-                                    {/* Middle area — location in flow, pills overlay */}
-                                    <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
-                                        {/* Location picker — always in flow (determines height), fades out */}
+                                    {/* Location picker — only in expanded state */}
+                                    {!isCompact && (
                                         <div
-                                            role={!isCompact ? "button" : undefined}
-                                            aria-label={!isCompact ? "Change location" : undefined}
-                                            onClick={!isCompact ? onLocationPickerOpen : undefined}
+                                            role="button"
+                                            aria-label="Change location"
+                                            onClick={onLocationPickerOpen}
                                             style={{
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: 6,
-                                                cursor: isCompact ? "default" : "pointer",
-                                                opacity: isCompact ? 0 : 1,
-                                                pointerEvents: isCompact ? "none" : "auto",
-                                                transition: "opacity 0.35s ease",
+                                                cursor: "pointer",
                                                 whiteSpace: "nowrap",
                                             }}
                                         >
@@ -316,96 +277,7 @@ export default function DiscoverHeader({
                                                 />
                                             </svg>
                                         </div>
-
-                                        {/* Filter pills — absolute overlay, fades in when compact */}
-                                        <div
-                                            style={{
-                                                position: "absolute",
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                display: "flex",
-                                                alignItems: "center",
-                                                opacity: isCompact ? 1 : 0,
-                                                pointerEvents: isCompact ? "auto" : "none",
-                                                transition: "opacity 0.35s ease",
-                                            }}
-                                        >
-                                            <div ref={pillsContainerRef} style={{ flex: 1, overflow: "hidden" }}>
-                                                <div
-                                                    ref={compactPillsRef}
-                                                    style={{
-                                                        display: "flex",
-                                                        gap: 6,
-                                                        overflowX: "auto",
-                                                        scrollbarWidth: "none",
-                                                        msOverflowStyle: "none",
-                                                        padding: "0 4px",
-                                                    }}
-                                                >
-                                                    <button
-                                                        aria-pressed={openNow}
-                                                        aria-label="Filter by open now"
-                                                        onClick={() => {
-                                                            onOpenNowChange(!openNow)
-                                                            onScrollToTop()
-                                                        }}
-                                                        style={{
-                                                            padding: "4px 10px",
-                                                            borderRadius: 0,
-                                                            border: openNow ? "none" : `1.5px solid ${theme.border}`,
-                                                            background: openNow ? "#22543d" : "transparent",
-                                                            color: openNow ? "#fff" : theme.textSecondary,
-                                                            fontFamily: "'DM Sans', sans-serif",
-                                                            fontSize: 11,
-                                                            fontWeight: 500,
-                                                            cursor: "pointer",
-                                                            whiteSpace: "nowrap",
-                                                            transition:
-                                                                "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                                                        }}
-                                                    >
-                                                        {"\u25CF"} Open
-                                                    </button>
-                                                    {["Clothing", "Objects", "Art"].map((cat) => (
-                                                        <button
-                                                            key={cat}
-                                                            aria-pressed={category === cat}
-                                                            aria-label={`Filter by ${cat}`}
-                                                            onClick={() => {
-                                                                onCategoryChange(category === cat ? "All" : cat)
-                                                                onScrollToTop()
-                                                            }}
-                                                            style={{
-                                                                padding: "4px 10px",
-                                                                borderRadius: 0,
-                                                                border:
-                                                                    category === cat
-                                                                        ? "none"
-                                                                        : `1.5px solid ${theme.border}`,
-                                                                background:
-                                                                    category === cat ? theme.btnBg : "transparent",
-                                                                color:
-                                                                    category === cat
-                                                                        ? theme.btnText
-                                                                        : theme.textSecondary,
-                                                                fontFamily: "'DM Sans', sans-serif",
-                                                                fontSize: 11,
-                                                                fontWeight: 500,
-                                                                cursor: "pointer",
-                                                                whiteSpace: "nowrap",
-                                                                transition:
-                                                                    "background 0.2s ease, color 0.2s ease, border-color 0.2s ease",
-                                                            }}
-                                                        >
-                                                            {cat}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {searchOpen ? (
@@ -489,6 +361,9 @@ export default function DiscoverHeader({
                             />
                         )}
                     </div>
+
+                    {/* Filter slot — only shows when main filters have scrolled out of view */}
+                    {filtersInHeader && filterSlot && <div style={{ padding: "0 0 2px" }}>{filterSlot}</div>}
                 </div>
             </div>
             {/* Spacer — reserves space for the expanded header (like MakerHero does for MakerProfileHeader) */}
