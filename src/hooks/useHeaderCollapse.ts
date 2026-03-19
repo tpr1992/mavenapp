@@ -1,6 +1,65 @@
 import { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react"
 import { glassBarStyle, glassBarOpaque } from "../utils/glass"
 
+/**
+ * State machine for the discover page header collapse/expand behavior.
+ *
+ * ┌─────────────────────────────────────────────────────────────────┐
+ * │                        HEADER STATES                           │
+ * ├────────────────────┬────────────────────────────────────────────┤
+ * │ EXPANDED           │ scrollTop < threshold                     │
+ * │                    │ Bar in natural flow, full height           │
+ * │                    │ Location picker visible, no filters        │
+ * │                    │ isCompact=false, barShown=false             │
+ * ├────────────────────┼────────────────────────────────────────────┤
+ * │ COMPACT_HIDDEN     │ scrollTop > threshold, scrolling DOWN      │
+ * │                    │ Bar translated up (-100%), invisible        │
+ * │                    │ isCompact=true, barShown=false              │
+ * │                    │ pointerEvents=none                          │
+ * ├────────────────────┼────────────────────────────────────────────┤
+ * │ COMPACT_VISIBLE    │ scrollTop > threshold, scrolled UP         │
+ * │                    │ Bar at translateY(0), compact layout        │
+ * │                    │ Logo + search visible, filters in header    │
+ * │                    │ isCompact=true, barShown=true               │
+ * ├────────────────────┼────────────────────────────────────────────┤
+ * │ RUBBER_BANDING     │ User scrolling DOWN while bar is visible   │
+ * │                    │ Bar follows finger via translateY(-offset)  │
+ * │                    │ rbOffset > 0, rbAnimating=false             │
+ * │                    │ Resolves to COMPACT_VISIBLE (snap back)     │
+ * │                    │ or COMPACT_HIDDEN (commit hide)             │
+ * ├────────────────────┼────────────────────────────────────────────┤
+ * │ ANIMATING          │ Transitioning between states               │
+ * │                    │ rbAnimating=true, no scroll input accepted  │
+ * │                    │ CSS transition running on barRef             │
+ * └────────────────────┴────────────────────────────────────────────┘
+ *
+ * Transitions:
+ *   EXPANDED → COMPACT_HIDDEN           User scrolls past threshold
+ *   COMPACT_HIDDEN → COMPACT_VISIBLE    User scrolls up (velocity < -0.08)
+ *   COMPACT_VISIBLE → RUBBER_BANDING    User scrolls down while bar shown
+ *   RUBBER_BANDING → COMPACT_VISIBLE    Rubber band snaps back (< 50% dragged)
+ *   RUBBER_BANDING → COMPACT_HIDDEN     Rubber band commits hide (> 50% or fast swipe)
+ *   COMPACT_VISIBLE → COMPACT_HIDDEN    Search closes during scroll-down
+ *   COMPACT_* → EXPANDED                User scrolls back to top (scrollTop < 5px)
+ *
+ * Key refs and their roles:
+ *   isCompactRef      — true when past scroll threshold (layout mode)
+ *   barShown          — true when compact bar is visible (translateY = 0)
+ *   wasCompactRef     — true after first transition to compact (prevents re-init)
+ *   rbOffset          — current rubber band drag offset in px (0 = no drag)
+ *   rbAnimating       — true during CSS transitions (blocks scroll handler)
+ *   isTouching        — true between touchstart/touchend (delays settle logic)
+ *   topRowPending     — queued collapse/expand for the logo row during search
+ *   filtersInHeader   — true when main CategoryPills have scrolled behind the header
+ *
+ * Filter handoff:
+ *   When the main CategoryPills (tracked by mainFiltersRef) scroll behind the
+ *   compact header bar, filtersInHeader becomes true and the filterSlot renders
+ *   inside the header. When the user scrolls back up past the filters' natural
+ *   position, filtersInHeader becomes false and they return to the page flow.
+ *   This is checked on every scroll event but only when not animating.
+ */
+
 const EXPANDED_THRESHOLD = 5
 
 interface UseHeaderCollapseOptions {
@@ -157,6 +216,7 @@ export function useHeaderCollapse({
             s(bar).background = g.background
         }
 
+        // RUBBER_BANDING → COMPACT_VISIBLE: drag didn't commit, snap back
         const doSnapBack = (bar: HTMLDivElement) => {
             const barHeight = bar.offsetHeight || 60
             const pullRatio = Math.min(rbOffset.current / barHeight, 0.5)
@@ -173,6 +233,7 @@ export function useHeaderCollapse({
             }, duration)
         }
 
+        // RUBBER_BANDING → COMPACT_HIDDEN: drag committed, hide bar
         const doCommitHide = (bar: HTMLDivElement) => {
             rbAnimating.current = true
             rbOffset.current = 0
@@ -240,9 +301,11 @@ export function useHeaderCollapse({
                 desktopSettle = null
             }
 
+            // EXPANDED → COMPACT_HIDDEN: crossed scroll threshold
             if (shouldBeCompact && !isCompactRef.current) {
                 isCompactRef.current = true
                 setIsCompact(true)
+                // COMPACT_* → EXPANDED: scrolled back to top
             } else if (st < EXPANDED_THRESHOLD && isCompactRef.current) {
                 isCompactRef.current = false
                 setIsCompact(false)
@@ -304,6 +367,7 @@ export function useHeaderCollapse({
                     }
                 }
 
+                // RUBBER_BANDING: dragging bar up with scroll
                 if (rbOffset.current > 0 && bar && !rbAnimating.current) {
                     const scrollDelta = st - rbPrevScroll.current
                     const timeDelta = Math.max(now - rbPrevTime.current, 1)
@@ -329,6 +393,7 @@ export function useHeaderCollapse({
                     if (!isTouching.current && rbOffset.current > 0) {
                         desktopSettle = setTimeout(resolveRubberBand, 150)
                     }
+                    // COMPACT_VISIBLE → RUBBER_BANDING: start drag-to-dismiss
                 } else if (barShown.current && delta > 2 && bar && !rbAnimating.current) {
                     const searchActive = searchOpenRef.current && searchQueryRef.current.trim()
                     if (searchActive) {
@@ -353,6 +418,7 @@ export function useHeaderCollapse({
                         if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
                         setSearchFocused(false)
                     }
+                    // COMPACT_HIDDEN → COMPACT_VISIBLE: scroll-up reveals bar
                 } else if (!barShown.current && velocity.current < -0.08 && !rbAnimating.current && bar) {
                     barShown.current = true
                     bar.style.pointerEvents = "auto"
