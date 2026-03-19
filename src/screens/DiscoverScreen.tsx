@@ -184,6 +184,18 @@ export default function DiscoverScreen({
 
     const countyMatch = useMemo(() => getCountyCenter(q, TOWNS), [q])
 
+    // IDs shown in the nearby carousel — exclude from main grid to avoid duplication
+    const carouselMakerIds = useMemo(() => {
+        if (!makers?.length || !userLocation) return new Set<string>()
+        return new Set(
+            [...makers]
+                .filter((m) => m.distance != null && m.distance <= 50)
+                .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+                .slice(0, 8)
+                .map((m) => m.id),
+        )
+    }, [makers, userLocation])
+
     const prevFilteredRef = useRef<Maker[]>([])
     const allFiltered = useMemo(() => {
         if (isHidden) return prevFilteredRef.current
@@ -193,7 +205,7 @@ export default function DiscoverScreen({
 
         let result: Maker[]
         if (!q) {
-            result = base
+            result = base.filter((m) => !carouselMakerIds.has(m.id))
         } else if (searchHits.length > 0) {
             // Use RPC search results when available (full-text + fuzzy + synonyms)
             const hitMap = new Map(searchHits.map((h) => [h.id, h.search_rank]))
@@ -235,7 +247,7 @@ export default function DiscoverScreen({
         }
         prevFilteredRef.current = result
         return result
-    }, [makers, category, openNow, q, countyMatch, searchHits, isHidden])
+    }, [makers, category, openNow, q, countyMatch, searchHits, isHidden, carouselMakerIds])
 
     const visibleMakers = useMemo(() => allFiltered.slice(0, visibleCount), [allFiltered, visibleCount])
     const hasMore = visibleCount < allFiltered.length

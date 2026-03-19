@@ -169,7 +169,7 @@ export default function useMakers(userLocation: UserLocation | null) {
         if (import.meta.env.DEV) {
             console.log(`\n📊 p95 engagement: ${p95Engagement.toFixed(2)}`)
             console.log(
-                `Scoring mode: ${isLowData ? "LOW-DATA (55% prox)" : "NORMAL (40% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
+                `Scoring mode: ${isLowData ? "LOW-DATA (25% prox)" : "NORMAL (15% prox)"} | makers w/ ≥${LOW_DATA_CLICK_THRESHOLD} clicks: ${makersWithClicks}/${rawMakers.length}`,
             )
             console.table(
                 scored

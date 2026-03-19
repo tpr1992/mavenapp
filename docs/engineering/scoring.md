@@ -39,11 +39,11 @@ Low-data mode triggers only when:
 
 | Signal | Normal | Low-data |
 |--------|--------|----------|
-| Proximity | 40% | 55% |
-| Engagement | 40% | 20% |
-| Freshness | 20% | 25% |
+| Proximity | 15% | 25% |
+| Engagement | 55% | 30% |
+| Freshness | 30% | 45% |
 
-Low-data mode shifts weight toward proximity and freshness, reducing reliance on noisy engagement signals.
+The nearby makers carousel owns proximity-first discovery, so the main grid prioritizes engagement (what's resonating) and freshness (new makers get a fair shake). Low-data mode shifts further toward freshness when engagement signals are sparse.
 
 ## Exponential Decay
 
@@ -71,11 +71,20 @@ This replaces the old rolling weekly window (velocity + popularity) with a singl
 
 ## Proximity
 
-Inverse-square decay: 1.0 at 0km, ~0.5 at 5km, ~0.1 at 20km.
+Flattened inverse-square decay: 1.0 at 0km, ~0.5 at 15km, ~0.1 at 50km. Proximity is a gentle tiebreaker — the nearby carousel handles location-first discovery.
 
 ## Freshness
 
-Linear decay from 1.0 to 0.0 over 30 days since `created_at`.
+Tiered decay over 90 days since `created_at`:
+
+| Age | Boost |
+|-----|-------|
+| 0–7 days | 1.0 |
+| 8–14 days | 0.8 |
+| 15–30 days | 0.55 |
+| 31–60 days | 0.3 |
+| 61–90 days | 0.15 |
+| 91+ days | 0.0 |
 
 ## Post-sort
 
