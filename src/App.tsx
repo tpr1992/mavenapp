@@ -179,21 +179,36 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
 
     const handleTabChange = useCallback(
         (tab: string) => {
+            const isRetap = tab === activeTab && !selectedMaker
+
             if (containerRef.current) tabScrollRef.current[activeTab] = containerRef.current.scrollTop
             history.pushState({ tab }, "", buildURL(tab))
             setSelectedMaker(null)
             setSelectedConversation(null)
             setProfileSubView(null)
             setActiveTab(tab)
+
             if (tab === "discover") {
                 resetDiscover()
+            } else if (tab === "profile") {
+                // Reset profile: clear sub-view, scroll to top
+                handleScrollToTop()
+                tabScrollRef.current["profile"] = 0
+            } else if (tab === "map") {
+                // Map: preserve viewport, dismiss any open maker card
+                if (mapStateRef.current) {
+                    mapStateRef.current = { ...mapStateRef.current, selectedMakerId: null }
+                }
+            } else if (isRetap) {
+                // Any other tab re-tap: scroll to top
+                handleScrollToTop()
             } else {
                 requestAnimationFrame(() => {
                     if (containerRef.current) containerRef.current.scrollTop = tabScrollRef.current[tab] || 0
                 })
             }
         },
-        [activeTab, resetDiscover],
+        [activeTab, selectedMaker, resetDiscover, handleScrollToTop],
     )
 
     const handleToggleSave = useCallback(
