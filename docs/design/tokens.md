@@ -19,6 +19,24 @@ Always use `theme.*` from `useTheme()`. Never hardcode hex values for themed pro
 | `tabBg` | `rgba(250,248,244,0.92)` | `rgba(14,14,14,0.92)` | Tab bar background |
 | `inputBg` | `#fff` | `#1e1e1e` | Input field background |
 
+## Typography Tokens
+
+Font families are defined once in `src/styles/tokens.ts` and imported everywhere. Never hardcode font strings.
+
+```tsx
+import { font } from "../styles/tokens"
+// or "../../styles/tokens" for deeper paths
+
+style={{ fontFamily: font.body }}
+```
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `font.body` | `'DM Sans', sans-serif` | Body text, labels, metadata |
+| `font.heading` | `'Syne', sans-serif` | Section headings, maker names — 700/800 weight, uppercase |
+| `font.wordmark` | `'Space Grotesk', sans-serif` | "maven" wordmark only |
+| `font.serif` | `'Instrument Serif', serif` | Pull quotes, editorial lead-in sentences — italic |
+
 ## Non-Themed Constants
 
 Same in both modes:

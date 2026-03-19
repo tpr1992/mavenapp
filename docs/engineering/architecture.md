@@ -13,6 +13,8 @@ No router. Navigation is state-driven via `activeTab` + `selectedMaker` in `App.
   - `discover/` — Discover feed components (DiscoverHeader, SearchOverlay, TrendingCarousel, MasonryGrid)
   - `profile/` — Profile screen components (AuthForm, DebugPanel, AboutModal)
   - `layout/` — App chrome (TabBar)
+- **Styles** (`src/styles/`): CSS resets (`index.css`) and design tokens (`tokens.ts` — font families).
+- **Contexts** (`src/contexts/`): AuthContext (auth state), ThemeContext (light/dark), MakersContext (makers data + saved state).
 
 ## State Ownership
 

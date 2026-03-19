@@ -7,6 +7,7 @@ import RelatedMakersFeed from "../components/makers/RelatedMakersFeed"
 import NearbyCarousel from "../components/ui/NearbyCarousel"
 import ShareModal from "../components/modals/ShareModal"
 import ImageGalleryModal from "../components/modals/ImageGalleryModal"
+import ErrorBoundary from "../components/ui/ErrorBoundary"
 import MakerHero from "../components/makers/MakerHero"
 import MakerProfileHeader from "../components/makers/MakerProfileHeader"
 import WorkTab from "../components/makers/WorkTab"
@@ -226,14 +227,16 @@ export default function MakerProfile({
             />
 
             {/* Image viewer modal */}
-            {viewerIndex !== null && maker.gallery_urls && (
-                <ImageGalleryModal
-                    images={maker.gallery_urls}
-                    initialIndex={viewerIndex}
-                    onClose={() => setViewerIndex(null)}
-                    scrollContainerRef={scrollContainerRef}
-                />
-            )}
+            <ErrorBoundary fallback={null}>
+                {viewerIndex !== null && maker.gallery_urls && (
+                    <ImageGalleryModal
+                        images={maker.gallery_urls}
+                        initialIndex={viewerIndex}
+                        onClose={() => setViewerIndex(null)}
+                        scrollContainerRef={scrollContainerRef}
+                    />
+                )}
+            </ErrorBoundary>
 
             {/* Share modal */}
             {showShare && (

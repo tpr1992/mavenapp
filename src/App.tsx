@@ -17,6 +17,7 @@ import { getVisitorId } from "./utils/visitor"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
 import ErrorBoundary from "./components/ui/ErrorBoundary"
+import ScreenErrorFallback from "./components/ui/ScreenErrorFallback"
 import TabBar from "./components/layout/TabBar"
 import DiscoverScreen from "./screens/DiscoverScreen"
 import MakerProfile from "./screens/MakerProfile"
@@ -303,18 +304,22 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
     const renderScreen = () => {
         if (selectedMaker) {
             return (
-                <MakerProfile
-                    key={selectedMaker.id}
-                    maker={selectedMaker}
-                    onBack={handleBack}
-                    onToggleSave={handleToggleSave}
-                    onMakerTap={handleMakerTap}
-                    scrollContainerRef={containerRef}
-                    onLogoTap={handleLogoTap}
-                    breakpoint={breakpoint}
-                    userId={user?.id}
-                    onMessage={handleMessageMaker}
-                />
+                <ErrorBoundary
+                    fallback={<ScreenErrorFallback label="Maker profile" onRetry={() => setSelectedMaker(null)} />}
+                >
+                    <MakerProfile
+                        key={selectedMaker.id}
+                        maker={selectedMaker}
+                        onBack={handleBack}
+                        onToggleSave={handleToggleSave}
+                        onMakerTap={handleMakerTap}
+                        scrollContainerRef={containerRef}
+                        onLogoTap={handleLogoTap}
+                        breakpoint={breakpoint}
+                        userId={user?.id}
+                        onMessage={handleMessageMaker}
+                    />
+                </ErrorBoundary>
             )
         }
 
@@ -323,18 +328,20 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                 return null
             case "map":
                 return (
-                    <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                        <MapScreen
-                            makers={makers}
-                            onMakerTap={handleMakerTap}
-                            savedIds={savedIds}
-                            onToggleSave={handleToggleSave}
-                            userLocation={userLocation}
-                            isDebug={isDebug}
-                            initialMapState={mapStateRef.current}
-                            onMapStateChange={handleMapStateChange}
-                        />
-                    </Suspense>
+                    <ErrorBoundary fallback={<ScreenErrorFallback label="Map" />}>
+                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                            <MapScreen
+                                makers={makers}
+                                onMakerTap={handleMakerTap}
+                                savedIds={savedIds}
+                                onToggleSave={handleToggleSave}
+                                userLocation={userLocation}
+                                isDebug={isDebug}
+                                initialMapState={mapStateRef.current}
+                                onMapStateChange={handleMapStateChange}
+                            />
+                        </Suspense>
+                    </ErrorBoundary>
                 )
             case "shop":
                 return (
@@ -353,66 +360,72 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
             case "profile":
                 if (profileSubView === "saved") {
                     return (
-                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                            <SavedScreen
-                                onMakerTap={handleMakerTap}
-                                onToggleSave={handleToggleSave}
-                                onTabChange={handleTabChange}
-                                onLogoTap={handleLogoTap}
-                                breakpoint={breakpoint}
-                            />
-                        </Suspense>
+                        <ErrorBoundary fallback={<ScreenErrorFallback label="Saved makers" />}>
+                            <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                                <SavedScreen
+                                    onMakerTap={handleMakerTap}
+                                    onToggleSave={handleToggleSave}
+                                    onTabChange={handleTabChange}
+                                    onLogoTap={handleLogoTap}
+                                    breakpoint={breakpoint}
+                                />
+                            </Suspense>
+                        </ErrorBoundary>
                     )
                 }
                 if (profileSubView === "messages") {
                     return (
-                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                            <MessagesScreen
-                                items={inboxItems}
-                                loading={inboxLoading}
-                                isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
-                                userId={user?.id ?? ""}
-                                onConversationTap={(conversationId, makerId) =>
-                                    handleConversationOpen(conversationId, makerId)
-                                }
-                                onDelete={deleteConversation}
-                                onLogoTap={handleLogoTap}
-                            />
-                        </Suspense>
+                        <ErrorBoundary fallback={<ScreenErrorFallback label="Messages" />}>
+                            <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                                <MessagesScreen
+                                    items={inboxItems}
+                                    loading={inboxLoading}
+                                    isMaker={inboxItems.some((it) => it.visitor_id !== user?.id)}
+                                    userId={user?.id ?? ""}
+                                    onConversationTap={(conversationId, makerId) =>
+                                        handleConversationOpen(conversationId, makerId)
+                                    }
+                                    onDelete={deleteConversation}
+                                    onLogoTap={handleLogoTap}
+                                />
+                            </Suspense>
+                        </ErrorBoundary>
                     )
                 }
                 return (
-                    <ProfileScreen
-                        isDebug={isDebug}
-                        toggleDebug={toggleDebug}
-                        refetch={refetch}
-                        feedLayout={feedLayout}
-                        setFeedLayout={setFeedLayout}
-                        onLogoTap={handleLogoTap}
-                        profileName={profileName}
-                        unreadMessages={totalUnread}
-                        inboxItems={inboxItems}
-                        userId={user?.id ?? ""}
-                        recentlyViewedIds={recentIds}
-                        discoveredCount={discoveredIds.length}
-                        onMakerTap={handleMakerTap}
-                        onSavedTap={() => {
-                            history.pushState(
-                                { tab: "profile", subView: "saved" },
-                                "",
-                                buildURL("profile", null, null, "saved"),
-                            )
-                            setProfileSubView("saved")
-                        }}
-                        onMessagesTap={() => {
-                            history.pushState(
-                                { tab: "profile", subView: "messages" },
-                                "",
-                                buildURL("profile", null, null, "messages"),
-                            )
-                            setProfileSubView("messages")
-                        }}
-                    />
+                    <ErrorBoundary fallback={<ScreenErrorFallback label="Profile" />}>
+                        <ProfileScreen
+                            isDebug={isDebug}
+                            toggleDebug={toggleDebug}
+                            refetch={refetch}
+                            feedLayout={feedLayout}
+                            setFeedLayout={setFeedLayout}
+                            onLogoTap={handleLogoTap}
+                            profileName={profileName}
+                            unreadMessages={totalUnread}
+                            inboxItems={inboxItems}
+                            userId={user?.id ?? ""}
+                            recentlyViewedIds={recentIds}
+                            discoveredCount={discoveredIds.length}
+                            onMakerTap={handleMakerTap}
+                            onSavedTap={() => {
+                                history.pushState(
+                                    { tab: "profile", subView: "saved" },
+                                    "",
+                                    buildURL("profile", null, null, "saved"),
+                                )
+                                setProfileSubView("saved")
+                            }}
+                            onMessagesTap={() => {
+                                history.pushState(
+                                    { tab: "profile", subView: "messages" },
+                                    "",
+                                    buildURL("profile", null, null, "messages"),
+                                )
+                                setProfileSubView("messages")
+                            }}
+                        />
+                    </ErrorBoundary>
                 )
             default:
                 return null
@@ -447,28 +460,34 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                 >
                     {activeTab === "discover" && (
                         <div style={{ display: selectedMaker ? "none" : undefined }}>
-                            <DiscoverScreen
-                                onMakerTap={handleMakerTap}
-                                onToggleSave={handleToggleSave}
-                                onScrollToTop={handleScrollToTop}
-                                onReset={resetDiscover}
-                                scrollContainerRef={containerRef}
-                                locationLabel={locationLabel}
-                                locationSource={locationSource}
-                                userLocation={userLocation}
-                                setLocation={setLocation}
-                                sponsoredPosts={sponsoredPosts}
-                                isHidden={!!selectedMaker}
-                                category={discoverCategory}
-                                onCategoryChange={setDiscoverCategory}
-                                openNow={discoverOpenNow}
-                                refreshKey={discoverKey}
-                                onOpenNowChange={setDiscoverOpenNow}
-                                isDebug={isDebug}
-                                feedLayout={feedLayout}
-                                setFeedLayout={setFeedLayout}
-                                breakpoint={breakpoint}
-                            />
+                            <ErrorBoundary
+                                fallback={
+                                    <ScreenErrorFallback label="Discover" onRetry={() => window.location.reload()} />
+                                }
+                            >
+                                <DiscoverScreen
+                                    onMakerTap={handleMakerTap}
+                                    onToggleSave={handleToggleSave}
+                                    onScrollToTop={handleScrollToTop}
+                                    onReset={resetDiscover}
+                                    scrollContainerRef={containerRef}
+                                    locationLabel={locationLabel}
+                                    locationSource={locationSource}
+                                    userLocation={userLocation}
+                                    setLocation={setLocation}
+                                    sponsoredPosts={sponsoredPosts}
+                                    isHidden={!!selectedMaker}
+                                    category={discoverCategory}
+                                    onCategoryChange={setDiscoverCategory}
+                                    openNow={discoverOpenNow}
+                                    refreshKey={discoverKey}
+                                    onOpenNowChange={setDiscoverOpenNow}
+                                    isDebug={isDebug}
+                                    feedLayout={feedLayout}
+                                    setFeedLayout={setFeedLayout}
+                                    breakpoint={breakpoint}
+                                />
+                            </ErrorBoundary>
                         </div>
                     )}
                     {renderScreen()}
@@ -481,24 +500,33 @@ function AppContent({ userLocation, locationLabel, locationSource, setLocation }
                     const maker = makers.find((m) => m.id === selectedConversation.makerId)
                     if (!maker) return null
                     return (
-                        <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                            <ChatView
-                                conversationId={selectedConversation.id}
-                                makerId={selectedConversation.makerId}
-                                maker={maker}
-                                userId={user.id}
-                                onBack={handleConversationBack}
-                                onMakerTap={(m) => {
-                                    setSelectedConversation(null)
-                                    handleMakerTap(m)
-                                }}
-                                onRead={clearUnread}
-                                onConversationCreated={(cid) => {
-                                    setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
-                                    refetchInbox()
-                                }}
-                            />
-                        </Suspense>
+                        <ErrorBoundary
+                            fallback={
+                                <ScreenErrorFallback
+                                    label="Conversation"
+                                    onRetry={() => setSelectedConversation(null)}
+                                />
+                            }
+                        >
+                            <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                                <ChatView
+                                    conversationId={selectedConversation.id}
+                                    makerId={selectedConversation.makerId}
+                                    maker={maker}
+                                    userId={user.id}
+                                    onBack={handleConversationBack}
+                                    onMakerTap={(m) => {
+                                        setSelectedConversation(null)
+                                        handleMakerTap(m)
+                                    }}
+                                    onRead={clearUnread}
+                                    onConversationCreated={(cid) => {
+                                        setSelectedConversation({ id: cid, makerId: selectedConversation.makerId })
+                                        refetchInbox()
+                                    }}
+                                />
+                            </Suspense>
+                        </ErrorBoundary>
                     )
                 })()}
 
