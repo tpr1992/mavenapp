@@ -67,7 +67,7 @@ export default function ExampleScreen({ makers, scrollContainerRef, isHidden, on
 
     return (
         <div style={{ padding: 16 }}>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, color: theme.text }}>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: 16, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: theme.text }}>
                 Title
             </h2>
         </div>
@@ -94,7 +94,7 @@ export default function ExampleCard({ title, onTap }: ExampleCardProps) {
             style={{
                 background: theme.card,
                 border: `1px solid ${theme.border}`,
-                borderRadius: 14,
+                borderRadius: 0,
                 padding: 16,
                 cursor: "pointer",
             }}

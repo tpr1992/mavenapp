@@ -90,7 +90,7 @@ Maker card galleries apply padding and border radius **per-slide** rather than o
 
 ```tsx
 <div style={{ paddingLeft: i === 0 ? 0 : 3, paddingRight: i === urls.length - 1 ? 0 : 3 }}>
-    <div style={{ borderRadius: 10, overflow: "hidden" }}>
+    <div style={{ borderRadius: 0, overflow: "hidden" }}>
         <img ... />
     </div>
 </div>

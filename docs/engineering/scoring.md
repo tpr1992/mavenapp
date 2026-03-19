@@ -24,7 +24,7 @@
 ### Invariants (must always be true)
 
 1. If distance increases, proximity must not increase
-2. New makers get a temporary boost that reaches ~0 by day 30
+2. New makers get a tiered boost that reaches 0 by day 91
 3. Engagement must not be flattened by a single outlier (p95, not max)
 4. Clicks naturally decay over time — no cliff edges between weeks
 
