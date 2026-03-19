@@ -3,14 +3,12 @@ import { optimizeImageUrl, imageSrcSet } from "../utils/image"
 import { formatLocation } from "../utils/distance"
 import { useTheme } from "../contexts/ThemeContext"
 import { useAuth } from "../contexts/AuthContext"
+import { useMakersContext } from "../contexts/MakersContext"
 import type { Maker } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
 
 interface SavedScreenProps {
-    makers?: Maker[]
-    makersLoading: boolean
     onMakerTap: (maker: Maker) => void
-    savedIds: Set<string>
     onToggleSave: (id: string) => void
     onTabChange: (tab: string) => void
     onLogoTap: () => void
@@ -43,16 +41,14 @@ function buildRows(makers: Maker[]): LayoutRow[] {
 }
 
 export default function SavedScreen({
-    makers = [],
-    makersLoading,
     onMakerTap,
-    savedIds,
     onToggleSave,
     onTabChange,
     onLogoTap: _onLogoTap,
     breakpoint: _breakpoint = "mobile",
 }: SavedScreenProps) {
     const { theme } = useTheme()
+    const { makers, loading: makersLoading, savedIds } = useMakersContext()
     const { user } = useAuth()
     const savedMakers = makers.filter((m) => savedIds.has(m.id))
 

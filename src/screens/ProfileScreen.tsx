@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { Helmet } from "react-helmet-async"
 import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
+import { useMakersContext } from "../contexts/MakersContext"
 import AuthForm from "../components/profile/AuthForm"
 import DebugPanel from "../components/profile/DebugPanel"
 import AboutModal from "../components/profile/AboutModal"
@@ -14,7 +15,6 @@ import type { Maker, InboxItem } from "../types"
 interface ProfileScreenProps {
     isDebug: boolean
     toggleDebug: () => void
-    makers: Maker[]
     refetch: () => void
     feedLayout: "grid" | "single"
     setFeedLayout: (layout: "grid" | "single") => void
@@ -25,7 +25,6 @@ interface ProfileScreenProps {
     userId: string
     onSavedTap: () => void
     onMessagesTap: () => void
-    savedCount: number
     recentlyViewedIds?: string[]
     discoveredCount?: number
     onMakerTap?: (maker: Maker) => void
@@ -34,7 +33,6 @@ interface ProfileScreenProps {
 export default function ProfileScreen({
     isDebug,
     toggleDebug,
-    makers,
     refetch,
     feedLayout,
     setFeedLayout,
@@ -45,12 +43,12 @@ export default function ProfileScreen({
     userId,
     onSavedTap,
     onMessagesTap,
-    savedCount,
     recentlyViewedIds,
     discoveredCount,
     onMakerTap,
 }: ProfileScreenProps) {
     const { user, loading, signOut } = useAuth()
+    const { makers, savedIds } = useMakersContext()
     const { isDark, theme, toggleTheme } = useTheme()
     const [showAbout, setShowAbout] = useState(false)
     const [showNotifications, setShowNotifications] = useState(false)
@@ -167,7 +165,7 @@ export default function ProfileScreen({
 
                     {/* 2. Stats bar */}
                     <StatsBar
-                        savedCount={savedCount}
+                        savedCount={savedIds.size}
                         discoveredCount={discoveredCount ?? 0}
                         messagesCount={inboxItems.length}
                     />

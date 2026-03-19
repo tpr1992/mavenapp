@@ -1,7 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo, lazy, Suspense } from "react"
 import useInbox from "./hooks/useInbox"
-import useSavedMakers from "./hooks/useSavedMakers"
-import useMakers from "./hooks/useMakers"
 import { supabase } from "./lib/supabase"
 import useSponsoredPosts from "./hooks/useSponsoredPosts"
 import useDebugMode from "./hooks/useDebugMode"
@@ -11,6 +9,7 @@ import useUserLocation from "./hooks/useUserLocation"
 import useOnboarding from "./hooks/useOnboarding"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
+import { MakersProvider, useMakersContext } from "./contexts/MakersContext"
 import useBreakpoint from "./hooks/useBreakpoint"
 import useRecentlyViewed from "./hooks/useRecentlyViewed"
 import { optimizeImageUrl, IMG_QUALITY } from "./utils/image"
@@ -62,6 +61,38 @@ function ScreenPlaceholder({ theme }: { theme: Theme }) {
 }
 
 export default function App() {
+    const { userLocation, locationLabel, locationSource, setLocation } = useUserLocation()
+    const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
+    const { theme } = useTheme()
+
+    if (!onboardingComplete) {
+        return (
+            <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
+                <OnboardingScreen onComplete={completeOnboarding} setLocation={setLocation} />
+            </Suspense>
+        )
+    }
+
+    return (
+        <MakersProvider userLocation={userLocation}>
+            <AppContent
+                userLocation={userLocation}
+                locationLabel={locationLabel}
+                locationSource={locationSource}
+                setLocation={setLocation}
+            />
+        </MakersProvider>
+    )
+}
+
+interface AppContentProps {
+    userLocation: { lat: number; lng: number } | null
+    locationLabel: string | null
+    locationSource: string | null
+    setLocation: (loc: { lat: number; lng: number } | null, label?: string | null, source?: string) => void
+}
+
+function AppContent({ userLocation, locationLabel, locationSource, setLocation }: AppContentProps) {
     const initialURL = useRef(getStateFromURL())
     const [activeTab, setActiveTab] = useState(initialURL.current.tab)
     const [selectedMaker, setSelectedMaker] = useState<Maker | null>(null)
@@ -71,27 +102,14 @@ export default function App() {
     )
     const [authToast, setAuthToast] = useState(false)
     const authToastTimer = useRef<ReturnType<typeof setTimeout>>(null)
-    const { userLocation, locationLabel, locationSource, setLocation } = useUserLocation()
-    const {
-        makers,
-        loading: makersLoading,
-        error: makersError,
-        refetch,
-        p95Engagement,
-        isLowData,
-        makersWithClicks,
-        totalMakers,
-    } = useMakers(userLocation)
-    const debugMeta = useMemo(
-        () => ({ p95Engagement, isLowData, makersWithClicks, totalMakers }),
-        [p95Engagement, isLowData, makersWithClicks, totalMakers],
-    )
+
+    const { makers, loading: makersLoading, error: makersError, refetch, savedIds, toggleSave } = useMakersContext()
+
     const [isDebug, toggleDebug] = useDebugMode()
     const [feedLayout, setFeedLayout] = useFeedLayout()
     const { sponsoredPosts } = useSponsoredPosts(userLocation)
     const { user } = useAuth()
     const profileName = useProfileName(user)
-    const { savedIds, toggleSave } = useSavedMakers()
     const {
         items: inboxItems,
         loading: inboxLoading,
@@ -100,7 +118,6 @@ export default function App() {
         deleteConversation,
         refetch: refetchInbox,
     } = useInbox(user?.id)
-    const { isComplete: onboardingComplete, completeOnboarding } = useOnboarding()
     const { theme } = useTheme()
     const breakpoint = useBreakpoint()
     const { recentIds, discoveredIds, recordView } = useRecentlyViewed(user?.id)
@@ -119,7 +136,6 @@ export default function App() {
     const handleMakerTap = useCallback(
         (maker: Maker) => {
             recordView(maker.id)
-            // Preload hero, avatar, and first gallery images so they're cached before MakerProfile renders
             const heroUrl = maker.gallery_urls?.[0]
             if (heroUrl) {
                 const img = new window.Image()
@@ -129,7 +145,6 @@ export default function App() {
                 const av = new window.Image()
                 av.src = optimizeImageUrl(maker.avatar_url, 120) ?? ""
             }
-            // Preload first 6 gallery images at Work tab size (300px)
             maker.gallery_urls?.slice(0, 6).forEach((url) => {
                 const g = new window.Image()
                 g.src = optimizeImageUrl(url, 300) ?? ""
@@ -138,7 +153,6 @@ export default function App() {
             history.pushState({ maker: maker.slug, tab: activeTab }, "", buildURL(activeTab, maker.slug))
             setSelectedMaker(maker)
             if (containerRef.current) containerRef.current.scrollTop = 0
-            // Fire-and-forget click tracking
             supabase.rpc("record_maker_click", { p_maker_id: maker.id, p_visitor_id: getVisitorId() }).then()
         },
         [activeTab],
@@ -207,7 +221,6 @@ export default function App() {
     }, [])
 
     const handleConversationBack = useCallback(() => {
-        // Refetch inbox to get self-healed counters after viewing a conversation
         refetchInbox()
         history.back()
     }, [refetchInbox])
@@ -220,12 +233,10 @@ export default function App() {
                 authToastTimer.current = setTimeout(() => setAuthToast(false), 2500)
                 return
             }
-            // Check if conversation already exists in inbox
             const existing = inboxItems.find((it) => it.maker_id === makerId)
             if (existing) {
                 handleConversationOpen(existing.conversation_id, makerId)
             } else {
-                // Open in draft mode — conversation created on first message send
                 history.pushState({ tab: "messages", makerId }, "", buildURL("messages"))
                 setSelectedConversation({ id: null, makerId })
             }
@@ -233,13 +244,11 @@ export default function App() {
         [user, inboxItems, handleConversationOpen],
     )
 
-    // Replace initial history entry with proper state
     useEffect(() => {
         const { tab, makerSlug } = initialURL.current
         history.replaceState({ tab, maker: makerSlug || null }, "", buildURL(tab, makerSlug))
     }, [])
 
-    // Preload map chunk so first tab switch is instant
     useEffect(() => {
         if ("requestIdleCallback" in window) {
             const id = requestIdleCallback(mapImport)
@@ -250,11 +259,8 @@ export default function App() {
         }
     }, [])
 
-    // Listen to popstate (browser back/forward)
     useEffect(() => {
         const onPopState = (e: PopStateEvent) => {
-            // URL is always current when popstate fires — use as primary source
-            // to handle iOS Chrome/Safari which can lose history.state
             const urlState = getStateFromURL()
             const tab = urlState.tab || e.state?.tab || "discover"
             const makerSlug = urlState.makerSlug || e.state?.maker || null
@@ -283,7 +289,6 @@ export default function App() {
         return () => window.removeEventListener("popstate", onPopState)
     }, [makers])
 
-    // Resolve deep-link on initial load
     useEffect(() => {
         if (deepLinkResolved.current || !makers.length) return
         const { makerSlug } = initialURL.current
@@ -300,10 +305,7 @@ export default function App() {
                 <MakerProfile
                     key={selectedMaker.id}
                     maker={selectedMaker}
-                    makers={makers}
                     onBack={handleBack}
-                    isSaved={savedIds.has(selectedMaker.id)}
-                    onToggleSave={handleToggleSave}
                     onMakerTap={handleMakerTap}
                     scrollContainerRef={containerRef}
                     onLogoTap={handleLogoTap}
@@ -351,10 +353,7 @@ export default function App() {
                     return (
                         <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
                             <SavedScreen
-                                makers={makers}
-                                makersLoading={makersLoading}
                                 onMakerTap={handleMakerTap}
-                                savedIds={savedIds}
                                 onToggleSave={handleToggleSave}
                                 onTabChange={handleTabChange}
                                 onLogoTap={handleLogoTap}
@@ -384,7 +383,6 @@ export default function App() {
                     <ProfileScreen
                         isDebug={isDebug}
                         toggleDebug={toggleDebug}
-                        makers={makers}
                         refetch={refetch}
                         feedLayout={feedLayout}
                         setFeedLayout={setFeedLayout}
@@ -393,7 +391,6 @@ export default function App() {
                         unreadMessages={totalUnread}
                         inboxItems={inboxItems}
                         userId={user?.id ?? ""}
-                        savedCount={savedIds.size}
                         recentlyViewedIds={recentIds}
                         discoveredCount={discoveredIds.length}
                         onMakerTap={handleMakerTap}
@@ -418,14 +415,6 @@ export default function App() {
             default:
                 return null
         }
-    }
-
-    if (!onboardingComplete) {
-        return (
-            <Suspense fallback={<ScreenPlaceholder theme={theme} />}>
-                <OnboardingScreen onComplete={completeOnboarding} setLocation={setLocation} />
-            </Suspense>
-        )
     }
 
     return (
@@ -457,13 +446,7 @@ export default function App() {
                     {activeTab === "discover" && (
                         <div style={{ display: selectedMaker ? "none" : undefined }}>
                             <DiscoverScreen
-                                makers={makers}
-                                makersLoading={makersLoading}
-                                makersError={makersError}
-                                onRetry={refetch}
-                                onRefresh={refetch}
                                 onMakerTap={handleMakerTap}
-                                savedIds={savedIds}
                                 onToggleSave={handleToggleSave}
                                 onScrollToTop={handleScrollToTop}
                                 onReset={resetDiscover}
@@ -480,7 +463,6 @@ export default function App() {
                                 refreshKey={discoverKey}
                                 onOpenNowChange={setDiscoverOpenNow}
                                 isDebug={isDebug}
-                                debugMeta={debugMeta}
                                 feedLayout={feedLayout}
                                 setFeedLayout={setFeedLayout}
                                 breakpoint={breakpoint}

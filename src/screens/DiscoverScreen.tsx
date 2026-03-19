@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { Helmet } from "react-helmet-async"
 import { useTheme } from "../contexts/ThemeContext"
+import { useMakersContext, useDebugMeta } from "../contexts/MakersContext"
 import { isOpenNow } from "../utils/time"
 import { getDistance, getCountyCenter } from "../utils/distance"
 import { TOWNS } from "../data/towns"
@@ -17,21 +18,8 @@ import OverscrollLogo from "../components/ui/OverscrollLogo"
 import type { Maker, SponsoredPost } from "../types"
 import type { Breakpoint } from "../hooks/useBreakpoint"
 
-interface DebugMeta {
-    p95Engagement: number
-    isLowData: boolean
-    makersWithClicks: number
-    totalMakers: number
-}
-
 interface DiscoverScreenProps {
-    makers?: Maker[]
-    makersLoading: boolean
-    makersError: string | null
-    onRetry: () => void
-    onRefresh: () => void
     onMakerTap: (maker: Maker) => void
-    savedIds: Set<string>
     onToggleSave: (id: string) => void
     onScrollToTop: () => void
     onReset: () => void
@@ -48,20 +36,13 @@ interface DiscoverScreenProps {
     onOpenNowChange: (val: boolean) => void
     refreshKey?: number
     isDebug?: boolean
-    debugMeta?: DebugMeta
     feedLayout: FeedLayout
     setFeedLayout: (layout: FeedLayout) => void
     breakpoint?: Breakpoint
 }
 
 export default function DiscoverScreen({
-    makers = [],
-    makersLoading,
-    makersError,
-    onRetry,
-    onRefresh,
     onMakerTap,
-    savedIds,
     onToggleSave,
     onScrollToTop,
     onReset,
@@ -78,11 +59,12 @@ export default function DiscoverScreen({
     onOpenNowChange,
     refreshKey,
     isDebug,
-    debugMeta,
     feedLayout,
     setFeedLayout,
     breakpoint = "mobile",
 }: DiscoverScreenProps) {
+    const { makers, loading: makersLoading, error: makersError, refetch, savedIds } = useMakersContext()
+    const debugMeta = useDebugMeta()
     const [showLocationPicker, setShowLocationPicker] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
 
@@ -323,9 +305,9 @@ export default function DiscoverScreen({
     const refreshTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
     const handleTouchEnd = () => {
-        if (pullStartY.current !== null && pullDistance.current > 60 && !refreshing && onRefresh) {
+        if (pullStartY.current !== null && pullDistance.current > 60 && !refreshing && refetch) {
             setRefreshing(true)
-            onRefresh()
+            refetch()
             if (refreshTimer.current) clearTimeout(refreshTimer.current)
             refreshTimer.current = setTimeout(() => setRefreshing(false), 1500)
         }
@@ -428,7 +410,7 @@ export default function DiscoverScreen({
                         {makersError}
                     </p>
                     <button
-                        onClick={onRetry}
+                        onClick={refetch}
                         style={{
                             padding: "12px 28px",
                             borderRadius: 0,
